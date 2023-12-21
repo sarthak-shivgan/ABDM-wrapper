@@ -2,29 +2,31 @@ package com.nha.abdm.wrapper.hrp.mongo.tables;
 
 //import com.nha.abdm.wrapper.hrp.CareContextService;
 import com.nha.abdm.wrapper.hrp.hipInitiatedLinking.responses.LinkRecordsResponse;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "patient")
-public class PatientTable {
+public class Patient {
 
     @Field("abhaAddress")
     @Indexed(unique = true)
     public String abhaAddress;
-
-    public PatientTable(String abhaAddress, String name, String gender, String dateOfBirth, String referenceNumber, String display, List<LinkRecordsResponse.CareContext> careContexts, String lastUpdated) {
+    public Patient(String abhaAddress, String name, String gender, String dateOfBirth, String patientReference, String display, List<LinkRecordsResponse.CareContext> careContexts, String lastUpdated) {
         this.abhaAddress=abhaAddress;
         this.name=name;
         this.gender=gender;
         this.dateOfBirth=dateOfBirth;
-        this.referenceNumber=referenceNumber;
+        this.patientReference = patientReference;
         this.display=display;
         this.careContexts=careContexts;
         this.lastUpdated=lastUpdated;
+    }
+    public Patient(){
+
     }
 
     public String getAbhaAddress() {
@@ -59,12 +61,12 @@ public class PatientTable {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public String getReferenceNumber() {
-        return referenceNumber;
+    public String getPatientReference() {
+        return patientReference;
     }
 
-    public void setReferenceNumber(String referenceNumber) {
-        this.referenceNumber = referenceNumber;
+    public void setPatientReference(String patientReference) {
+        this.patientReference = patientReference;
     }
 
     public String getDisplay() {
@@ -100,8 +102,8 @@ public class PatientTable {
     @Field("dateOfBirth")
     public String dateOfBirth;
 
-    @Field("patientReferenceNumber")
-    private String referenceNumber;
+    @Field("patientReference")
+    private String patientReference;
 
     @Field("patientDisplay")
     private String display;

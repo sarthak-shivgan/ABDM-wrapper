@@ -2,6 +2,38 @@ package com.nha.abdm.wrapper.hrp.discoveryLinking.responses;
 
 public class ConfirmResponse {
     public String requestId;
+    public DiscoverResponse.ErrorData error;
+    public DiscoverResponse.ErrorData getError() {
+        return error;
+    }
+
+    public void setError(DiscoverResponse.ErrorData error) {
+        this.error = error;
+    }
+
+
+
+    public class ErrorData{
+        public String code;
+
+        public String getCode() {
+            return code;
+        }
+
+        public void setCode(String code) {
+            this.code = code;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public String message;
+    }
 
     public String getRequestId() {
         return requestId;

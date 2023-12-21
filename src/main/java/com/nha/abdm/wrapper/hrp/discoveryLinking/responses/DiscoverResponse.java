@@ -8,6 +8,39 @@ public class DiscoverResponse implements Serializable {
 	public String transactionId;
 
 	public String timestamp;
+	public ErrorData error;
+	public ErrorData getError() {
+		return error;
+	}
+
+	public void setError(ErrorData error) {
+		this.error = error;
+	}
+
+
+
+	public class ErrorData{
+		public String code;
+
+		public String getCode() {
+			return code;
+		}
+
+		public void setCode(String code) {
+			this.code = code;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+		public String message;
+	}
+
 
 	public String getRequestId() {
 		return requestId;

@@ -1,5 +1,6 @@
 package com.nha.abdm.wrapper.hrp.discoveryLinking.requests;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Component;
 
+import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -23,29 +25,22 @@ import java.util.UUID;
 public class OnConfirmRequest {
     @Autowired
     Utils utils;
-    @Autowired
-    LogsTableService logsTableService;
-    @Autowired
-    PatientTableService patientTableService;
     private static final Logger log = LogManager.getLogger(OnConfirmRequest.class);
 
-    public HttpEntity<ObjectNode> makeRequest(ConfirmResponse data) {
+    public HttpEntity<ObjectNode> makeRequest(ConfirmResponse data,String abhaAddress,String referenceNumber,String display,String linkRefNumber,List<LinkRecordsResponse.CareContext> careContexts) throws URISyntaxException, JsonProcessingException {
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestBody = nodeFactory.objectNode();
         String requestId = UUID.randomUUID().toString();
         requestBody.put("requestId", requestId);
-        requestBody.put("timestamp", utils.getCurrentTimeStamp());
+        requestBody.put("timestamp", utils.getCurrentTimeStamp().toString());
         String tokenNumber=data.getConfirmation().getToken();
         log.info("Token Number :"+tokenNumber);
         if(tokenNumber.equals("123456")){
             ObjectNode patientNode = nodeFactory.objectNode();
-            String referenceNumber=data.getConfirmation().getLinkRefNumber().toString();
-            log.info("linkRefNumber :"+referenceNumber);
-            String abhaAddress=logsTableService.getPatientId(referenceNumber);
+            log.info("linkRefNumber :"+linkRefNumber);
             log.info("onConfirm: Abha= "+abhaAddress);
-            patientNode.put("referenceNumber", patientTableService.getPatientReference(abhaAddress));
-            patientNode.put("display", patientTableService.getPatientDisplay(abhaAddress));
-            List<LinkRecordsResponse.CareContext> careContexts = logsTableService.getSelectedCareContexts(referenceNumber);
+            patientNode.put("referenceNumber", referenceNumber);
+            patientNode.put("display", display);
             ArrayNode careContextArray = nodeFactory.arrayNode();
             Iterator list = careContexts.iterator();
             while(list.hasNext()) {
@@ -65,7 +60,7 @@ public class OnConfirmRequest {
         respNode.put("requestId",data.getRequestId());
         requestBody.put("resp",respNode);
         log.info(requestBody.toPrettyString());
-        HttpEntity<ObjectNode> requestEntity = new HttpEntity(requestBody, this.utils.getHeaders());
+        HttpEntity<ObjectNode> requestEntity = new HttpEntity(requestBody, this.utils.initialiseHeadersForGateway());
         return requestEntity;
     }
 }

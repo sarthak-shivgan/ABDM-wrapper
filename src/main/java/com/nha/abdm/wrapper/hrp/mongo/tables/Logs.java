@@ -1,21 +1,26 @@
 package com.nha.abdm.wrapper.hrp.mongo.tables;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.InitResponse;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Document(collection = "logs")
-public class LogsTable {
+public class Logs {
     @Field("clientRequestId")
     public String clientRequestId;
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
+
+    @Field("requestId")
+    public String requestId;
     @Field("gatewayRequestId")
     public String gatewayRequestId;
     @Field("response")
@@ -52,7 +57,7 @@ public class LogsTable {
         this.abhaAddress = abhaAddress;
     }
 
-    public void setResponseDump(Map<String, Map<String, Object>> responseDump) {
+    public void setResponseDump(HashMap<String, Object> responseDump) {
         this.responseDump = responseDump;
     }
 
@@ -80,7 +85,7 @@ public class LogsTable {
         this.response = response;
     }
 
-    public Map<String, Map<String, Object>> getResponseDump() {
+    public HashMap<String, Object> getResponseDump() {
         return responseDump;
     }
 
@@ -89,14 +94,17 @@ public class LogsTable {
 //    }
 
     @Field("responseDump")
-    public Map<String, Map<String, Object>> responseDump;
-    public LogsTable(String clientRequestId,String gatewayRequestId,String abhaAddress,String transactionId,String response){
+    public HashMap<String, Object> responseDump;
+    public Logs(String clientRequestId, String gatewayRequestId, String abhaAddress, String transactionId, String response){
         this.clientRequestId=clientRequestId;
         this.gatewayRequestId=gatewayRequestId;
         this.abhaAddress=abhaAddress;
         this.transactionId=transactionId;
         this.response=response;
         this.responseDump=new HashMap<>();
+    }
+    public Logs(){
+
     }
 
 }
