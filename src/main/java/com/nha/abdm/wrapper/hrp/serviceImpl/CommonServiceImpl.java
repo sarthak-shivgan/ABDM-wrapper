@@ -1,28 +1,22 @@
 package com.nha.abdm.wrapper.hrp.serviceImpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.hrp.common.GatewayApiPaths;
 import com.nha.abdm.wrapper.hrp.common.SessionManager;
 import com.nha.abdm.wrapper.hrp.properties.ApplicationConfig;
-import com.nha.abdm.wrapper.hrp.common.Utils;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.MessageFormat;
-
 import com.nha.abdm.wrapper.hrp.services.CommonServices;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 

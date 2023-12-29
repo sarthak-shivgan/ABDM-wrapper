@@ -4,9 +4,7 @@ import com.nha.abdm.wrapper.hrp.common.CustomError;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.helpers.PatientWithCareContexts;
 import lombok.Data;
 import org.springframework.stereotype.Component;
-
 import java.io.Serializable;
-import java.util.List;
 
 @Data
 @Component

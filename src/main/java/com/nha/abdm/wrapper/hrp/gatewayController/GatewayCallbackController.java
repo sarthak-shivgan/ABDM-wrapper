@@ -1,18 +1,11 @@
 package com.nha.abdm.wrapper.hrp.gatewayController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.nha.abdm.wrapper.hrp.serviceImpl.LogsTableService;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.DiscoverResponse;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.InitResponse;
-//import com.nha.abdm.wrapper.hrp.hipInitiatedLinking.responses.OnAddCareContextResponse;
-//import com.nha.abdm.wrapper.hrp.hipInitiatedLinking.responses.OnConfirmResponse;
-//import com.nha.abdm.wrapper.hrp.hipInitiatedLinking.responses.OnInitResponse;
-//import com.nha.abdm.wrapper.hrp.serviceImpl.CareContextTableService;
 import com.nha.abdm.wrapper.hrp.manager.WorkflowManager;
-
 import java.net.URISyntaxException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

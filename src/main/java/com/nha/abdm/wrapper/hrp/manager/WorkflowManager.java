@@ -6,23 +6,12 @@ import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.DiscoverResponse;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.InitResponse;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.services.DiscoverLinkingService;
-//import com.nha.abdm.wrapper.hrp.hipInitiatedLinking.responses.OnConfirmResponse;
-//import com.nha.abdm.wrapper.hrp.hipInitiatedLinking.services.HipInitiatedService;
-//import com.nha.abdm.wrapper.hrp.hipInitiatedLinking.responses.LinkRecordsResponse;
-//import com.nha.abdm.wrapper.hrp.hipInitiatedLinking.responses.OnInitResponse;
-import com.nha.abdm.wrapper.hrp.repository.PatientRepo;
 import com.nha.abdm.wrapper.hrp.serviceImpl.LogsTableService;
-import com.nha.abdm.wrapper.hrp.serviceImpl.PatientTableService;
-//import com.nha.abdm.wrapper.hrp.serviceImpl.TokenManagementService;
-import com.nha.abdm.wrapper.hrp.common.Utils;
-
 import java.net.URISyntaxException;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 @Component
 public class WorkflowManager {

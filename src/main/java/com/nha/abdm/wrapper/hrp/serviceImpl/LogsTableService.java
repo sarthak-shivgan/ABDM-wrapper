@@ -6,12 +6,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.hrp.common.CareContextBuilder;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.InitResponse;
-//import com.nha.abdm.wrapper.hrp.hipInitiatedLinking.responses.LinkRecordsResponse;
-//import com.nha.abdm.wrapper.hrp.hipInitiatedLinking.responses.OnAddCareContextResponse;
-//import com.nha.abdm.wrapper.hrp.hipInitiatedLinking.responses.OnInitResponse;
 import com.nha.abdm.wrapper.hrp.mongo.tables.RequestLogs;
 import com.nha.abdm.wrapper.hrp.repository.LogsRepo;
-
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;

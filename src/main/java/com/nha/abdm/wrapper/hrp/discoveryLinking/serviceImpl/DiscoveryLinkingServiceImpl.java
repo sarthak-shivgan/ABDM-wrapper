@@ -1,46 +1,33 @@
 package com.nha.abdm.wrapper.hrp.discoveryLinking.serviceImpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.hrp.common.CareContextBuilder;
 import com.nha.abdm.wrapper.hrp.common.GatewayApiPaths;
-//import com.nha.abdm.wrapper.hrp.hipInitiatedLinking.responses.LinkRecordsResponse;
-//import com.nha.abdm.wrapper.hrp.hipInitiatedLinking.responses.LinkRecordsResponse;
 import com.nha.abdm.wrapper.hrp.common.SessionManager;
 import com.nha.abdm.wrapper.hrp.common.Utils;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.requests.OnConfirmRequest;
 import com.nha.abdm.wrapper.hrp.repository.PatientRepo;
 import com.nha.abdm.wrapper.hrp.serviceImpl.LogsTableService;
-//import com.nha.abdm.wrapper.hrp.discoveryLinking.requests.OnConfirmRequest;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.requests.OnDiscoverRequest;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.requests.OnInitRequest;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.DiscoverResponse;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.InitResponse;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.services.DiscoverLinkingService;
-import com.nha.abdm.wrapper.hrp.properties.ApplicationConfig;
 import com.nha.abdm.wrapper.hrp.serviceImpl.PatientTableService;
-import lombok.Builder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 import java.lang.String;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.lang.String;
 
 @Service
 public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
