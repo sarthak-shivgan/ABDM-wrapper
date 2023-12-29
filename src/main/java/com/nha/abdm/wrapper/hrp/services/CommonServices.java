@@ -8,5 +8,4 @@ import java.net.URISyntaxException;
 public interface CommonServices {
 	String startSession() throws JsonProcessingException, URISyntaxException;
 
-//	String getCareContextRequestStatus(JsonNode data);
 }

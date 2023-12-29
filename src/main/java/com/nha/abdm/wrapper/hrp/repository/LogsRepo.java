@@ -1,18 +1,18 @@
 package com.nha.abdm.wrapper.hrp.repository;
 
-import com.nha.abdm.wrapper.hrp.mongo.tables.Logs;
+import com.nha.abdm.wrapper.hrp.mongo.tables.RequestLogs;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface LogsRepo extends MongoRepository<Logs, String> {
-    Logs findByClientRequestId(String clientRequestId);
-    Logs findByTransactionId(String transactionId);
+public interface LogsRepo extends MongoRepository<RequestLogs, String> {
+    RequestLogs findByClientRequestId(String clientRequestId);
+    RequestLogs findByTransactionId(String transactionId);
     @Query("{linkRefNumber :?0}")
-    Logs findByLinkRefNumber(String linkRefNumber);
-    Logs findByGatewayRequestId(String clientRequestId);
-    Logs findByRequestId(String requestId);
+    RequestLogs findByLinkRefNumber(String linkRefNumber);
+    RequestLogs findByGatewayRequestId(String clientRequestId);
+    RequestLogs findByRequestId(String requestId);
 
 
 }

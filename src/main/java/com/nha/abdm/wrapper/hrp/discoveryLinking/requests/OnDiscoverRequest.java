@@ -4,12 +4,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-//import com.nha.abdm.wrapper.hrp.CareContextService;
-import com.nha.abdm.wrapper.hrp.serviceImpl.LogsTableService;
-import com.nha.abdm.wrapper.hrp.serviceImpl.PatientTableService;
+import com.nha.abdm.wrapper.hrp.common.CareContextBuilder;
+import com.nha.abdm.wrapper.hrp.common.SessionManager;
 import com.nha.abdm.wrapper.hrp.common.Utils;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.DiscoverResponse;
-import com.nha.abdm.wrapper.hrp.hipInitiatedLinking.responses.LinkRecordsResponse;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,19 +20,26 @@ import org.springframework.stereotype.Component;
 import java.net.URISyntaxException;
 import java.util.*;
 
-@Component
+@Builder
+@Data
 public class OnDiscoverRequest {
-    @Autowired
-    Utils utils;
+    private SessionManager sessionManager;
 
-    private static final Logger log = LogManager.getLogger(OnDiscoverRequest.class);
+    private DiscoverResponse data;
+    private String abhaAddress;
+    private String referenceNumber;
+    private String display;
+    private List<CareContextBuilder> careContexts;
 
-    public HttpEntity<ObjectNode> makeRequest(DiscoverResponse data,String abhaAddress,String referenceNumber,String display,List<LinkRecordsResponse.CareContext> careContexts) throws URISyntaxException, JsonProcessingException {
+    public static final Logger log = LogManager.getLogger(OnDiscoverRequest.class);
+
+    public HttpEntity<ObjectNode> makeRequest() throws URISyntaxException, JsonProcessingException {
+
         JsonNodeFactory nodeFactory = JsonNodeFactory.instance;
         ObjectNode requestBody = nodeFactory.objectNode();
         String requestId = UUID.randomUUID().toString();
         requestBody.put("requestId", requestId);
-        requestBody.put("timestamp", utils.getCurrentTimeStamp().toString());
+        requestBody.put("timestamp", Utils.getCurrentTimeStamp().toString());
         requestBody.put("transactionId",data.getTransactionId());
         log.info("InBody of onDiscover patientReference : "+referenceNumber);
         if(referenceNumber!=null){
@@ -41,7 +49,7 @@ public class OnDiscoverRequest {
             ArrayNode careContextArray = nodeFactory.arrayNode();
             Iterator list = careContexts.iterator();
             while(list.hasNext()) {
-                LinkRecordsResponse.CareContext careContext = (LinkRecordsResponse.CareContext)list.next();
+                CareContextBuilder careContext = (CareContextBuilder) list.next();
                 ObjectNode careContextNode = nodeFactory.objectNode();
                 careContextNode.put("referenceNumber", careContext.getReferenceNumber());
                 careContextNode.put("display", careContext.getDisplay());
@@ -63,7 +71,7 @@ public class OnDiscoverRequest {
         respNode.put("requestId",data.getRequestId());
         requestBody.put("resp",respNode);
 
-        HttpEntity<ObjectNode> requestEntity = new HttpEntity(requestBody, this.utils.initialiseHeadersForGateway());
+        HttpEntity<ObjectNode> requestEntity = new HttpEntity(requestBody, sessionManager.initialiseHeadersForGateway());
         log.info(requestEntity.getHeaders().toString());
         log.info(((ObjectNode)requestEntity.getBody()).toPrettyString());
         return requestEntity;
