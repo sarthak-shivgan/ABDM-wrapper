@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.hrp.common.CareContextBuilder;
+import com.nha.abdm.wrapper.hrp.common.CustomError;
 import com.nha.abdm.wrapper.hrp.common.SessionManager;
 import com.nha.abdm.wrapper.hrp.common.Utils;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.DiscoverResponse;
@@ -13,7 +14,6 @@ import lombok.Data;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpEntity;
-
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -26,6 +26,7 @@ public class OnDiscoverRequest {
     private String abhaAddress;
     private String referenceNumber;
     private String display;
+    private CustomError customError;
     private List<CareContextBuilder> careContexts;
 
     public static final Logger log = LogManager.getLogger(OnDiscoverRequest.class);
@@ -39,7 +40,7 @@ public class OnDiscoverRequest {
         requestBody.put("timestamp", Utils.getCurrentTimeStamp().toString());
         requestBody.put("transactionId",data.getTransactionId());
         log.info("InBody of onDiscover patientReference : "+referenceNumber);
-        if(referenceNumber!=null){
+        if(referenceNumber!=null && customError==null){
             ObjectNode patientNode = nodeFactory.objectNode();
             patientNode.put("referenceNumber",referenceNumber);
             patientNode.put("display", display);
@@ -59,8 +60,8 @@ public class OnDiscoverRequest {
             requestBody.put("patient",patientNode);
         }else{
             ObjectNode errorNode = nodeFactory.objectNode();
-            errorNode.put("code",1000);
-            errorNode.put("message","Patient not found");
+            errorNode.put("code",customError.getCode());
+            errorNode.put("message",customError.getMessage());
             requestBody.put("error",errorNode);
         }
 

@@ -2,11 +2,10 @@ package com.nha.abdm.wrapper.hrp.discoveryLinking.serviceImpl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.nha.abdm.wrapper.hrp.common.CareContextBuilder;
-import com.nha.abdm.wrapper.hrp.common.GatewayApiPaths;
-import com.nha.abdm.wrapper.hrp.common.SessionManager;
-import com.nha.abdm.wrapper.hrp.common.Utils;
+import com.nha.abdm.wrapper.hrp.common.*;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.requests.OnConfirmRequest;
+import com.nha.abdm.wrapper.hrp.mongo.tables.Patients;
+import com.nha.abdm.wrapper.hrp.repository.LogsRepo;
 import com.nha.abdm.wrapper.hrp.repository.PatientRepo;
 import com.nha.abdm.wrapper.hrp.serviceImpl.LogsTableService;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.requests.OnDiscoverRequest;
@@ -16,6 +15,7 @@ import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.DiscoverResponse;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.InitResponse;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.services.DiscoverLinkingService;
 import com.nha.abdm.wrapper.hrp.serviceImpl.PatientTableService;
+import info.debatty.java.stringsimilarity.JaroWinkler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +26,8 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import java.lang.String;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
@@ -40,75 +40,126 @@ public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
     PatientRepo patientRepo;
     @Autowired
     Utils utils;
+    @Autowired
+    LogsRepo logsRepo;
 
     @Autowired
     LogsTableService<InitResponse> logsTableService;
-
-
+    CustomError customError=new CustomError();
+    JaroWinkler jaroWinkler = new JaroWinkler();
     public void onDiscoverCall(DiscoverResponse data) throws URISyntaxException, JsonProcessingException {
         String abhaAddress = data.getPatient().getId();
         log.info("AbhaAddress: " + abhaAddress);
-        if (patientRepo.findByAbhaAddress(abhaAddress) != null) {
-            String referenceNumber = patientTableService.getPatientReference(abhaAddress);
-            String display = patientTableService.getPatientDisplay(abhaAddress);
-            List<CareContextBuilder> careContexts = patientTableService.getCareContexts(abhaAddress);
+        try{
+            Patients isAbhaPresent=patientRepo.findByAbhaAddress(abhaAddress);
+            Patients isMobilePresent=patientRepo.findByPatientMobile(data.getPatient().getVerifiedIdentifiers().get(0).getValue());
+            Patients isPatientIdentifier=null;
+            if(!data.getPatient().getUnverifiedIdentifiers().isEmpty()) isPatientIdentifier=patientRepo.findByPatientReference(data.getPatient().getUnverifiedIdentifiers().get(0).getValue());
+            if(Objects.nonNull(isAbhaPresent)){
+                log.info("Patient matched with AbhaAddress");
+                List<CareContextBuilder> careContexts = isAbhaPresent.getCareContexts().stream()
+                        .filter(context -> !context.isLinked())
+                        .collect(Collectors.toList());
+                makeBody(data,isAbhaPresent,careContexts);
+
+            }else if(Objects.nonNull(isMobilePresent)){
+                log.info("Patient matched with Mobile");
+                String existingGender=isMobilePresent.getGender();
+                int existingDate=Integer.parseInt(isMobilePresent.getDateOfBirth().substring(0,4));
+                log.info(existingDate +" given yob : "+data.getPatient().getYearOfBirth()+ " difference : "+ Math.abs(existingDate-Integer.parseInt(data.getPatient().getYearOfBirth()))+" name :"+ jaroWinkler.similarity(isMobilePresent.getName(),data.getPatient().getName()));
+                if(existingGender.equals(data.getPatient().getGender()) && Math.abs(existingDate-Integer.parseInt(data.getPatient().getYearOfBirth()))<=5 && jaroWinkler.similarity(isMobilePresent.getName(),data.getPatient().getName())>=0.5){//&& soundex.encode(isMobilePresent.getName()).equals(data.getPatient().getName())
+                    List<CareContextBuilder> careContexts = isMobilePresent.getCareContexts().stream()
+                            .filter(context -> !context.isLinked())
+                            .collect(Collectors.toList());
+                    makeBody(data,isMobilePresent,careContexts);
+
+                }else{
+                    customError.setCode(1000);
+                    customError.setMessage("HIP : Details mismatch with mobile");
+                    noPatient(data,customError);
+                }
+            }else if(Objects.nonNull(isPatientIdentifier)){
+                log.info("Patient matched with Patient Identifier");
+                String existingGender=isPatientIdentifier.getGender();
+                int existingDate=Integer.parseInt(isPatientIdentifier.getDateOfBirth().substring(0,4));
+                log.info(existingDate +" given yob : "+data.getPatient().getYearOfBirth()+ " difference : "+ Math.abs(existingDate-Integer.parseInt(data.getPatient().getYearOfBirth()))+" name :"+ jaroWinkler.similarity(isPatientIdentifier.getName(),data.getPatient().getName()));
+                if(existingGender.equals(data.getPatient().getGender()) && Math.abs(existingDate-Integer.parseInt(data.getPatient().getYearOfBirth()))<=5&& jaroWinkler.similarity(isPatientIdentifier.getName(),data.getPatient().getName())>=0.5) {// && soundex.encode(isMobilePresent.getName()).equals(data.getPatient().getName()
+                    List<CareContextBuilder> careContexts = isPatientIdentifier.getCareContexts().stream()
+                            .filter(context -> !context.isLinked())
+                            .collect(Collectors.toList());
+                    makeBody(data, isPatientIdentifier, careContexts);
+                }else{
+                    customError.setCode(1000);
+                    customError.setMessage("HIP : Details mismatch with patientIdentifier");
+                    noPatient(data,customError);
+                }
+            }else {
+                customError.setCode(1000);
+                customError.setMessage("Patient Not found");
+                noPatient(data,customError);
+            }
+        }catch(Exception e){
+            log.error("OnDiscover : "+ Arrays.toString(e.getStackTrace()));
+        }
+
+    }
+    public void makeBody(DiscoverResponse data,Patients patients,List<CareContextBuilder> careContexts) throws URISyntaxException, JsonProcessingException {
+        String abhaAddress=data.getPatient().getId();
+        String patientMobile= patients.getPatientMobile();
+        String referenceNumber= patients.getPatientReference();
+        String display=patients.getDisplay();
+        HttpEntity<ObjectNode> requestEntity = OnDiscoverRequest.builder()
+                .data(data)
+                .abhaAddress(abhaAddress)
+                .referenceNumber(referenceNumber)
+                .display(display)
+                .careContexts(careContexts)
+                .sessionManager(sessionManager)
+                .build()
+                .makeRequest();
+        try {
+            WebClient.Builder webClientBuilder = WebClient.builder();
+            ResponseEntity<ObjectNode> responseEntity = webClientBuilder
+                    .build()
+                    .post()
+                    .uri(GatewayApiPaths.ON_DISCOVER)
+                    .headers(httpHeaders -> httpHeaders.addAll(requestEntity.getHeaders()))
+                    .body(BodyInserters.fromValue(requestEntity.getBody()))
+                    .retrieve()
+                    .toEntity(ObjectNode.class)
+                    .block();
+            log.info(GatewayApiPaths.ON_DISCOVER+" : onDiscoverCall: " + responseEntity.getStatusCode());
+            logsTableService.setContent(data,requestEntity, DiscoverResponse.class);
+        } catch (Exception e) {
+            log.info("Error: " + e);
+        }
+    }
+    public void noPatient(DiscoverResponse data,CustomError customError){
+        try {
             HttpEntity<ObjectNode> requestEntity = OnDiscoverRequest.builder()
                     .data(data)
-                    .abhaAddress(abhaAddress)
-                    .referenceNumber(referenceNumber)
-                    .display(display)
-                    .careContexts(careContexts)
+                    .abhaAddress(data.getPatient().getId())
+                    .referenceNumber(null)
+                    .display(null)
+                    .careContexts(Collections.emptyList())
                     .sessionManager(sessionManager)
+                    .customError(customError)
                     .build()
                     .makeRequest();
-            try {
-                WebClient.Builder webClientBuilder = WebClient.builder();
-                ResponseEntity<ObjectNode> responseEntity = webClientBuilder
-                        .build()
-                        .post()
-                        .uri(GatewayApiPaths.ON_DISCOVER)
-                        .headers(httpHeaders -> httpHeaders.addAll(requestEntity.getHeaders()))
-                        .body(BodyInserters.fromValue(requestEntity.getBody()))
-                        .retrieve()
-                        .toEntity(ObjectNode.class)
-                        .block();
-                log.info(GatewayApiPaths.ON_DISCOVER+" : onDiscoverCall: " + responseEntity.getStatusCode());
-                logsTableService.setRequestId(
-                        data.getRequestId(),
-                        data.getPatient().getId(),
-                        requestEntity.getBody().get("requestId").asText(),
-                        data.getTransactionId(),
-                        responseEntity.getStatusCode().toString()
-                );
-            } catch (Exception e) {
-                log.info("Error: " + e);
-            }
-        } else {
-            try {
-                HttpEntity<ObjectNode> requestEntity = OnDiscoverRequest.builder()
-                        .data(data)
-                        .abhaAddress(abhaAddress)
-                        .referenceNumber(null)
-                        .display(null)
-                        .careContexts(Collections.emptyList())
-                        .sessionManager(sessionManager)
-                        .build()
-                        .makeRequest();
-                WebClient.Builder webClientBuilder = WebClient.builder();
-                ResponseEntity<ObjectNode> responseEntity = webClientBuilder
-                        .build()
-                        .post()
-                        .uri(GatewayApiPaths.ON_DISCOVER)
-                        .headers(httpHeaders -> httpHeaders.addAll(requestEntity.getHeaders()))
-                        .body(BodyInserters.fromValue(requestEntity.getBody()))
-                        .retrieve()
-                        .toEntity(ObjectNode.class)
-                        .block();
+            WebClient.Builder webClientBuilder = WebClient.builder();
+            ResponseEntity<ObjectNode> responseEntity = webClientBuilder
+                    .build()
+                    .post()
+                    .uri(GatewayApiPaths.ON_DISCOVER)
+                    .headers(httpHeaders -> httpHeaders.addAll(requestEntity.getHeaders()))
+                    .body(BodyInserters.fromValue(requestEntity.getBody()))
+                    .retrieve()
+                    .toEntity(ObjectNode.class)
+                    .block();
 
-                log.info("Discover: requestId : " + data.getRequestId() + ": Patient not found");
-            } catch (Exception e) {
-                log.info(e);
-            }
+            log.info("Discover: requestId : " + data.getRequestId() + ": Patient not found");
+        } catch (Exception e) {
+            log.info(e);
         }
     }
     public void onInitCall(InitResponse data) throws URISyntaxException, JsonProcessingException {
@@ -130,33 +181,44 @@ public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
                     .block();
             log.info(GatewayApiPaths.ON_INIT+" : onInitCall: " + responseEntity.getStatusCode());
         }catch(Exception e){
-            log.info(GatewayApiPaths.ON_INIT+" : OnInitCall -> Error : "+e);
+            log.info(GatewayApiPaths.ON_INIT+" : OnInitCall -> Error : "+Arrays.toString(e.getStackTrace()));
         }
         try{
             logsTableService.setContent(data,requestEntity, InitResponse.class);
         }catch(Exception e){
-            log.info("onInitCall -> Error: unable to set content : "+e);
+            log.info("onInitCall -> Error: unable to set content : "+Arrays.toString(e.getStackTrace()));
         }
     }
 
     public void onConfirmCall(ConfirmResponse data) throws URISyntaxException, JsonProcessingException {
+        List<CareContextBuilder> careContexts=null;
+        String referenceNumber=null;
+        String display=null;
         String linkRefNumber=data.getConfirmation().getLinkRefNumber();
-        log.info("LinkRedNumber : "+linkRefNumber);
+        log.info("LinkRefNumber : "+linkRefNumber);
         String abhaAddress=logsTableService.getPatientId(linkRefNumber);
+        String patientReference= logsTableService.getPatientReference(linkRefNumber);
+        Patients patientWithAbha=patientRepo.findByAbhaAddress(abhaAddress);
+        Patients patientWithPatientRef=patientRepo.findByPatientReference(patientReference);
+        if(patientWithAbha!=null){
+            careContexts=patientWithAbha.getCareContexts();
+            display=patientWithAbha.getDisplay();
+        }else if(patientWithPatientRef!=null){
+            careContexts=patientWithPatientRef.getCareContexts();
+            display=patientWithPatientRef.getDisplay();
+        }
         log.info("onConfirm: Abha= "+abhaAddress);
         if(abhaAddress==null){
             log.info("OnconfirmCall -> patient with abhaAddress not found in logs :"+ abhaAddress);
         }
-        String referenceNumber=patientTableService.getPatientReference(abhaAddress);
-        String display=patientTableService.getPatientDisplay(abhaAddress);
-        List<CareContextBuilder> careContexts = logsTableService.getSelectedCareContexts(linkRefNumber,abhaAddress);
+        List<CareContextBuilder> selectedCareContexts = logsTableService.getSelectedCareContexts(linkRefNumber,careContexts);
         try {
         HttpEntity<ObjectNode> requestEntity = OnConfirmRequest.builder()
                 .data(data)
                 .abhaAddress(abhaAddress)
-                .referenceNumber(referenceNumber)
+                .referenceNumber(patientReference)
                 .display(display)
-                .careContexts(careContexts)
+                .careContexts(selectedCareContexts)
                 .linkRefNumber(linkRefNumber)
                 .sessionManager(sessionManager)
                 .build()
@@ -172,9 +234,11 @@ public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
                     .retrieve()
                     .toEntity(ObjectNode.class)
                     .block();
-        log.info(GatewayApiPaths.ON_CONFIRM+" : onConfirmCall: " + responseEntity.getStatusCode());}
+        log.info(GatewayApiPaths.ON_CONFIRM+" : onConfirmCall: " + responseEntity.getStatusCode());
+        patientTableService.updateCareContextStatus(patientReference,selectedCareContexts);
+        }
         catch (Exception e){
-            log.info(GatewayApiPaths.ON_CONFIRM+" : OnConfirmCall -> Error :"+ e);
+            log.error(GatewayApiPaths.ON_CONFIRM+" : OnConfirmCall -> Error :"+ Arrays.toString(e.getStackTrace()));
         }
     }
 }

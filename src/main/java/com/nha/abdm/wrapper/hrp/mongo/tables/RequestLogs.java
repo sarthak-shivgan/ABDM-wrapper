@@ -3,7 +3,6 @@ package com.nha.abdm.wrapper.hrp.mongo.tables;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-
 import java.util.HashMap;
 
 @Data
@@ -32,7 +31,7 @@ public class RequestLogs {
 
     @Field("rawResponse")
     public HashMap<String, Object> rawResponse;
-    public RequestLogs(String clientRequestId, String gatewayRequestId, String abhaAddress, String transactionId, String response){
+    public RequestLogs(String clientRequestId, String gatewayRequestId, String abhaAddress, String transactionId){
         this.clientRequestId=clientRequestId;
         this.gatewayRequestId=gatewayRequestId;
         this.abhaAddress=abhaAddress;

@@ -1,7 +1,6 @@
 package com.nha.abdm.wrapper.hrp.discoveryLinking.responses.helpers;
 
 import lombok.Data;
-
 import java.util.List;
 
 @Data

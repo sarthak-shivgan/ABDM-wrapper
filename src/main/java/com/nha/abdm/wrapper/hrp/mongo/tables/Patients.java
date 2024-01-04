@@ -5,7 +5,6 @@ import lombok.Data;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
-
 import java.util.List;
 
 @Data
@@ -30,6 +29,8 @@ public class Patients {
 
     @Field("patientDisplay")
     public String display;
+    @Field("patientMobile")
+    public String patientMobile;
 
     @Field("careContext")
     public List<CareContextBuilder> careContexts;

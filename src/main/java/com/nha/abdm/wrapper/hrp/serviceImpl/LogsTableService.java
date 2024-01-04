@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.hrp.common.CareContextBuilder;
+import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.DiscoverResponse;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.InitResponse;
 import com.nha.abdm.wrapper.hrp.mongo.tables.RequestLogs;
 import com.nha.abdm.wrapper.hrp.repository.LogsRepo;
@@ -38,10 +39,10 @@ public class LogsTableService<T> {
         Query query = new Query(Criteria.where("clientRequestId").is(requestId));
         RequestLogs existingRecord = mongoTemplate.findOne(query, RequestLogs.class);
         if (existingRecord == null) {
-            RequestLogs newRecord = new RequestLogs(requestId, gatewayRequestId, abhaAddress, transactionId, statusCode);
+            RequestLogs newRecord = new RequestLogs(requestId, gatewayRequestId, abhaAddress, transactionId);
             mongoTemplate.insert(newRecord);
         } else {
-            Update update = (new Update()).set("requestId", requestId)
+            Update update = (new Update()).set("clientRequestId", requestId)
                     .set("gatewayRequestId", gatewayRequestId);
             mongoTemplate.updateFirst(query, update, RequestLogs.class);
         }
@@ -59,6 +60,11 @@ public class LogsTableService<T> {
         InitResponse data=(InitResponse) existingRecord.getRawResponse().get("InitResponse");
         return data.getPatient().getId();
     }
+    public String getPatientReference(String linkRefNumber) {
+        RequestLogs existingRecord=logsRepo.findByLinkRefNumber(linkRefNumber);
+        InitResponse data=(InitResponse) existingRecord.getRawResponse().get("InitResponse");
+        return data.getPatient().getReferenceNumber();
+    }
 
     @Transactional
     public void setLinkRefId(String transactionId, String referenceNumber) {
@@ -66,22 +72,38 @@ public class LogsTableService<T> {
         Update update = (new Update()).set("linkRefNumber", referenceNumber);
         this.mongoTemplate.updateFirst(query, update, RequestLogs.class);
     }
-
-    public void setContent(T content, HttpEntity<ObjectNode> requestEntity,Class<T> contentType) {
-        if(contentType == InitResponse.class){
-            InitResponse data=(InitResponse) content;
+    @Transactional
+    public void setContent(Object content, HttpEntity<ObjectNode> requestEntity,Object contentType) {
+        if(contentType== DiscoverResponse.class && Objects.nonNull(content)){
+            DiscoverResponse data=(DiscoverResponse) content;
             RequestLogs newRecord=new RequestLogs();
             newRecord.setClientRequestId(data.getRequestId());
-            newRecord.setGatewayRequestId(requestEntity.getBody().get("requestId").asText());
-            newRecord.setLinkRefNumber(requestEntity.getBody().path("link").get("referenceNumber").asText());
+            newRecord.setTransactionId(data.getTransactionId());
             HashMap<String,Object> map=new HashMap<>();
-            map.put("InitResponse",data);
+            map.put("DiscoverResponse",data);
             newRecord.setRawResponse(map);
             mongoTemplate.save(newRecord);
         }
+        if(contentType == InitResponse.class && Objects.nonNull(content)){
+            InitResponse data=(InitResponse) content;
+            Query query = new Query(Criteria.where("transactionId").is(data.getTransactionId()));
+            RequestLogs existingRecord = mongoTemplate.findOne(query, RequestLogs.class);
+            if (existingRecord == null) {
+                RequestLogs newRecord = new RequestLogs(data.getRequestId(), requestEntity.getBody().get("requestId").asText(), data.getPatient().getId(), data.getTransactionId());
+                mongoTemplate.insert(newRecord);
+            } else {
+                HashMap<String,Object> map=existingRecord.getRawResponse();
+                map.put("InitResponse",data);
+                Update update = (new Update()).set("clientRequestId", data.getRequestId())
+                        .set("gatewayRequestId", requestEntity.getBody().get("requestId").asText())
+                                .set("linkRefNumber",requestEntity.getBody().path("link").get("referenceNumber").asText())
+                                        .set("rawResponse",map);
+                mongoTemplate.updateFirst(query, update, RequestLogs.class);
+            }
+        }
     }
 
-    public List<CareContextBuilder> getSelectedCareContexts(String linkRefNumber, String abhaAddress) {
+    public List<CareContextBuilder> getSelectedCareContexts(String linkRefNumber, List<CareContextBuilder> careContextsList) {
         RequestLogs existingRecord=logsRepo.findByLinkRefNumber(linkRefNumber);
         log.info("linkRefNum in getSelectedContexts : "+linkRefNumber);
         if (existingRecord != null) {
@@ -89,7 +111,8 @@ public class LogsTableService<T> {
             if (dump != null && dump.has("patient") && dump.get("patient").has("careContexts")) {
                 ArrayNode careContexts = (ArrayNode)dump.path("patient").path("careContexts");
                 List<String> selectedList = careContexts.findValuesAsText("referenceNumber");
-                List<CareContextBuilder> selectedCareContexts = patientTableService.getCareContexts(abhaAddress).stream()
+
+                List<CareContextBuilder> selectedCareContexts = careContextsList.stream()
                         .filter(careContext -> selectedList.contains(careContext.getReferenceNumber()))
                         .collect(Collectors.toList());
                 log.info("Dump: {}", dump);
