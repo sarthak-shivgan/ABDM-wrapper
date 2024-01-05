@@ -5,6 +5,7 @@ import com.nha.abdm.wrapper.hrp.properties.ApplicationConfig;
 import com.nha.abdm.wrapper.hrp.services.CommonServices;
 import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import java.net.URISyntaxException;
 @Component
 public class SessionManager {
      @Autowired
+     @Lazy
      CommonServices commonServices;
      @Autowired
      ApplicationConfig applicationConfig;

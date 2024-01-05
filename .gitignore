@@ -1,13 +1,3 @@
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
-build.gradle
-gradle/
-gradlew
-gradlew.bat
-settings.gradle
 
 
 ### IntelliJ IDEA ###

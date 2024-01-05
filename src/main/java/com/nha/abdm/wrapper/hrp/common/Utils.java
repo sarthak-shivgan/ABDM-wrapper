@@ -9,7 +9,6 @@ import lombok.Data;
 import org.springframework.stereotype.Component;
 
 @Component
-@Data
 public class Utils {
 	public static String getCurrentTimeStamp() {
 		return DateTimeFormatter.ISO_INSTANT.format(Instant.now());
