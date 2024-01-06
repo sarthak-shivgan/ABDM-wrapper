@@ -61,7 +61,6 @@ public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
                         .filter(context -> !context.isLinked())
                         .collect(Collectors.toList());
                 makeBody(data,isAbhaPresent,careContexts);
-
             }else if(Objects.nonNull(isMobilePresent)){
                 log.info("Patient matched with Mobile");
                 String existingGender=isMobilePresent.getGender();
@@ -75,7 +74,7 @@ public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
 
                 }else{
                     customError.setCode(1000);
-                    customError.setMessage("HIP : Details mismatch with mobile");
+                    customError.setMessage("HIP -> Details mismatch with mobile");
                     noPatient(data,customError);
                 }
             }else if(Objects.nonNull(isPatientIdentifier)){
@@ -95,7 +94,7 @@ public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
                 }
             }else {
                 customError.setCode(1000);
-                customError.setMessage("Patient Not found");
+                customError.setMessage("HIP -> Patient Not found");
                 noPatient(data,customError);
             }
         }catch(Exception e){
@@ -163,22 +162,38 @@ public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
         }
     }
     public void onInitCall(InitResponse data) throws URISyntaxException, JsonProcessingException {
-
-        HttpEntity<ObjectNode> requestEntity = OnInitRequest.builder()
-                .data(data)
-                .sessionManager(sessionManager)
-                .build().makeRequest();
+        boolean isCareContextPresent=patientTableService.checkCareContexts(data);
+        log.info("status : "+isCareContextPresent);
+        HttpEntity<ObjectNode> requestEntity=null;
+        if(isCareContextPresent) {
+            requestEntity = OnInitRequest.builder()
+                    .data(data)
+                    .customError(new CustomError())
+                    .sessionManager(sessionManager)
+                    .build().makeRequest();
+        }else {
+            CustomError customError=new CustomError();
+            customError.setMessage("HIP -> Mismatch of careContext");
+            customError.setCode(1000);
+            log.error("OnInit body -> making error body since careContexts are not matched");
+            requestEntity = OnInitRequest.builder()
+                    .data(data)
+                    .sessionManager(sessionManager)
+                    .customError(customError)
+                    .build().makeRequest();
+        }
         try{
             WebClient.Builder webClientBuilder = WebClient.builder();
+            HttpEntity<ObjectNode> finalRequestEntity = requestEntity;
             ResponseEntity<ObjectNode> responseEntity = webClientBuilder
-                    .build()
-                    .post()
-                    .uri(GatewayApiPaths.ON_INIT)
-                    .headers(httpHeaders -> httpHeaders.addAll(requestEntity.getHeaders()))
-                    .body(BodyInserters.fromValue(requestEntity.getBody()))
-                    .retrieve()
-                    .toEntity(ObjectNode.class)
-                    .block();
+                        .build()
+                        .post()
+                        .uri(GatewayApiPaths.ON_INIT)
+                        .headers(httpHeaders -> httpHeaders.addAll(finalRequestEntity.getHeaders()))
+                        .body(BodyInserters.fromValue(finalRequestEntity.getBody()))
+                        .retrieve()
+                        .toEntity(ObjectNode.class)
+                        .block();
             log.info(GatewayApiPaths.ON_INIT+" : onInitCall: " + responseEntity.getStatusCode());
         }catch(Exception e){
             log.info(GatewayApiPaths.ON_INIT+" : OnInitCall -> Error : "+Arrays.toString(e.getStackTrace()));
@@ -189,6 +204,8 @@ public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
             log.info("onInitCall -> Error: unable to set content : "+Arrays.toString(e.getStackTrace()));
         }
     }
+
+
 
     public void onConfirmCall(ConfirmResponse data) throws URISyntaxException, JsonProcessingException {
         List<CareContextBuilder> careContexts=null;
