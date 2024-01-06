@@ -35,5 +35,4 @@ public class SessionManager {
         headers.add("Authorization",this.fetchAccessToken());
         return headers;
     }
-
 }
