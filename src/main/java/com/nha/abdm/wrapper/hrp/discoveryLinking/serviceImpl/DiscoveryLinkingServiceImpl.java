@@ -47,6 +47,7 @@ public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
     LogsTableService<InitResponse> logsTableService;
     CustomError customError=new CustomError();
     JaroWinkler jaroWinkler = new JaroWinkler();
+    ResponseEntity<ObjectNode> responseEntity;
     public void onDiscoverCall(DiscoverResponse data) throws URISyntaxException, JsonProcessingException {
         String abhaAddress = data.getPatient().getId();
         log.info("AbhaAddress: " + abhaAddress);
@@ -117,16 +118,7 @@ public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
                 .build()
                 .makeRequest();
         try {
-            WebClient.Builder webClientBuilder = WebClient.builder();
-            ResponseEntity<ObjectNode> responseEntity = webClientBuilder
-                    .build()
-                    .post()
-                    .uri(GatewayApiPaths.ON_DISCOVER)
-                    .headers(httpHeaders -> httpHeaders.addAll(requestEntity.getHeaders()))
-                    .body(BodyInserters.fromValue(requestEntity.getBody()))
-                    .retrieve()
-                    .toEntity(ObjectNode.class)
-                    .block();
+            ResponseEntity<ObjectNode> responseEntity=MakeRequest.post(GatewayApiPaths.ON_DISCOVER,requestEntity);
             log.info(GatewayApiPaths.ON_DISCOVER+" : onDiscoverCall: " + responseEntity.getStatusCode());
             logsTableService.setContent(data,requestEntity, DiscoverResponse.class);
         } catch (Exception e) {
@@ -145,16 +137,7 @@ public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
                     .customError(customError)
                     .build()
                     .makeRequest();
-            WebClient.Builder webClientBuilder = WebClient.builder();
-            ResponseEntity<ObjectNode> responseEntity = webClientBuilder
-                    .build()
-                    .post()
-                    .uri(GatewayApiPaths.ON_DISCOVER)
-                    .headers(httpHeaders -> httpHeaders.addAll(requestEntity.getHeaders()))
-                    .body(BodyInserters.fromValue(requestEntity.getBody()))
-                    .retrieve()
-                    .toEntity(ObjectNode.class)
-                    .block();
+            ResponseEntity<ObjectNode> responseEntity=MakeRequest.post(GatewayApiPaths.ON_DISCOVER,requestEntity);
 
             log.info("Discover: requestId : " + data.getRequestId() + ": Patient not found");
         } catch (Exception e) {
@@ -183,17 +166,7 @@ public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
                     .build().makeRequest();
         }
         try{
-            WebClient.Builder webClientBuilder = WebClient.builder();
-            HttpEntity<ObjectNode> finalRequestEntity = requestEntity;
-            ResponseEntity<ObjectNode> responseEntity = webClientBuilder
-                        .build()
-                        .post()
-                        .uri(GatewayApiPaths.ON_INIT)
-                        .headers(httpHeaders -> httpHeaders.addAll(finalRequestEntity.getHeaders()))
-                        .body(BodyInserters.fromValue(finalRequestEntity.getBody()))
-                        .retrieve()
-                        .toEntity(ObjectNode.class)
-                        .block();
+            ResponseEntity<ObjectNode> responseEntity=MakeRequest.post(GatewayApiPaths.ON_INIT,requestEntity);
             log.info(GatewayApiPaths.ON_INIT+" : onInitCall: " + responseEntity.getStatusCode());
         }catch(Exception e){
             log.info(GatewayApiPaths.ON_INIT+" : OnInitCall -> Error : "+Arrays.toString(e.getStackTrace()));
@@ -241,16 +214,7 @@ public class DiscoveryLinkingServiceImpl implements DiscoverLinkingService {
                 .build()
                 .makeRequest();
 
-            WebClient.Builder webClientBuilder = WebClient.builder();
-            ResponseEntity<ObjectNode> responseEntity = webClientBuilder
-                    .build()
-                    .post()
-                    .uri(GatewayApiPaths.ON_CONFIRM)
-                    .headers(httpHeaders -> httpHeaders.addAll(requestEntity.getHeaders()))
-                    .body(BodyInserters.fromValue(requestEntity.getBody()))
-                    .retrieve()
-                    .toEntity(ObjectNode.class)
-                    .block();
+            ResponseEntity<ObjectNode> responseEntity=MakeRequest.post(GatewayApiPaths.ON_CONFIRM,requestEntity);
         log.info(GatewayApiPaths.ON_CONFIRM+" : onConfirmCall: " + responseEntity.getStatusCode());
         patientTableService.updateCareContextStatus(patientReference,selectedCareContexts);
         }
