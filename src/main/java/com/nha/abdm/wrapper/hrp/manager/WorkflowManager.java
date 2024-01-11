@@ -1,3 +1,4 @@
+/* (C) 2024 */
 package com.nha.abdm.wrapper.hrp.manager;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -16,38 +17,38 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class WorkflowManager {
-	private static final Logger log = LogManager.getLogger(WorkflowManager.class);
-	@Autowired
-	@Lazy
-	DiscoverLinkingService discoverLinkingService;
-	@Autowired
-	LogsTableService logsTableService;
+  private static final Logger log = LogManager.getLogger(WorkflowManager.class);
+  @Autowired @Lazy DiscoverLinkingService discoverLinkingService;
+  @Autowired LogsTableService logsTableService;
 
+  public void startOnDiscoverCall(DiscoverResponse data)
+      throws URISyntaxException, JsonProcessingException {
+    if (data != null) {
+      discoverLinkingService.onDiscoverCall(data);
+    } else {
+      log.error("Error in Discover response from gateWay");
+    }
+  }
 
-	public void startOnDiscoverCall(DiscoverResponse data) throws URISyntaxException, JsonProcessingException {
-		if(data!=null){
-			discoverLinkingService.onDiscoverCall(data);
-		}else{
-			log.error("Error in Discover response from gateWay");
-		}
-	}
+  public void startOnInitCall(InitResponse data)
+      throws URISyntaxException, JsonProcessingException {
+    if (data != null) {
+      discoverLinkingService.onInitCall(data);
+    } else {
+      log.error("Error in Init response from gateWay");
+    }
+  }
 
-	public void startOnInitCall(InitResponse data) throws URISyntaxException, JsonProcessingException {
-		if(data!=null){
-			discoverLinkingService.onInitCall(data);
-		}else{
-			log.error("Error in Init response from gateWay");
-		}
-	}
+  public void startOnConfirmCall(ConfirmResponse data)
+      throws URISyntaxException, JsonProcessingException {
+    if (data != null) {
+      discoverLinkingService.onConfirmCall(data);
+    } else {
+      log.error("Error in Confirm response from gateWay");
+    }
+  }
 
-	public void startOnConfirmCall(ConfirmResponse data) throws URISyntaxException, JsonProcessingException {
-		if(data!=null){
-			discoverLinkingService.onConfirmCall(data);
-		}else{
-			log.error("Error in Confirm response from gateWay");
-		}
-	}
-	public String getCareContextRequestStatus(JsonNode data) {
-		return logsTableService.getStatus(data);
-	}
+  public String getCareContextRequestStatus(JsonNode data) {
+    return logsTableService.getStatus(data);
+  }
 }

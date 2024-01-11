@@ -1,3 +1,4 @@
+/* (C) 2024 */
 package com.nha.abdm.wrapper.hrp.repository;
 
 import com.nha.abdm.wrapper.hrp.mongo.tables.RequestLogs;
@@ -7,12 +8,14 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface LogsRepo extends MongoRepository<RequestLogs, String> {
-    RequestLogs findByClientRequestId(String clientRequestId);
-    RequestLogs findByTransactionId(String transactionId);
-    @Query("{linkRefNumber :?0}")
-    RequestLogs findByLinkRefNumber(String linkRefNumber);
-    RequestLogs findByGatewayRequestId(String clientRequestId);
-    RequestLogs findByRequestId(String requestId);
+  RequestLogs findByClientRequestId(String clientRequestId);
 
+  RequestLogs findByTransactionId(String transactionId);
 
+  @Query("{linkRefNumber :?0}")
+  RequestLogs findByLinkRefNumber(String linkRefNumber);
+
+  RequestLogs findByGatewayRequestId(String clientRequestId);
+
+  RequestLogs findByRequestId(String requestId);
 }

@@ -1,25 +1,25 @@
+/* (C) 2024 */
 package com.nha.abdm.wrapper.hrp.discoveryLinking.responses;
 
 import com.nha.abdm.wrapper.hrp.common.CustomError;
 import com.nha.abdm.wrapper.hrp.discoveryLinking.responses.helpers.PatientDemographicDetails;
+import java.io.Serializable;
 import lombok.Data;
 import org.springframework.stereotype.Component;
-import java.io.Serializable;
 
 @Data
 @Component
 public class DiscoverResponse implements Serializable {
 
-	private static final long serialVersionUID = 165269402517398406L;
+  private static final long serialVersionUID = 165269402517398406L;
 
-	public String requestId;
+  public String requestId;
 
-	public String transactionId;
+  public String transactionId;
 
-	public String timestamp;
+  public String timestamp;
 
-	public CustomError error;
+  public CustomError error;
 
-	public PatientDemographicDetails patient;
-
+  public PatientDemographicDetails patient;
 }

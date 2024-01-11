@@ -1,3 +1,4 @@
+/* (C) 2024 */
 package com.nha.abdm.wrapper;
 
 import org.springframework.boot.SpringApplication;
@@ -14,21 +15,21 @@ import org.springframework.web.filter.CorsFilter;
 @Configuration
 public class AbdmWrapperApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(AbdmWrapperApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(AbdmWrapperApplication.class, args);
+  }
 
-	@Bean
-	public CorsFilter corsFilter() {
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		CorsConfiguration config = new CorsConfiguration();
-		config.addAllowedOrigin("*");
-		config.addAllowedHeader("*");
-		config.addAllowedMethod("GET");
-		config.addAllowedMethod("POST");
-		config.addAllowedMethod("PUT");
-		config.addAllowedMethod("DELETE");
-		source.registerCorsConfiguration("/**", config);
-		return new CorsFilter(source);
-	}
+  @Bean
+  public CorsFilter corsFilter() {
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    CorsConfiguration config = new CorsConfiguration();
+    config.addAllowedOrigin("*");
+    config.addAllowedHeader("*");
+    config.addAllowedMethod("GET");
+    config.addAllowedMethod("POST");
+    config.addAllowedMethod("PUT");
+    config.addAllowedMethod("DELETE");
+    source.registerCorsConfiguration("/**", config);
+    return new CorsFilter(source);
+  }
 }

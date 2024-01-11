@@ -1,14 +1,15 @@
+/* (C) 2024 */
 package com.nha.abdm.wrapper.hrp.discoveryLinking.responses.helpers;
 
-import lombok.Data;
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class PatientWithCareContexts {
 
-    private String id;
+  private String id;
 
-    private String referenceNumber;
+  private String referenceNumber;
 
-    private List<InitCareContextList> careContexts;
+  private List<InitCareContextList> careContexts;
 }

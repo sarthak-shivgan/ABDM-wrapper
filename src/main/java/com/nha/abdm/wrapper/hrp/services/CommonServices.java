@@ -1,9 +1,9 @@
+/* (C) 2024 */
 package com.nha.abdm.wrapper.hrp.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.net.URISyntaxException;
 
 public interface CommonServices {
-	String startSession() throws JsonProcessingException, URISyntaxException;
-
+  String startSession() throws JsonProcessingException, URISyntaxException;
 }
