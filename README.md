@@ -140,4 +140,4 @@ check for the bridgeUrl and facility in the response for confirmation.
 - The wrapper responses with a set of careContexts to the PHR
 - Select few / all careContexts and click **"Link Records"**
 - For OTP if the facility sends OTP enter it, else enter a dummy otp ie: "**123456**"
-- After confirmation, a message displays saying **"Successfully Linked"**.
+- After confirmation, a message will be displayed  saying **"Successfully Linked"**.

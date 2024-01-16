@@ -54,3 +54,19 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+spotless {
+    java {
+        // Use the default importOrder configuration
+        importOrder()
+
+        removeUnusedImports()
+
+        // Choose one of these formatters.
+        googleJavaFormat()   // has its own section below
+
+        formatAnnotations()  // fixes formatting of type annotations, see below
+
+        licenseHeader '/* (C) $YEAR */' // or licenseHeaderFile
+    }
+}

@@ -1,3 +1,4 @@
+/* (C) 2024 */
 package com.nha.abdm.wrapper.hrp.properties;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -8,12 +9,12 @@ import org.springframework.context.annotation.PropertySource;
 @PropertySource({"classpath:application.properties"})
 public class ApplicationConfig {
 
-	@Value("${clientId}")
-	public String clientId;
+  @Value("${clientId}")
+  public String clientId;
 
-	@Value("${clientSecret}")
-	public String clientSecret;
+  @Value("${clientSecret}")
+  public String clientSecret;
 
-	@Value("${environment}")
-	public String environment;
+  @Value("${environment}")
+  public String environment;
 }
