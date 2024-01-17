@@ -32,9 +32,9 @@ After creating the ABHA Address, your id looks like "yourAbha@sbx"
 ### 4. Install MongoDb Community Server
 >https://www.mongodb.com/try/download/community
 
-### 5. Create a dataBase "ABDM_WRAPPER" with a collection "patients"
-### 6. Add careContext in patients collection of "ABDM_WRAPPER"
-- Since initially wrapper doesn't have any care context, add the below JSON document into **"patients"** collection
+### 5. Create a dataBase "ABDM_WRAPPER" with a collection "patient"
+### 6. Add careContext in patient collection of "ABDM_WRAPPER"
+- Since initially wrapper doesn't have any care context, add the below JSON document into **"patient"** collection
 - patientReference should be unique either integer or String.
 
 ```{
@@ -46,7 +46,7 @@ After creating the ABHA Address, your id looks like "yourAbha@sbx"
 "dateOfBirth": "your DOB in yyyy-mm-dd",
 "patientReference": "your patient reference",
 "patientDisplay": "your wanna be display name",
-"_class": "com.nha.abdm.wrapper.hrp.mongo.tables.Patient",
+"_class": "com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient",
 "careContext": [
 {
 "referenceNumber": " test visit-f9af123c-a723-45c2-b50b-617f4b1a5be0",
@@ -140,4 +140,9 @@ check for the bridgeUrl and facility in the response for confirmation.
 - The wrapper responses with a set of careContexts to the PHR
 - Select few / all careContexts and click **"Link Records"**
 - For OTP if the facility sends OTP enter it, else enter a dummy otp ie: "**123456**"
-- After confirmation, a message displays saying **"Successfully Linked"**.
+- After confirmation, a message will be displayed  saying **"Successfully Linked"**.
+
+
+
+## Spotless
+To apply spotless plugin run ```gradle spotlessApply```
