@@ -142,7 +142,6 @@ public class DiscoveryService implements DiscoveryInterface {
             .onDiscoverCareContexts(careContextList)
             .matchedBy(Arrays.asList("MOBILE"))
             .build();
-
     OnDiscoverRequest onDiscoverRequest =
         OnDiscoverRequest.builder()
             .requestId(UUID.randomUUID().toString())
@@ -151,6 +150,7 @@ public class DiscoveryService implements DiscoveryInterface {
             .onDiscoverPatient(onDiscoverPatient)
             .resp(Response.builder().requestId(discoverResponse.getRequestId()).build())
             .build();
+    log.info("onDiscover : " + onDiscoverRequest.toString());
     try {
       ResponseEntity<ObjectNode> responseEntity =
           requestManager.fetchResponseFromPostRequest(onDiscoverPath, onDiscoverRequest);
@@ -171,6 +171,7 @@ public class DiscoveryService implements DiscoveryInterface {
             .transactionId(discoverResponse.getTransactionId())
             .error(errorResponse)
             .build();
+    log.info("onDiscover : " + onDiscoverErrorRequest.toString());
     try {
       requestManager.fetchResponseFromPostRequest(onDiscoverPath, onDiscoverErrorRequest);
       log.info("Discover: requestId : " + discoverResponse.getRequestId() + ": Patient not found");
