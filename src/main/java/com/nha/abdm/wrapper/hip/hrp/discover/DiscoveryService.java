@@ -63,7 +63,8 @@ public class DiscoveryService implements DiscoveryInterface {
                 .filter(context -> !context.isLinked())
                 .collect(Collectors.toList());
         onDiscoverRequest(discoverResponse, patientByAbhaAddress, careContexts);
-      } else if (!patientsByMobileNumber.isEmpty()) {
+      } else if (patientsByMobileNumber != null) {
+        log.info("patient matched with mobile");
         Optional<Patient> matchingPatient =
             findMatchingPatient(
                 patientsByMobileNumber,
@@ -139,7 +140,7 @@ public class DiscoveryService implements DiscoveryInterface {
         OnDiscoverPatient.builder()
             .referenceNumber(patient.getPatientReference())
             .display(patient.getDisplay())
-            .onDiscoverCareContexts(careContextList)
+            .careContexts(careContextList)
             .matchedBy(Arrays.asList("MOBILE"))
             .build();
     OnDiscoverRequest onDiscoverRequest =
@@ -147,7 +148,7 @@ public class DiscoveryService implements DiscoveryInterface {
             .requestId(UUID.randomUUID().toString())
             .timestamp(Utils.getCurrentTimeStamp().toString())
             .transactionId(discoverResponse.getTransactionId())
-            .onDiscoverPatient(onDiscoverPatient)
+            .patient(onDiscoverPatient)
             .resp(Response.builder().requestId(discoverResponse.getRequestId()).build())
             .build();
     log.info("onDiscover : " + onDiscoverRequest.toString());
@@ -169,6 +170,7 @@ public class DiscoveryService implements DiscoveryInterface {
             .requestId(UUID.randomUUID().toString())
             .timestamp(Utils.getCurrentTimeStamp().toString())
             .transactionId(discoverResponse.getTransactionId())
+            .resp(Response.builder().requestId(discoverResponse.getRequestId()).build())
             .error(errorResponse)
             .build();
     log.info("onDiscover : " + onDiscoverErrorRequest.toString());

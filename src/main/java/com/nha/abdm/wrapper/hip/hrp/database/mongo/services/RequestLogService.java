@@ -29,35 +29,6 @@ public class RequestLogService<T> {
   @Autowired PatientService patientService;
   private static final Logger log = LogManager.getLogger(RequestLogService.class);
 
-  @Transactional
-  public void setRequestId(
-      String requestId,
-      String abhaAddress,
-      String gatewayRequestId,
-      String transactionId,
-      String statusCode) {
-    Query query = new Query(Criteria.where("clientRequestId").is(requestId));
-    RequestLog existingRecord = mongoTemplate.findOne(query, RequestLog.class);
-    if (existingRecord == null) {
-      RequestLog newRecord =
-          new RequestLog(requestId, gatewayRequestId, abhaAddress, transactionId);
-      mongoTemplate.insert(newRecord);
-    } else {
-      Update update =
-          (new Update())
-              .set("clientRequestId", requestId)
-              .set("gatewayRequestId", gatewayRequestId);
-      mongoTemplate.updateFirst(query, update, RequestLog.class);
-    }
-  }
-
-  @Transactional
-  public void addResponseDump(String transactionId, ObjectNode dump) {
-    Query query = new Query(Criteria.where("transactionId").is(transactionId));
-    Update update = (new Update()).addToSet("rawResponse", dump);
-    mongoTemplate.updateFirst(query, update, RequestLog.class);
-  }
-
   public String getPatientId(String linkRefNumber) {
     RequestLog existingRecord = logsRepo.findByLinkRefNumber(linkRefNumber);
     InitResponse data = (InitResponse) existingRecord.getRawResponse().get("InitResponse");
@@ -142,7 +113,6 @@ public class RequestLogService<T> {
         return selectedCareContexts;
       }
     }
-
     return null;
   }
 
