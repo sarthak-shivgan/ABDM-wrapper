@@ -16,7 +16,7 @@ public class OnConfirmRequest {
 
   private String requestId;
   private String timestamp;
-  private OnConfirmPatient onConfirmPatient;
+  private OnConfirmPatient patient;
   private Response resp;
   private ErrorResponse error;
 }

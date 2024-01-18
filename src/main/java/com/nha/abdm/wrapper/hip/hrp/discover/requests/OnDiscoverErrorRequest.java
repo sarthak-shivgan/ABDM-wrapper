@@ -17,4 +17,5 @@ public class OnDiscoverErrorRequest {
   private String timestamp;
   private String transactionId;
   private ErrorResponse error;
+  private Response resp;
 }

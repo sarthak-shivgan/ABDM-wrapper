@@ -11,6 +11,7 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
+import com.nha.abdm.wrapper.hip.hrp.discover.requests.Response;
 import com.nha.abdm.wrapper.hip.hrp.link.requests.*;
 import com.nha.abdm.wrapper.hip.hrp.link.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.responses.InitResponse;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import reactor.core.Exceptions;
 
 @Service
 public class LinkService implements LinkInterface {
@@ -68,6 +70,7 @@ public class LinkService implements LinkInterface {
               .timestamp(Utils.getCurrentTimeStamp().toString())
               .transactionId(initResponse.getTransactionId())
               .link(onInitLink)
+              .resp(Response.builder().requestId(initResponse.getRequestId()).build())
               .build();
     } else {
       ErrorResponse errorResponse = new ErrorResponse();
@@ -79,9 +82,11 @@ public class LinkService implements LinkInterface {
               .requestId(requestId)
               .timestamp(Utils.getCurrentTimeStamp().toString())
               .transactionId(initResponse.getTransactionId())
+              .resp(Response.builder().requestId(initResponse.getRequestId()).build())
               .error(errorResponse)
               .build();
     }
+    log.info("onInit body : " + onInitRequest.toString());
     try {
       ResponseEntity<ObjectNode> responseEntity =
           requestManager.fetchResponseFromPostRequest(onInitLinkPath, onInitRequest);
@@ -92,8 +97,7 @@ public class LinkService implements LinkInterface {
     try {
       requestLogService.setLinkResponse(initResponse, requestId, linkReferenceNumber);
     } catch (Exception e) {
-      log.info(
-          "onInitCall -> Error: unable to set content : " + Arrays.toString(e.getStackTrace()));
+      log.info("onInitCall -> Error: unable to set content : " + Exceptions.unwrap(e));
     }
   }
 
@@ -140,7 +144,7 @@ public class LinkService implements LinkInterface {
           OnConfirmPatient.builder()
               .referenceNumber(patientReference)
               .display(display)
-              .onConfirmCareContexts(careContextsList)
+              .careContexts(careContextsList)
               .build();
     }
 
@@ -148,16 +152,17 @@ public class LinkService implements LinkInterface {
         OnConfirmRequest.builder()
             .requestId(UUID.randomUUID().toString())
             .timestamp(Utils.getCurrentTimeStamp().toString())
-            .onConfirmPatient(onConfirmPatient)
+            .patient(onConfirmPatient)
+            .resp(Response.builder().requestId(confirmResponse.getRequestId()).build())
             .build();
+    log.info("onConfirm : " + onConfirmRequest.toString());
     try {
       ResponseEntity responseEntity =
           requestManager.fetchResponseFromPostRequest(onConfirmLinkPath, onConfirmRequest);
       log.info(onConfirmLinkPath + " : onConfirmCall: " + responseEntity.getStatusCode());
       patientService.updateCareContextStatus(patientReference, selectedCareContexts);
     } catch (Exception e) {
-      log.error(
-          onConfirmLinkPath + " : OnConfirmCall -> Error :" + Arrays.toString(e.getStackTrace()));
+      log.error(onConfirmLinkPath + " : OnConfirmCall -> Error :" + Exceptions.unwrap(e));
     }
   }
 }

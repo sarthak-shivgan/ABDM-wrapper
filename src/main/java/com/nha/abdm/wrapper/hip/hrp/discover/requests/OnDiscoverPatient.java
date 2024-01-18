@@ -16,6 +16,6 @@ public class OnDiscoverPatient {
 
   private String referenceNumber;
   private String display;
-  private List<CareContextRequest> onDiscoverCareContexts;
+  private List<CareContextRequest> careContexts;
   private List<String> matchedBy;
 }

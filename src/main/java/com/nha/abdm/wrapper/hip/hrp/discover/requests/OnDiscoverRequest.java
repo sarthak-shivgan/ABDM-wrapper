@@ -15,6 +15,6 @@ public class OnDiscoverRequest {
   private String requestId;
   private String timestamp;
   private String transactionId;
-  private OnDiscoverPatient onDiscoverPatient;
+  private OnDiscoverPatient patient;
   private Response resp;
 }

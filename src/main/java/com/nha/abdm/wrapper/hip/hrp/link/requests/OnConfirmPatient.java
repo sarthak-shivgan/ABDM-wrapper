@@ -16,5 +16,5 @@ public class OnConfirmPatient {
 
   private String referenceNumber;
   private String display;
-  private List<CareContextRequest> onConfirmCareContexts;
+  private List<CareContextRequest> careContexts;
 }
