@@ -176,7 +176,11 @@ public class DiscoveryService implements DiscoveryInterface {
     log.info("onDiscover : " + onDiscoverErrorRequest.toString());
     try {
       requestManager.fetchResponseFromPostRequest(onDiscoverPath, onDiscoverErrorRequest);
-      log.info("Discover: requestId : " + discoverResponse.getRequestId() + ": Patient not found");
+      log.info(
+          onDiscoverPath
+              + " Discover: requestId : "
+              + discoverResponse.getRequestId()
+              + ": Patient not found");
     } catch (Exception e) {
       log.error(e);
     }

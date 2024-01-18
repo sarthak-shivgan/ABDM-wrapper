@@ -8,6 +8,12 @@ import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.discover.responses.DiscoverResponse;
+import com.nha.abdm.wrapper.hip.hrp.hipLink.requests.LinkAddCareContext;
+import com.nha.abdm.wrapper.hip.hrp.hipLink.requests.LinkConfirm;
+import com.nha.abdm.wrapper.hip.hrp.hipLink.responses.LinkOnAddCareContextsResponse;
+import com.nha.abdm.wrapper.hip.hrp.hipLink.responses.LinkOnConfirmResponse;
+import com.nha.abdm.wrapper.hip.hrp.hipLink.responses.LinkOnInitResponse;
+import com.nha.abdm.wrapper.hip.hrp.hipLink.responses.LinkRecordsResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.responses.InitResponse;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,6 +26,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
+import reactor.core.Exceptions;
 
 @Service
 public class RequestLogService<T> {
@@ -58,6 +66,20 @@ public class RequestLogService<T> {
     newRecord.setTransactionId(discoverResponse.getTransactionId());
     HashMap<String, Object> map = new HashMap<>();
     map.put("DiscoverResponse", discoverResponse);
+    newRecord.setRawResponse(map);
+    mongoTemplate.save(newRecord);
+  }
+
+  @Transactional
+  public void setHipLinkResponse(LinkRecordsResponse linkRecordsResponse) {
+    if (Objects.isNull(linkRecordsResponse)) {
+      return;
+    }
+    RequestLog newRecord = new RequestLog();
+    newRecord.setClientRequestId(linkRecordsResponse.getRequestId());
+    newRecord.setGatewayRequestId(linkRecordsResponse.getRequestId());
+    HashMap<String, Object> map = new HashMap<>();
+    map.put("LinkRecordsResponse", linkRecordsResponse);
     newRecord.setRawResponse(map);
     mongoTemplate.save(newRecord);
   }
@@ -118,9 +140,89 @@ public class RequestLogService<T> {
 
   public String getStatus(String requestId) {
     RequestLog existingRecord = logsRepo.findByClientRequestId(requestId);
-    if (existingRecord != null) {
-      return existingRecord.getResponse().toString();
+    if (existingRecord != null && existingRecord.getLinkStatus() != null) {
+      return existingRecord.getLinkStatus();
     }
     return "Record failed but stored in database";
+  }
+
+  @Transactional
+  public void setHipOnInitResponse(LinkOnInitResponse data, LinkConfirm linkConfirm) {
+    Query query = new Query(Criteria.where("gatewayRequestId").is(data.getResp().getRequestId()));
+    RequestLog existingRecord = mongoTemplate.findOne(query, RequestLog.class);
+    HashMap<String, Object> map = existingRecord.getRawResponse();
+    map.put("HIPOnInitResponse", data);
+    if (existingRecord != null) {
+      Update update =
+          (new Update())
+              .set("rawResponse", map)
+              .set("gatewayRequestId", linkConfirm.getRequestId());
+      mongoTemplate.updateFirst(query, update, RequestLog.class);
+    }
+  }
+
+  @Transactional
+  public void setHipOnConfirmResponse(
+      LinkOnConfirmResponse data, LinkAddCareContext linkAddCareContext) {
+    Query query = new Query(Criteria.where("gatewayRequestId").is(data.getResp().getRequestId()));
+    RequestLog existingRecord = mongoTemplate.findOne(query, RequestLog.class);
+    HashMap<String, Object> map = existingRecord.getRawResponse();
+    map.put("HIPOnConfirm", data);
+    if (existingRecord != null) {
+      Update update =
+          (new Update())
+              .set("rawResponse", map)
+              .set("gatewayRequestId", linkAddCareContext.getRequestId());
+      mongoTemplate.updateFirst(query, update, RequestLog.class);
+    }
+  }
+
+  @Transactional
+  public void setHipOnInitResponseOTP(LinkOnInitResponse data) {
+    Query query = new Query(Criteria.where("gatewayRequestId").is(data.getResp().getRequestId()));
+    RequestLog existingRecord = mongoTemplate.findOne(query, RequestLog.class);
+    HashMap<String, Object> map = existingRecord.getRawResponse();
+    map.put("HIPOnInitOtp", data);
+    if (existingRecord != null) {
+      Update update = (new Update()).set("rawResponse", map);
+      mongoTemplate.updateFirst(query, update, RequestLog.class);
+    }
+  }
+
+  public void updateOnInitResponseOTP(String clientRequestId, String gateWayRequestId) {
+    Query query = new Query(Criteria.where("clientRequestId").is(clientRequestId));
+    RequestLog existingRecord = mongoTemplate.findOne(query, RequestLog.class);
+    if (existingRecord != null) {
+      Update update = (new Update()).set("gatewayRequestId", gateWayRequestId);
+      mongoTemplate.updateFirst(query, update, RequestLog.class);
+    }
+  }
+
+  public void setHipOnAddCareContextResponse(@RequestBody LinkOnAddCareContextsResponse data) {
+    RequestLog existingRecord = logsRepo.findByGatewayRequestId(data.getResp().getRequestId());
+    try {
+      if (existingRecord != null) {
+        HashMap<String, Object> map = existingRecord.getRawResponse();
+        map.put("HIPOnAddCareContext", data);
+        Query query =
+            new Query(Criteria.where("gatewayRequestId").is(data.getResp().getRequestId()));
+        Update update =
+            (new Update())
+                .set(
+                    "linkStatus",
+                    data.getAcknowledgement() == null
+                        ? data.getError().getMessage()
+                        : data.getAcknowledgement().getStatus())
+                .set("rawResponse", map);
+        mongoTemplate.updateFirst(query, update, RequestLog.class);
+        LinkRecordsResponse linkRecordsResponse =
+            (LinkRecordsResponse) existingRecord.getRawResponse().get("LinkRecordsResponse");
+        patientService.updateCareContextStatus(
+            linkRecordsResponse.getAbhaAddress(),
+            linkRecordsResponse.getPatient().getCareContexts());
+      }
+    } catch (Exception e) {
+      log.error(Exceptions.unwrap(e));
+    }
   }
 }
