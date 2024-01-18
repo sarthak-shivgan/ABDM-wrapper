@@ -123,7 +123,7 @@ public class LinkService implements LinkInterface {
     if (abhaAddress == null) {
       log.info("OnConfirmCall -> patient with abhaAddress not found in logs.");
     }
-    List<CareContext> selectedCareContexts =
+    List<CareContextRequest> selectedCareContexts =
         requestLogService.getSelectedCareContexts(linkRefNumber, careContexts);
 
     OnConfirmPatient onConfirmPatient = null;

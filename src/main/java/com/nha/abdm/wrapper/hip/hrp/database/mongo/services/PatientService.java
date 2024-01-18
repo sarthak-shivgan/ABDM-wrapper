@@ -1,12 +1,17 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.database.mongo.services;
 
+import com.nha.abdm.wrapper.common.models.AckRequest;
 import com.nha.abdm.wrapper.common.models.CareContext;
+import com.nha.abdm.wrapper.hip.hrp.common.requests.CareContextRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
+import com.nha.abdm.wrapper.hip.hrp.hipLink.responses.LinkRecordsResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.responses.InitResponse;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
@@ -49,15 +54,15 @@ public class PatientService {
     return existingRecord != null ? existingRecord.getAbhaAddress() : "";
   }
 
-  public void updateCareContextStatus(String patientReference, List<CareContext> careContexts) {
+  public void updateCareContextStatus(String abhaAddress, List<CareContextRequest> careContexts) {
     BulkOperations bulkOperations =
         mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Patient.class);
 
-    for (CareContext updatedCareContext : careContexts) {
+    for (CareContextRequest updatedCareContext : careContexts) {
       Query query =
           Query.query(
-              Criteria.where("patientReference")
-                  .is(patientReference)
+              Criteria.where("abhaAddress")
+                  .is(abhaAddress)
                   .and("careContexts.referenceNumber")
                   .is(updatedCareContext.getReferenceNumber()));
 
@@ -87,5 +92,65 @@ public class PatientService {
       log.error("Init CareContext verify failed -> mismatch of careContexts" + e);
     }
     return true;
+  }
+
+  public AckRequest addPatient(LinkRecordsResponse data) {
+    String abhaAddress = data.getAbhaAddress();
+    try {
+      Patient existingRecord = this.patientRepo.findByAbhaAddress(abhaAddress);
+      if (existingRecord == null) {
+        throw new RuntimeException("Patient not found");
+      } else {
+        List<Map<String, Object>> modifiedCareContexts =
+            data.getPatient().getCareContexts().stream()
+                .map(
+                    careContext -> {
+                      Map<String, Object> modifiedContext = new HashMap<>();
+                      modifiedContext.put("referenceNumber", careContext.getReferenceNumber());
+                      modifiedContext.put("display", careContext.getDisplay());
+                      modifiedContext.put("isLinked", false);
+                      return modifiedContext;
+                    })
+                .collect(Collectors.toList());
+        Query query = new Query(Criteria.where("abhaAddress").is(data.getAbhaAddress()));
+        Update update = new Update().addToSet("careContext").each(modifiedCareContexts); // TODO
+        this.mongoTemplate.updateFirst(query, update, Patient.class);
+      }
+    } catch (Exception e) {
+      log.info("addPatient :" + e);
+    }
+    return AckRequest.builder().message("Successfully Added Patient").build();
+  }
+
+  public AckRequest addPatientInWrapper(Patient data) {
+    Patient existingRecord = patientRepo.findByAbhaAddress(data.getAbhaAddress());
+    if (existingRecord == null) {
+      Patient newRecord = new Patient();
+      newRecord.setName(data.getName());
+      newRecord.setAbhaAddress(data.getAbhaAddress());
+      newRecord.setPatientReference(data.getPatientReference());
+      newRecord.setGender(data.getGender());
+      newRecord.setDateOfBirth(data.getDateOfBirth());
+      newRecord.setDisplay(data.getDisplay());
+      newRecord.setPatientMobile(data.getPatientMobile());
+      mongoTemplate.save(newRecord);
+      log.info("Successfully Added Patient : " + data.toString());
+
+    } else {
+      Update update =
+          new Update()
+              .set("abhaAddress", data.getAbhaAddress())
+              .set("name", data.getName())
+              .set("gender", data.getGender())
+              .set("dateOfBirth", data.getDateOfBirth())
+              .set("display", data.getDisplay())
+              .set("patientReference", data.getPatientReference())
+              .set("patientMobile", data.getPatientMobile());
+      Query query = new Query(Criteria.where("abhaAddress").is(data.getAbhaAddress()));
+      mongoTemplate.updateFirst(query, update, Patient.class);
+      log.info("Successfully Updated Patient : " + data.toString());
+      return AckRequest.builder().message("Successfully Updated Patient").build();
+    }
+    return null;
   }
 }
