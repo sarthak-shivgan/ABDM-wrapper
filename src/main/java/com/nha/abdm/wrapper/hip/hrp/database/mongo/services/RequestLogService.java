@@ -161,7 +161,7 @@ public class RequestLogService<T> {
     if (existingRecord != null && existingRecord.getLinkStatus() != null) {
       return existingRecord.getLinkStatus();
     }
-    return "Record failed to link with abhaAddress";
+    return "Record failed but stored in database";
   }
   /**
    * <B>hipInitiatedLinking</B>
