@@ -36,6 +36,22 @@ public class DiscoveryService implements DiscoveryInterface {
 
   private static final Logger log = LogManager.getLogger(DiscoveryService.class);
 
+  /**
+   * <B>discovery</B>
+   *
+   * <p>Using the demographic details and abhaAddress fetching careContexts from db.<br>
+   * Logic ->step 1: Check for AbhaAddress, if present build discoverRequest and make POST
+   * /discover.<br>
+   * step 2: fetch list of users with mobileNumber, then check patientIdentifier if present, then
+   * return careContexts.<br>
+   * if patientIdentifier present and not matched return null/not found.<br>
+   * if patientIdentifier not present check for gender, then +-5 years in Year of birth, then name
+   * with fuzzy logic, if any of the above demographics fail to match return null/ not matched.<br>
+   * build discoverRequest and make POST /on-discover.
+   *
+   * @param discoverResponse Response from ABDM gateway with patient demographic details and
+   *     abhaAddress.
+   */
   @Override
   public void onDiscover(DiscoverResponse discoverResponse) {
     String receivedAbhaAddress = discoverResponse.getPatient().getId();
@@ -105,6 +121,16 @@ public class DiscoveryService implements DiscoveryInterface {
     }
   }
 
+  /**
+   * Logic to match demographic details with response demographic details.
+   *
+   * @param isMobilePresent list of patients with same mobileNumber example: family.
+   * @param receivedPatientReference Response : patientReference.
+   * @param receivedGender Response : gender.
+   * @param receivedYob Response : Year Of Birth.
+   * @param receivedName Response : name of the patient.
+   * @return Returns the matched patient with demographic details.
+   */
   private Optional<Patient> findMatchingPatient(
       List<Patient> isMobilePresent,
       String receivedPatientReference,
@@ -124,6 +150,15 @@ public class DiscoveryService implements DiscoveryInterface {
     }
   }
 
+  /**
+   * <B>Discovery</B>
+   *
+   * <p>Build the body with the respective careContexts into onDiscoverRequest.
+   *
+   * @param discoverResponse Response from ABDM gateway.
+   * @param patient Particular patient record.
+   * @param careContexts list of non-linked careContexts.
+   */
   private void onDiscoverRequest(
       DiscoverResponse discoverResponse, Patient patient, List<CareContext> careContexts) {
 
@@ -162,6 +197,14 @@ public class DiscoveryService implements DiscoveryInterface {
     }
   }
 
+  /**
+   * <B>discovery</B>
+   *
+   * <p>build of onDiscoverRequest with error when patient not found.
+   *
+   * @param discoverResponse Response from ABDM gateway.
+   * @param errorResponse The respective error message while matching patient data.
+   */
   private void onDiscoverNoPatientRequest(
       DiscoverResponse discoverResponse, ErrorResponse errorResponse) {
 
@@ -186,15 +229,37 @@ public class DiscoveryService implements DiscoveryInterface {
     }
   }
 
+  /**
+   * <B>discovery</B> Check of Year Of Birth in the range of +-5 years
+   *
+   * @param patient Particular patient record.
+   * @param receivedYob Response : Year Of Birth.
+   * @return true if in range else false
+   */
   private boolean isYOBInRange(Patient patient, String receivedYob) {
     int existingDate = Integer.parseInt(patient.getDateOfBirth().substring(0, 4));
     return Math.abs(existingDate - Integer.parseInt(receivedYob)) <= 5;
   }
 
+  /**
+   * <B>discovery</B> Check of gender match with response gender.
+   *
+   * @param patient particular patient record.
+   * @param receivedGender Response : gender.
+   * @return true if gender matches or else false.
+   */
   private boolean isGenderMatch(Patient patient, String receivedGender) {
     return receivedGender.equals(patient.getGender());
   }
 
+  /**
+   * <B>discovery</B> Matching of patient name with response name by jaroWinkler algorithm making
+   * 0.5 a reasonable validation.
+   *
+   * @param patient particular patient record.
+   * @param receivedName Response : name.
+   * @return true if name matches or else false.
+   */
   private boolean isFuzzyNameMatch(Patient patient, String receivedName) {
     return jaroWinkler.similarity(patient.getName(), receivedName) >= 0.5;
   }
