@@ -144,15 +144,15 @@ public class LinkService implements LinkInterface {
     if (abhaAddress == null) {
       log.info("OnConfirmCall -> patient with abhaAddress not found in logs.");
     }
-    List<CareContextRequest> selectedCareContexts =
+    List<CareContext> selectedCareContexts =
         requestLogService.getSelectedCareContexts(linkRefNumber, careContexts);
 
     OnConfirmPatient onConfirmPatient = null;
     String tokenNumber = confirmResponse.getConfirmation().getToken();
     if (tokenNumber.equals("123456")) {
       List<CareContextRequest> careContextsList = new ArrayList<>();
-      if (careContexts != null && !careContexts.isEmpty()) {
-        for (CareContext careContext : careContexts) {
+      if (selectedCareContexts != null && !selectedCareContexts.isEmpty()) {
+        for (CareContext careContext : selectedCareContexts) {
           careContextsList.add(
               CareContextRequest.builder()
                   .referenceNumber(careContext.getReferenceNumber())
@@ -172,7 +172,7 @@ public class LinkService implements LinkInterface {
     OnConfirmRequest onConfirmRequest =
         OnConfirmRequest.builder()
             .requestId(UUID.randomUUID().toString())
-            .timestamp(Utils.getCurrentTimeStamp().toString())
+            .timestamp(Utils.getCurrentTimeStamp())
             .patient(onConfirmPatient)
             .resp(Response.builder().requestId(confirmResponse.getRequestId()).build())
             .build();

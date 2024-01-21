@@ -67,7 +67,6 @@ public class HipLinkService implements HipLinkInterface {
    */
   public FacadeResponse hipAuthInit(LinkRecordsResponse linkRecordsResponse) {
     try {
-      //      patientService.addPatient(linkRecordsResponse);
       LinkRequester linkRequester =
           LinkRequester.builder()
               .id(linkRecordsResponse.getRequesterId())
@@ -95,7 +94,7 @@ public class HipLinkService implements HipLinkInterface {
       try {
         responseEntity =
             requestManager.fetchResponseFromPostRequest(linkAuthInitPath, linkAuthInit);
-        log.info(linkAuthInitPath + " : linkAuthInitPath: " + responseEntity.getStatusCode());
+        log.info(linkAuthInitPath + " : linkAuthInit: " + responseEntity.getStatusCode());
         return FacadeResponse.builder()
             .code(responseEntity.getStatusCode().value())
             .requestId(linkAuthInit.getRequestId())
@@ -105,10 +104,11 @@ public class HipLinkService implements HipLinkInterface {
       }
 
     } catch (Exception e) {
-      log.info("Link authInit : " + e);
+      log.info("Link authInit : " + Exceptions.unwrap(e));
+      errorResponse.setCode(1000);
+      errorResponse.setMessage("Error Linking careContexts" + Exceptions.unwrap(e));
     }
-    errorResponse.setCode(1000);
-    errorResponse.setMessage("Error Linking careContexts");
+
     return FacadeResponse.builder().error(errorResponse).build();
   }
 

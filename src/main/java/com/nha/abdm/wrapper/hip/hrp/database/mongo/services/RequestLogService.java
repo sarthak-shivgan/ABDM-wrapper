@@ -161,7 +161,7 @@ public class RequestLogService<T> {
     if (existingRecord != null && existingRecord.getLinkStatus() != null) {
       return existingRecord.getLinkStatus();
     }
-    return "Record failed but stored in database";
+    return "Record failed to link with abhaAddress";
   }
   /**
    * <B>hipInitiatedLinking</B>
@@ -298,9 +298,7 @@ public class RequestLogService<T> {
         mongoTemplate.updateFirst(query, update, RequestLog.class);
         LinkRecordsResponse linkRecordsResponse =
             (LinkRecordsResponse) existingRecord.getRawResponse().get("LinkRecordsResponse");
-        patientService.updateCareContextStatus(
-            linkRecordsResponse.getAbhaAddress(),
-            linkRecordsResponse.getPatient().getCareContexts());
+        patientService.addPatientCareContexts(linkRecordsResponse);
       }
     } catch (Exception e) {
       log.error(Exceptions.unwrap(e));

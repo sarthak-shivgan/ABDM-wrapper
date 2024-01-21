@@ -3,15 +3,12 @@ package com.nha.abdm.wrapper.hip.hrp.database.mongo.services;
 
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.FacadeResponse;
-import com.nha.abdm.wrapper.hip.hrp.common.requests.CareContextRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkRecordsResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
@@ -76,11 +73,11 @@ public class PatientService {
    * @param abhaAddress abhaAddress of patient.
    * @param careContexts List of careContext to update the status.
    */
-  public void updateCareContextStatus(String abhaAddress, List<CareContextRequest> careContexts) {
+  public void updateCareContextStatus(String abhaAddress, List<CareContext> careContexts) {
     BulkOperations bulkOperations =
         mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Patient.class);
 
-    for (CareContextRequest updatedCareContext : careContexts) {
+    for (CareContext updatedCareContext : careContexts) {
       Query query =
           Query.query(
               Criteria.where("abhaAddress")
@@ -124,21 +121,28 @@ public class PatientService {
     return true;
   }
 
-  public FacadeResponse addPatient(LinkRecordsResponse linkRecordsResponse) {
+  /**
+   * <B>hipInitiatedLinking</B>
+   *
+   * <p>After successful link of careContexts with abhaAddress storing them into patient.
+   *
+   * @param linkRecordsResponse Response to facade as /link-records for hipInitiatedLinking.
+   */
+  public void addPatientCareContexts(LinkRecordsResponse linkRecordsResponse) {
     String abhaAddress = linkRecordsResponse.getAbhaAddress();
     try {
       Patient existingRecord = this.patientRepo.findByAbhaAddress(abhaAddress);
       if (existingRecord == null) {
         log.error("Adding patient failed -> Patient not found");
       } else {
-        List<Map<String, Object>> modifiedCareContexts =
+        List<CareContext> modifiedCareContexts =
             linkRecordsResponse.getPatient().getCareContexts().stream()
                 .map(
-                    careContext -> {
-                      Map<String, Object> modifiedContext = new HashMap<>();
-                      modifiedContext.put("referenceNumber", careContext.getReferenceNumber());
-                      modifiedContext.put("display", careContext.getDisplay());
-                      modifiedContext.put("isLinked", false);
+                    careContextRequest -> {
+                      CareContext modifiedContext = new CareContext();
+                      modifiedContext.setReferenceNumber(careContextRequest.getReferenceNumber());
+                      modifiedContext.setDisplay(careContextRequest.getDisplay());
+                      modifiedContext.setLinked(true);
                       return modifiedContext;
                     })
                 .collect(Collectors.toList());
@@ -150,7 +154,7 @@ public class PatientService {
     } catch (Exception e) {
       log.info("addPatient :" + e);
     }
-    return FacadeResponse.builder().message("Successfully Added Patient").build();
+    log.info("Successfully Added Patient careContexts");
   }
 
   /**
