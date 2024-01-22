@@ -1,6 +1,11 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.database.mongo.services;
 
+import com.mongodb.bulk.BulkWriteResult;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.model.WriteModel;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.FacadeResponse;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
@@ -8,21 +13,21 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkRecordsResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-@Document(collection = "patients")
 @Service
 public class PatientService {
   private static final Logger log = LogManager.getLogger(PatientService.class);
@@ -158,40 +163,40 @@ public class PatientService {
   }
 
   /**
-   * Store/update patient demographic data.
+   * Adds or Updates patient demographic data.
    *
-   * @param patient patient demographic details.
-   * @return acknowledgement of storing of patient.
+   * @param patients List of patients with reference and demographic details.
+   * @return status of adding or modifying patients in database.
    */
-  public FacadeResponse addPatientInWrapper(Patient patient) {
-    Patient existingRecord = patientRepo.findByAbhaAddress(patient.getAbhaAddress());
-    if (existingRecord == null) {
-      Patient newRecord = new Patient();
-      newRecord.setName(patient.getName());
-      newRecord.setAbhaAddress(patient.getAbhaAddress());
-      newRecord.setPatientReference(patient.getPatientReference());
-      newRecord.setGender(patient.getGender());
-      newRecord.setDateOfBirth(patient.getDateOfBirth());
-      newRecord.setDisplay(patient.getDisplay());
-      newRecord.setPatientMobile(patient.getPatientMobile());
-      mongoTemplate.save(newRecord);
-      log.info("Successfully Added Patient : " + patient.toString());
-
-    } else {
-      Update update =
-          new Update()
-              .set("abhaAddress", patient.getAbhaAddress())
-              .set("name", patient.getName())
-              .set("gender", patient.getGender())
-              .set("dateOfBirth", patient.getDateOfBirth())
-              .set("display", patient.getDisplay())
-              .set("patientReference", patient.getPatientReference())
-              .set("patientMobile", patient.getPatientMobile());
-      Query query = new Query(Criteria.where("abhaAddress").is(patient.getAbhaAddress()));
-      mongoTemplate.updateFirst(query, update, Patient.class);
-      log.info("Successfully Updated Patient : " + patient.toString());
-      return FacadeResponse.builder().message("Successfully Updated Patient").build();
+  public FacadeResponse upsertPatients(List<Patient> patients) {
+    MongoCollection<Document> collection = mongoTemplate.getCollection("patients");
+    List<WriteModel<Document>> updates = new ArrayList<>();
+    for (Patient patient : patients) {
+      Document document =
+          new Document()
+              .append("abhaAddress", patient.getAbhaAddress())
+              .append("name", patient.getName())
+              .append("gender", patient.getGender())
+              .append("dateOfBirth", patient.getDateOfBirth())
+              .append("patientReference", patient.getPatientReference())
+              .append("display", patient.getDisplay())
+              .append("patientMobile", patient.getPatientMobile());
+      updates.add(
+          new UpdateOneModel<Document>(
+              new Document("abhaAddress", patient.getAbhaAddress()),
+              new Document("$set", document),
+              new UpdateOptions().upsert(true)));
     }
-    return null;
+
+    BulkWriteResult bulkWriteResult = collection.bulkWrite(updates);
+    int insertedPatients = bulkWriteResult.getInsertedCount();
+    int updatedPatients = bulkWriteResult.getModifiedCount();
+
+    return FacadeResponse.builder()
+        .message(
+            String.format(
+                "Successfully inserted %s patients and updated %s patients",
+                insertedPatients, updatedPatients))
+        .build();
   }
 }
