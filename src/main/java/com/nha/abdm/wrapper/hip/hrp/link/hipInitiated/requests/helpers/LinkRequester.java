@@ -1,5 +1,5 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hip.hrp.link.requests;
+package com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.helpers;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,9 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OnInitLink {
-
-  private String referenceNumber;
-  private String authenticationType;
-  private OnInitLinkMeta meta;
+public class LinkRequester {
+  private String type;
+  private String id;
 }

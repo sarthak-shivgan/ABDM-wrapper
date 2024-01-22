@@ -18,8 +18,8 @@ public class RequestLog {
   @Field("gatewayRequestId")
   public String gatewayRequestId;
 
-  @Field("response")
-  public String response;
+  @Field("linkStatus")
+  public String linkStatus;
 
   @Field("transactionId")
   public String transactionId;
@@ -30,6 +30,9 @@ public class RequestLog {
   @Field("abhaAddress")
   public String abhaAddress;
 
+  @Field("otp")
+  public String otp;
+
   @Field("rawResponse")
   public HashMap<String, Object> rawResponse;
 
@@ -39,7 +42,7 @@ public class RequestLog {
     this.gatewayRequestId = gatewayRequestId;
     this.abhaAddress = abhaAddress;
     this.transactionId = transactionId;
-    this.response = response;
+    this.linkStatus = "Initiated";
     this.rawResponse = new HashMap<>();
   }
 

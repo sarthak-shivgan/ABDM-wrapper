@@ -1,5 +1,5 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hip.hrp.link.requests;
+package com.nha.abdm.wrapper.hip.hrp.link.userInitiated.requests;
 
 import com.nha.abdm.wrapper.common.ErrorResponse;
 import com.nha.abdm.wrapper.hip.hrp.discover.requests.Response;

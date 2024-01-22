@@ -1,5 +1,5 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hip.hrp.link;
+package com.nha.abdm.wrapper.hip.hrp.link.userInitiated;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.common.ErrorResponse;
@@ -12,9 +12,9 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.discover.requests.Response;
-import com.nha.abdm.wrapper.hip.hrp.link.requests.*;
-import com.nha.abdm.wrapper.hip.hrp.link.responses.ConfirmResponse;
-import com.nha.abdm.wrapper.hip.hrp.link.responses.InitResponse;
+import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.requests.*;
+import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse;
+import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,6 +43,17 @@ public class LinkService implements LinkInterface {
 
   private static final Logger log = LogManager.getLogger(LinkService.class);
 
+  /**
+   * <B>userInitiatedLinking</B>
+   *
+   * <p>The Response has list of careContext.<br>
+   * 1) check the careContexts are corresponding with patient careContexts.<br>
+   * 2) HIP needs to send the OTP to respective user.<br>
+   * 3) build the onInitRequest body with OTP expiry.<br>
+   * 4) POST Method to "/link/on-init"
+   *
+   * @param initResponse Response from ABDM gateway for linking of careContexts.
+   */
   @Override
   public void onInit(InitResponse initResponse) {
     boolean isCareContextPresent = patientService.checkCareContexts(initResponse);
@@ -66,7 +77,7 @@ public class LinkService implements LinkInterface {
 
       onInitRequest =
           OnInitRequest.builder()
-              .requestId(UUID.randomUUID().toString())
+              .requestId(requestId)
               .timestamp(Utils.getCurrentTimeStamp().toString())
               .transactionId(initResponse.getTransactionId())
               .link(onInitLink)
@@ -101,6 +112,16 @@ public class LinkService implements LinkInterface {
     }
   }
 
+  /**
+   * <B>userInitiatedLinking</B>
+   *
+   * <p>The confirmResponse has the OTP entered by the user for authentication.<br>
+   * 1) Validate the OTP and send the response of careContexts or error. <br>
+   * 2) build the request body of OnConfirmRequest.<br>
+   * 3) POST method to link/on-confirm
+   *
+   * @param confirmResponse Response from ABDM gateway with OTP entered by user.
+   */
   @Override
   public void onConfirm(ConfirmResponse confirmResponse) {
     List<CareContext> careContexts = null;
@@ -130,8 +151,8 @@ public class LinkService implements LinkInterface {
     String tokenNumber = confirmResponse.getConfirmation().getToken();
     if (tokenNumber.equals("123456")) {
       List<CareContextRequest> careContextsList = new ArrayList<>();
-      if (careContexts != null && !careContexts.isEmpty()) {
-        for (CareContext careContext : careContexts) {
+      if (selectedCareContexts != null && !selectedCareContexts.isEmpty()) {
+        for (CareContext careContext : selectedCareContexts) {
           careContextsList.add(
               CareContextRequest.builder()
                   .referenceNumber(careContext.getReferenceNumber())
@@ -151,7 +172,7 @@ public class LinkService implements LinkInterface {
     OnConfirmRequest onConfirmRequest =
         OnConfirmRequest.builder()
             .requestId(UUID.randomUUID().toString())
-            .timestamp(Utils.getCurrentTimeStamp().toString())
+            .timestamp(Utils.getCurrentTimeStamp())
             .patient(onConfirmPatient)
             .resp(Response.builder().requestId(confirmResponse.getRequestId()).build())
             .build();

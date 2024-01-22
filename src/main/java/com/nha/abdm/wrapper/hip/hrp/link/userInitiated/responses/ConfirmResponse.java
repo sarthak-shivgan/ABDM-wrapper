@@ -1,8 +1,8 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hip.hrp.link.responses;
+package com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses;
 
 import com.nha.abdm.wrapper.common.ErrorResponse;
-import com.nha.abdm.wrapper.hip.hrp.link.responses.helpers.Confirmation;
+import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.helpers.Confirmation;
 import java.io.Serializable;
 import lombok.Data;
 import org.springframework.stereotype.Component;
