@@ -17,6 +17,7 @@ import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.LinkInterface;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -151,13 +152,13 @@ public class WorkflowManager {
   }
 
   /**
-   * Storing the patient in wrapper
+   * Adds or updates a list of patients in database.
    *
-   * @param patient Demographic details of patient.
-   * @return status of storing the patient data.
+   * @param patients List of patients with reference and demographic details.
+   * @return status of adding or modifying patients in database.
    */
-  public FacadeResponse addPatient(Patient patient) {
-    return patientService.addPatientInWrapper(patient);
+  public FacadeResponse addPatients(List<Patient> patients) {
+    return patientService.upsertPatients(patients);
   }
 
   /**

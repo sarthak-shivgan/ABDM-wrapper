@@ -6,6 +6,7 @@ import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.hip.hrp.WorkflowManager;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkRecordsResponse;
+import java.util.List;
 import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(path = "/v1/care-contexts")
+@RequestMapping(path = "/v1")
 public class HIPFacadeLinkController {
   private static final Logger log = LogManager.getLogger(HIPFacadeLinkController.class);
   @Autowired WorkflowManager workflowManager;
@@ -34,7 +35,7 @@ public class HIPFacadeLinkController {
    * @param linkRecordsResponse Response which has authMode, patient details and careContexts.
    * @return acknowledgement of status.
    */
-  @PostMapping({"/link-records"})
+  @PostMapping({"/link-care-contexts"})
   public FacadeResponse linkRecords(@RequestBody LinkRecordsResponse linkRecordsResponse) {
     return workflowManager.initiateHipAuthInit(linkRecordsResponse);
   }
@@ -55,11 +56,11 @@ public class HIPFacadeLinkController {
   /**
    * <B>Facade</B> Post method to facade for storing patient in wrapper.
    *
-   * @param patient Demographic details of the patient
+   * @param patients Demographic details of the patient
    * @return acknowledgement of storing patient.
    */
-  @PostMapping({"/add-patient"})
-  public FacadeResponse addPatient(@RequestBody Patient patient) {
-    return workflowManager.addPatient(patient);
+  @PutMapping({"/add-patients"})
+  public FacadeResponse addPatients(@RequestBody List<Patient> patients) {
+    return workflowManager.addPatients(patients);
   }
 }
