@@ -9,8 +9,8 @@ Click [here](src/main/java/com/nha/abdm/wrapper/hip/hrp/link/hipInitiated/README
 - Start Mongodb server and make sure that the port and database name matches with those provided in application.properties
 - Provide your credentials(clientId and clientSecret in application.properties)
 
-## Sample HIP Client
-Click [here](hipsampleclient/README.md) to get details on how to run sample HIP client. 
+## Sample Wrapper Client
+Click [here](wrapperclient/README.md) to get details on how to run sample Wrapper client. 
 
 ## Spotless
 To apply spotless plugin run ```gradle spotlessApply```

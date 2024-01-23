@@ -35,7 +35,7 @@ public class HIPFacadeLinkController {
    * @param linkRecordsResponse Response which has authMode, patient details and careContexts.
    * @return acknowledgement of status.
    */
-  @PostMapping({"/link-care-contexts"})
+  @PostMapping({"/link-carecontexts"})
   public FacadeResponse linkRecords(@RequestBody LinkRecordsResponse linkRecordsResponse) {
     return workflowManager.initiateHipAuthInit(linkRecordsResponse);
   }
@@ -54,7 +54,7 @@ public class HIPFacadeLinkController {
   }
 
   /**
-   * <B>Facade</B> Post method to facade for storing patient in wrapper.
+   * <B>Facade</B> Put method for adding or modifying patients in database.
    *
    * @param patients Demographic details of the patient
    * @return acknowledgement of storing patient.
