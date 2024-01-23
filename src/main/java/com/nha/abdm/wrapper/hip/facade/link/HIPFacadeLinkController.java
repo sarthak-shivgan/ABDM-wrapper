@@ -1,6 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.facade.link;
 
+import com.nha.abdm.wrapper.common.ErrorResponse;
 import com.nha.abdm.wrapper.common.models.FacadeResponse;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.hip.hrp.WorkflowManager;
@@ -46,11 +47,14 @@ public class HIPFacadeLinkController {
    * @param verifyOTP Response has OTP and clientRequestId.
    */
   @PostMapping({"/verify-otp"})
-  public void verifyOtp(@RequestBody VerifyOTP verifyOTP) {
-    log.info(verifyOTP.toString());
+  public FacadeResponse verifyOtp(@RequestBody VerifyOTP verifyOTP) {
+    log.debug(verifyOTP.toString());
     if (Objects.equals(verifyOTP.getLoginHint(), "hipLinking")) {
-      workflowManager.initiateHipConfirmCallOTP(verifyOTP);
+      return workflowManager.initiateHipConfirmCallOTP(verifyOTP);
     }
+    return FacadeResponse.builder()
+        .error(ErrorResponse.builder().message("Unknown Login Hint").build())
+        .build();
   }
 
   /**

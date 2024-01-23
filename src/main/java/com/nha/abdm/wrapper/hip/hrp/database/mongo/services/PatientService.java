@@ -189,14 +189,10 @@ public class PatientService {
     }
 
     BulkWriteResult bulkWriteResult = collection.bulkWrite(updates);
-    int insertedPatients = bulkWriteResult.getInsertedCount();
-    int updatedPatients = bulkWriteResult.getModifiedCount();
 
     return FacadeResponse.builder()
         .message(
-            String.format(
-                "Successfully inserted %s patients and updated %s patients",
-                insertedPatients, updatedPatients))
+            String.format("Successfully upserted %d patients", bulkWriteResult.getUpserts().size()))
         .build();
   }
 }

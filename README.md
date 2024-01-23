@@ -10,7 +10,7 @@ Click [here](src/main/java/com/nha/abdm/wrapper/hip/hrp/link/hipInitiated/README
 - Provide your credentials(clientId and clientSecret in application.properties)
 
 ## Sample Wrapper Client
-Click [here](wrapperclient/README.md) to get details on how to run sample Wrapper client. 
+Click [here](sample-hip/README.md) to get details on how to run sample Wrapper client. 
 
 ## Spotless
 To apply spotless plugin run ```gradle spotlessApply```

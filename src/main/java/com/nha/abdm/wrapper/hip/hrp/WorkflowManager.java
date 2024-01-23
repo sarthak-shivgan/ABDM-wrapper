@@ -18,7 +18,6 @@ import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -104,10 +103,10 @@ public class WorkflowManager {
   public FacadeResponse initiateHipAuthInit(LinkRecordsResponse linkRecordsResponse) {
     if (linkRecordsResponse != null) {
       return hipLinkInterface.hipAuthInit(linkRecordsResponse);
-    } else {
-      log.error("OnConfirm -> error due to response");
     }
-    return FacadeResponse.builder().message("Error in linkRecordsResponse").build();
+    String error = "initiateHipAuthInit: Error in linkRecordsResponse";
+    log.debug(error);
+    return FacadeResponse.builder().message(error).build();
   }
 
   /**
@@ -119,8 +118,7 @@ public class WorkflowManager {
    *
    * @param linkOnInitResponse Response from ABDM gateway after successful auth/init request.
    */
-  public void initiateAuthConfirmDemographics(LinkOnInitResponse linkOnInitResponse)
-      throws TimeoutException {
+  public void initiateAuthConfirmDemographics(LinkOnInitResponse linkOnInitResponse) {
     if (linkOnInitResponse != null && linkOnInitResponse.getError() == null) {
       if (linkOnInitResponse.getAuth().getMode().equals("DEMOGRAPHICS"))
         hipLinkInterface.hipConfirmCall(linkOnInitResponse);
@@ -168,9 +166,7 @@ public class WorkflowManager {
    *
    * @param verifyOTP request body which has OTP and clientRequestId.
    */
-  public void initiateHipConfirmCallOTP(VerifyOTP verifyOTP) {
-    if (verifyOTP != null) {
-      hipLinkInterface.hipConfirmCallOtp(verifyOTP);
-    } else log.error("Error in response of VerifyOtp");
+  public FacadeResponse initiateHipConfirmCallOTP(VerifyOTP verifyOTP) {
+    return hipLinkInterface.hipConfirmCallOtp(verifyOTP);
   }
 }

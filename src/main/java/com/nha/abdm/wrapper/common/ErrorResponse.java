@@ -1,11 +1,15 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.common;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.springframework.stereotype.Component;
+import lombok.NoArgsConstructor;
 
-@Component
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ErrorResponse {
   public int code;
   public String message;
