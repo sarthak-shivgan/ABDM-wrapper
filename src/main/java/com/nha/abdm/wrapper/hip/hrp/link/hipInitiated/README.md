@@ -104,7 +104,7 @@ check for the bridgeUrl and facility in the response for confirmation.
 ```
 API to link records via HIP Initiated Linking.
 
-curl --location 'localhost:8080/v1/care-contexts/link-records' \
+curl --location 'localhost:8082/v1/care-contexts/link-records' \
 --header 'Content-Type: application/json' \
 --data-raw '{
     "requestId": "b847df83-caf7-4812-8193-fbe39e62b06f",
@@ -127,7 +127,7 @@ curl --location 'localhost:8080/v1/care-contexts/link-records' \
 ```
 API to authenticate the user with OTP.
 
-curl --location 'localhost:8080/v1/care-contexts/verify-otp' \
+curl --location 'localhost:8082/v1/care-contexts/verify-otp' \
 --header 'Content-Type: application/json' \
 --data '{
     "loginHint": "hipLinking",
@@ -146,7 +146,7 @@ To check the status of linking with abhaAddress :
 - Pass the requestId as a perameter in the url.
 GET method
 
-curl --location 'localhost:8080/v1/care-contexts/link-status/{requestId}'
+curl --location 'localhost:8082/v1/care-contexts/link-status/{requestId}'
 ```
 - If the response of /get-status is successful, the careContexts are linked with abhaAddress successfully.
 - The linked careContexts are visible on the PHR app as well as SMS will be sent to the user.

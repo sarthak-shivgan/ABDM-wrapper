@@ -60,10 +60,10 @@ import com.nha.abdm.wrapper.client.invoker.auth.ApiKeyAuth;
  */
 public class ApiClient {
 
-    private String basePath = "http://localhost:8080/v1";
+    private String basePath = "http://localhost:8082/v1";
     protected List<ServerConfiguration> servers = new ArrayList<ServerConfiguration>(Arrays.asList(
     new ServerConfiguration(
-      "http://localhost:8080/v1",
+      "http://localhost:8082/v1",
       "No description provided",
       new HashMap<String, ServerVariable>()
     )
@@ -155,7 +155,7 @@ public class ApiClient {
     /**
      * Set base path
      *
-     * @param basePath Base path of the URL (e.g http://localhost:8080/v1
+     * @param basePath Base path of the URL (e.g http://localhost:8082/v1
      * @return An instance of OkHttpClient
      */
     public ApiClient setBasePath(String basePath) {

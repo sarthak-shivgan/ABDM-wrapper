@@ -1,6 +1,6 @@
 # LinkApi
 
-All URIs are relative to *http://localhost:8080/v1*
+All URIs are relative to *http://localhost:8082/v1*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
@@ -29,7 +29,7 @@ import com.nha.abdm.wrapper.client.api.LinkApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://localhost:8080/v1");
+    defaultClient.setBasePath("http://localhost:8082/v1");
 
     LinkApi apiInstance = new LinkApi(defaultClient);
     LinkCareContextsRequest linkCareContextsRequest = new LinkCareContextsRequest(); // LinkCareContextsRequest | Links Care Contexts
@@ -92,7 +92,7 @@ import com.nha.abdm.wrapper.client.api.LinkApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://localhost:8080/v1");
+    defaultClient.setBasePath("http://localhost:8082/v1");
 
     LinkApi apiInstance = new LinkApi(defaultClient);
     String requestId = "requestId_example"; // String | Request Id of the link care context request.
@@ -154,7 +154,7 @@ import com.nha.abdm.wrapper.client.api.LinkApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://localhost:8080/v1");
+    defaultClient.setBasePath("http://localhost:8082/v1");
 
     LinkApi apiInstance = new LinkApi(defaultClient);
     VerifyOTPRequest verifyOTPRequest = new VerifyOTPRequest(); // VerifyOTPRequest | Verifies OTP

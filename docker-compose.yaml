@@ -5,9 +5,7 @@ services:
     build: .
     image: abdm-wrapper
     ports:
-      - '8080:8080'
-    environment:
-      - SPRING_DATA_MONGODB_.HOST=mongodb
+      - '8082:8082'
     depends_on:
       - mongodb
     networks:

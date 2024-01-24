@@ -1,6 +1,6 @@
 # PatientsApi
 
-All URIs are relative to *http://localhost:8080/v1*
+All URIs are relative to *http://localhost:8082/v1*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
@@ -27,7 +27,7 @@ import com.nha.abdm.wrapper.client.api.PatientsApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://localhost:8080/v1");
+    defaultClient.setBasePath("http://localhost:8082/v1");
 
     PatientsApi apiInstance = new PatientsApi(defaultClient);
     List<Patient> patient = Arrays.asList(); // List<Patient> | Insert or update a list of patients in the wrapper database

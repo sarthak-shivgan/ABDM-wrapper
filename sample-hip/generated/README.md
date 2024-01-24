@@ -2,7 +2,7 @@
 
 Swagger HIP Facade - OpenAPI 3.0
 - API version: 1.0.0
-  - Build date: 2024-01-23T17:21:21.306149164Z[Etc/UTC]
+  - Build date: 2024-01-24T09:50:26.426989326Z[Etc/UTC]
 
 This is a set of interfaces based on the OpenAPI 3.0 specification for a wrapper client
 
@@ -89,7 +89,7 @@ import com.nha.abdm.wrapper.client.api.LinkApi;
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://localhost:8080/v1");
+    defaultClient.setBasePath("http://localhost:8082/v1");
 
     LinkApi apiInstance = new LinkApi(defaultClient);
     LinkCareContextsRequest linkCareContextsRequest = new LinkCareContextsRequest(); // LinkCareContextsRequest | Links Care Contexts
@@ -110,7 +110,7 @@ public class Example {
 
 ## Documentation for API Endpoints
 
-All URIs are relative to *http://localhost:8080/v1*
+All URIs are relative to *http://localhost:8082/v1*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------

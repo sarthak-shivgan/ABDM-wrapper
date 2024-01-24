@@ -5,7 +5,7 @@ info:
   title: Swagger HIP Facade - OpenAPI 3.0
   version: 1.0.0
 servers:
-- url: http://localhost:8080/v1
+- url: http://localhost:8082/v1
 paths:
   /add-patients:
     put:
