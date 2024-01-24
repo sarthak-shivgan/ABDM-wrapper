@@ -57,7 +57,7 @@ public class LinkService implements LinkInterface {
   @Override
   public void onInit(InitResponse initResponse) {
     boolean isCareContextPresent = patientService.checkCareContexts(initResponse);
-    OnInitRequest onInitRequest = null;
+    OnInitRequest onInitRequest;
     String linkReferenceNumber = UUID.randomUUID().toString();
     String requestId = UUID.randomUUID().toString();
     if (isCareContextPresent) {
@@ -78,7 +78,7 @@ public class LinkService implements LinkInterface {
       onInitRequest =
           OnInitRequest.builder()
               .requestId(requestId)
-              .timestamp(Utils.getCurrentTimeStamp().toString())
+              .timestamp(Utils.getCurrentTimeStamp())
               .transactionId(initResponse.getTransactionId())
               .link(onInitLink)
               .resp(Response.builder().requestId(initResponse.getRequestId()).build())
@@ -91,7 +91,7 @@ public class LinkService implements LinkInterface {
       onInitRequest =
           OnInitRequest.builder()
               .requestId(requestId)
-              .timestamp(Utils.getCurrentTimeStamp().toString())
+              .timestamp(Utils.getCurrentTimeStamp())
               .transactionId(initResponse.getTransactionId())
               .resp(Response.builder().requestId(initResponse.getRequestId()).build())
               .error(errorResponse)

@@ -10,7 +10,6 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitRespon
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
 import java.net.URISyntaxException;
-import java.util.concurrent.TimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,8 +90,7 @@ public class GatewayCallbackController {
    * @param linkOnInitResponse Response from ABDM gateway after auth/init which has transactionId.
    */
   @PostMapping({"/v0.5/users/auth/on-init"})
-  public void onAuthInitCall(@RequestBody LinkOnInitResponse linkOnInitResponse)
-      throws URISyntaxException, JsonProcessingException, TimeoutException {
+  public void onAuthInitCall(@RequestBody LinkOnInitResponse linkOnInitResponse) {
     if (linkOnInitResponse != null && linkOnInitResponse.getError() == null) {
       log.info(linkOnInitResponse.toString());
       this.workflowManager.initiateAuthConfirmDemographics(linkOnInitResponse);
@@ -112,14 +110,12 @@ public class GatewayCallbackController {
    *     linkToken to link careContext.
    */
   @PostMapping({"/v0.5/users/auth/on-confirm"})
-  public void onAuthConfirmCall(@RequestBody LinkOnConfirmResponse linkOnConfirmResponse)
-      throws URISyntaxException, JsonProcessingException, TimeoutException {
+  public void onAuthConfirmCall(@RequestBody LinkOnConfirmResponse linkOnConfirmResponse) {
     if (linkOnConfirmResponse != null && linkOnConfirmResponse.getError() == null) {
-      log.info(linkOnConfirmResponse.toString());
+      log.debug(linkOnConfirmResponse.toString());
       this.workflowManager.addCareContext(linkOnConfirmResponse);
     } else if (linkOnConfirmResponse.getError() != null) {
-      log.info(
-          "gotError in OnInitRequest callback: " + linkOnConfirmResponse.getError().toString());
+      log.error("gotError in OnInitRequest callback: " + linkOnConfirmResponse.getError());
     } else {
       log.error("gotError in OnInitRequest callback");
     }
@@ -136,15 +132,16 @@ public class GatewayCallbackController {
   @PostMapping({"/v0.5/links/link/on-add-contexts"})
   public void onAddCareContext(
       @RequestBody LinkOnAddCareContextsResponse linkOnAddCareContextsResponse) {
-    log.info(linkOnAddCareContextsResponse.toString());
+    log.debug(linkOnAddCareContextsResponse.toString());
     if (linkOnAddCareContextsResponse != null) {
-      if (linkOnAddCareContextsResponse.getError() != null)
+      if (linkOnAddCareContextsResponse.getError() != null) {
         log.error(
             "/v0.5/links/link/on-add-contexts error: "
                 + linkOnAddCareContextsResponse.getError().getMessage());
+      }
       requestLogService.setHipOnAddCareContextResponse(linkOnAddCareContextsResponse);
     } else {
-      log.info("Failed to add Context");
+      log.error("Failed to add Context");
     }
   }
 }
