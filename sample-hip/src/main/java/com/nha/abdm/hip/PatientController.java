@@ -16,7 +16,7 @@ public class PatientController {
     private static final String requestId = "260ad625-ffb9-4c7d-b5bc-e099577e7e88";
 
     @GetMapping({"/patients/{patientId}"})
-    public Patient fetchPatientById(@PathVariable String abhaAddress) {
+    public Patient fetchPatientById(@PathVariable("patientId") String abhaAddress) {
 
         // TODO: Logic to find patient in HIP database using abhaAddress.
 

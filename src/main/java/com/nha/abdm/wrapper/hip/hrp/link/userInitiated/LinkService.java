@@ -4,6 +4,7 @@ package com.nha.abdm.wrapper.hip.hrp.link.userInitiated;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.common.ErrorResponse;
 import com.nha.abdm.wrapper.common.RequestManager;
+import com.nha.abdm.wrapper.common.SessionManager;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.hip.hrp.common.requests.CareContextRequest;
@@ -31,7 +32,8 @@ import reactor.core.Exceptions;
 public class LinkService implements LinkInterface {
 
   @Autowired PatientRepo patientRepo;
-  @Autowired RequestManager requestManager;
+  private final RequestManager requestManager;
+  private final SessionManager sessionManager;
   @Autowired RequestLogService requestLogService;
   @Autowired PatientService patientService;
 
@@ -40,6 +42,12 @@ public class LinkService implements LinkInterface {
 
   @Value("${onConfirmLinkPath}")
   public String onConfirmLinkPath;
+
+  @Autowired
+  public LinkService(RequestManager requestManager, SessionManager sessionManager) {
+    this.requestManager = requestManager;
+    this.sessionManager = sessionManager;
+  }
 
   private static final Logger log = LogManager.getLogger(LinkService.class);
 

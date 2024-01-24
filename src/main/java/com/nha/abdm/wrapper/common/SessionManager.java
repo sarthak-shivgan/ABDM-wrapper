@@ -23,6 +23,9 @@ public class SessionManager {
   @Autowired ApplicationConfig applicationConfig;
   private String accessToken;
 
+  @Value("${gatewayBaseUrl}")
+  private String gatewayBaseUrl;
+
   @Value("${createSessionPath}")
   private String createSessionPath;
 
@@ -58,9 +61,9 @@ public class SessionManager {
             .clientSecret(applicationConfig.clientSecret)
             .build();
     try {
+      WebClient webClient = WebClient.builder().baseUrl(gatewayBaseUrl).build();
       ResponseEntity<ObjectNode> responseEntity =
-          WebClient.builder()
-              .build()
+          webClient
               .post()
               .uri(createSessionPath)
               .body(BodyInserters.fromValue(createSessionRequest))

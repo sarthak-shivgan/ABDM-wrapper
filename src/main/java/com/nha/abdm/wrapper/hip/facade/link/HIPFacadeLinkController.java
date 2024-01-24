@@ -27,7 +27,7 @@ public class HIPFacadeLinkController {
    * @return acknowledgement of status.
    */
   @GetMapping({"/link-status/{requestId}"})
-  public FacadeResponse fetchCareContextStatus(@PathVariable String requestId) {
+  public FacadeResponse fetchCareContextStatus(@PathVariable("requestId") String requestId) {
     return workflowManager.getCareContextRequestStatus(requestId);
   }
   /**

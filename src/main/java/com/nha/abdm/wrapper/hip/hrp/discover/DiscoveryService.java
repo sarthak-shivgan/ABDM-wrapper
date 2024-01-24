@@ -4,6 +4,7 @@ package com.nha.abdm.wrapper.hip.hrp.discover;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.common.ErrorResponse;
 import com.nha.abdm.wrapper.common.RequestManager;
+import com.nha.abdm.wrapper.common.SessionManager;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.hip.hrp.common.requests.CareContextRequest;
@@ -26,13 +27,20 @@ import org.springframework.stereotype.Service;
 public class DiscoveryService implements DiscoveryInterface {
 
   @Autowired PatientRepo patientRepo;
-  @Autowired RequestManager requestManager;
+  private final RequestManager requestManager;
+  private final SessionManager sessionManager;
   @Autowired RequestLogService requestLogService;
   ErrorResponse errorResponse = new ErrorResponse();
   JaroWinkler jaroWinkler = new JaroWinkler();
 
   @Value("${onDiscoverPath}")
   public String onDiscoverPath;
+
+  @Autowired
+  public DiscoveryService(RequestManager requestManager, SessionManager sessionManager) {
+    this.requestManager = requestManager;
+    this.sessionManager = sessionManager;
+  }
 
   private static final Logger log = LogManager.getLogger(DiscoveryService.class);
 

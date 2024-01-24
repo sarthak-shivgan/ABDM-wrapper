@@ -38,7 +38,7 @@ public class GatewayCallbackController {
   public void discoverCall(@RequestBody DiscoverResponse discoverResponse)
       throws URISyntaxException, JsonProcessingException {
     if (discoverResponse != null && discoverResponse.getError() == null) {
-      log.info("/v0.5/care-contexts/discover :" + discoverResponse.toString());
+      log.info("/v0.5/care-contexts/discover :" + discoverResponse);
       workflowManager.initiateOnDiscover(discoverResponse);
     } else {
       log.error("/v0.5/care-contexts/discover :" + discoverResponse.getError().getMessage());

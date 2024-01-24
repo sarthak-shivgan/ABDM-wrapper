@@ -4,6 +4,7 @@ package com.nha.abdm.wrapper.hip.hrp.link.hipInitiated;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.common.ErrorResponse;
 import com.nha.abdm.wrapper.common.RequestManager;
+import com.nha.abdm.wrapper.common.SessionManager;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.models.FacadeResponse;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
@@ -37,9 +38,10 @@ import reactor.core.Exceptions;
 public class HipLinkService implements HipLinkInterface {
   @Autowired PatientRepo patientRepo;
   @Autowired LogsRepo logsRepo;
-  @Autowired RequestManager requestManager;
+  private final RequestManager requestManager;
+  private final SessionManager sessionManager;
   @Autowired RequestLogService requestLogService;
-  @Autowired HIPClient hipClient;
+  private final HIPClient hipClient;
   private final String requesterType = "HIP";
   private final String linkPurpose = "KYC_AND_LINK";
 
@@ -53,6 +55,15 @@ public class HipLinkService implements HipLinkInterface {
   public String linkAddContextsPath;
 
   ResponseEntity<ObjectNode> responseEntity;
+
+  @Autowired
+  public HipLinkService(
+      HIPClient hipClient, RequestManager requestManager, SessionManager sessionManager) {
+    this.hipClient = hipClient;
+    this.requestManager = requestManager;
+    this.sessionManager = sessionManager;
+  }
+
   private static final Logger log = LogManager.getLogger(HipLinkService.class);
 
   /**
