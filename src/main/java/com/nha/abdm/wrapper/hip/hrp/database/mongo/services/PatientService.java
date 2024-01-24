@@ -11,7 +11,7 @@ import com.nha.abdm.wrapper.common.models.FacadeResponse;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkRecordsResponse;
+import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
 import java.util.ArrayList;
 import java.util.List;
@@ -131,17 +131,17 @@ public class PatientService {
    *
    * <p>After successful link of careContexts with abhaAddress storing them into patient.
    *
-   * @param linkRecordsResponse Response to facade as /link-records for hipInitiatedLinking.
+   * @param linkRecordsRequest Response to facade as /link-records for hipInitiatedLinking.
    */
-  public void addPatientCareContexts(LinkRecordsResponse linkRecordsResponse) {
-    String abhaAddress = linkRecordsResponse.getAbhaAddress();
+  public void addPatientCareContexts(LinkRecordsRequest linkRecordsRequest) {
+    String abhaAddress = linkRecordsRequest.getAbhaAddress();
     try {
       Patient existingRecord = this.patientRepo.findByAbhaAddress(abhaAddress);
       if (existingRecord == null) {
         log.error("Adding patient failed -> Patient not found");
       } else {
         List<CareContext> modifiedCareContexts =
-            linkRecordsResponse.getPatient().getCareContexts().stream()
+            linkRecordsRequest.getPatient().getCareContexts().stream()
                 .map(
                     careContextRequest -> {
                       CareContext modifiedContext = new CareContext();
@@ -152,7 +152,7 @@ public class PatientService {
                     })
                 .collect(Collectors.toList());
         Query query =
-            new Query(Criteria.where("abhaAddress").is(linkRecordsResponse.getAbhaAddress()));
+            new Query(Criteria.where("abhaAddress").is(linkRecordsRequest.getAbhaAddress()));
         Update update = new Update().addToSet("careContext").each(modifiedCareContexts);
         this.mongoTemplate.updateFirst(query, update, Patient.class);
       }

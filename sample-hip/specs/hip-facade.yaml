@@ -5,7 +5,7 @@ info:
     This is a set of interfaces based on the OpenAPI 3.0 specification for a wrapper client
   version: 1.0.0
 servers:
-  - url: http://localhost:8080/v1
+  - url: http://localhost:8082/v1
 paths:
   /add-patients:
     put:

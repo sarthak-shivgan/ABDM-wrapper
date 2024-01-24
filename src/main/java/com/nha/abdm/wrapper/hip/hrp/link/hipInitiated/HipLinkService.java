@@ -18,10 +18,10 @@ import com.nha.abdm.wrapper.hip.hrp.discover.requests.OnDiscoverPatient;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkAddCareContext;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkAuthInit;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkConfirm;
+import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.helpers.*;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkRecordsResponse;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
@@ -62,35 +62,35 @@ public class HipLinkService implements HipLinkInterface {
    * 2)Stores the request of linkRecordsResponse into requestLog.<br>
    * 3)makes a POST request to /auth/init API
    *
-   * @param linkRecordsResponse Response which has authMode, patient details and careContexts.
+   * @param linkRecordsRequest Response which has authMode, patient details and careContexts.
    * @return it returns the requestId and status of initiation to the Facility for future tracking
    */
-  public FacadeResponse hipAuthInit(LinkRecordsResponse linkRecordsResponse) {
+  public FacadeResponse hipAuthInit(LinkRecordsRequest linkRecordsRequest) {
     try {
       LinkRequester linkRequester =
           LinkRequester.builder()
-              .id(linkRecordsResponse.getRequesterId())
+              .id(linkRecordsRequest.getRequesterId())
               .type(requesterType)
               .build();
 
       LinkQuery linkQuery =
           LinkQuery.builder()
-              .id(linkRecordsResponse.getAbhaAddress())
+              .id(linkRecordsRequest.getAbhaAddress())
               .purpose(linkPurpose)
-              .authMode(linkRecordsResponse.getAuthMode())
+              .authMode(linkRecordsRequest.getAuthMode())
               .requester(linkRequester)
               .build();
 
       LinkAuthInit linkAuthInit =
           LinkAuthInit.builder()
-              .requestId(linkRecordsResponse.getRequestId())
+              .requestId(linkRecordsRequest.getRequestId())
               .timestamp(Utils.getCurrentTimeStamp())
               .query(linkQuery)
               .build();
 
       log.debug("LinkAuthInit : " + linkAuthInit.toString());
       log.debug("LinkRecords storing data");
-      requestLogService.setHipLinkResponse(linkRecordsResponse);
+      requestLogService.setHipLinkResponse(linkRecordsRequest);
       try {
         responseEntity =
             requestManager.fetchResponseFromPostRequest(linkAuthInitPath, linkAuthInit);
@@ -147,11 +147,11 @@ public class HipLinkService implements HipLinkInterface {
       return;
     }
     log.debug("In confirmAuth found existing record");
-    LinkRecordsResponse linkRecordsResponse =
-        (LinkRecordsResponse) existingRecord.getRawResponse().get("LinkRecordsResponse");
+    LinkRecordsRequest linkRecordsRequest =
+        (LinkRecordsRequest) existingRecord.getRawResponse().get("LinkRecordsResponse");
     Patient patient =
-        Optional.ofNullable(patientRepo.findByAbhaAddress(linkRecordsResponse.getAbhaAddress()))
-            .orElseGet(() -> getPatient(linkRecordsResponse.getAbhaAddress()));
+        Optional.ofNullable(patientRepo.findByAbhaAddress(linkRecordsRequest.getAbhaAddress()))
+            .orElseGet(() -> getPatient(linkRecordsRequest.getAbhaAddress()));
     UserDemographic userDemographic =
         UserDemographic.builder()
             .name(patient.getName())
@@ -269,9 +269,9 @@ public class HipLinkService implements HipLinkInterface {
       log.error("hipAddCareContext: Illegal state - Gateway request Id not found in database");
       return;
     }
-    LinkRecordsResponse linkRecordsResponse =
-        (LinkRecordsResponse) existingRecord.getRawResponse().get("LinkRecordsResponse");
-    Patient patient = patientRepo.findByAbhaAddress(linkRecordsResponse.getAbhaAddress());
+    LinkRecordsRequest linkRecordsRequest =
+        (LinkRecordsRequest) existingRecord.getRawResponse().get("LinkRecordsResponse");
+    Patient patient = patientRepo.findByAbhaAddress(linkRecordsRequest.getAbhaAddress());
     if (patient == null) {
       log.error("hipAddCareContext: Illegal state - Patient not found in database");
       return;
@@ -281,7 +281,7 @@ public class HipLinkService implements HipLinkInterface {
         OnDiscoverPatient.builder()
             .referenceNumber(patient.getPatientReference())
             .display(patient.getDisplay())
-            .careContexts(linkRecordsResponse.getPatient().getCareContexts())
+            .careContexts(linkRecordsRequest.getPatient().getCareContexts())
             .build();
     LinkTokenAndPatient linkNode =
         LinkTokenAndPatient.builder()

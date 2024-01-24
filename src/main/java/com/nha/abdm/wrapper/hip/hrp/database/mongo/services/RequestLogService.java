@@ -10,10 +10,10 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.discover.responses.DiscoverResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkAddCareContext;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkConfirm;
+import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnAddCareContextsResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkRecordsResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -168,18 +168,18 @@ public class RequestLogService<T> {
    *
    * <p>Adding linkRecordsResponse dump into db.
    *
-   * @param linkRecordsResponse Response received to facade for hipLinking.
+   * @param linkRecordsRequest Response received to facade for hipLinking.
    */
   @Transactional
-  public void setHipLinkResponse(LinkRecordsResponse linkRecordsResponse) {
-    if (Objects.isNull(linkRecordsResponse)) {
+  public void setHipLinkResponse(LinkRecordsRequest linkRecordsRequest) {
+    if (Objects.isNull(linkRecordsRequest)) {
       return;
     }
     RequestLog newRecord = new RequestLog();
-    newRecord.setClientRequestId(linkRecordsResponse.getRequestId());
-    newRecord.setGatewayRequestId(linkRecordsResponse.getRequestId());
+    newRecord.setClientRequestId(linkRecordsRequest.getRequestId());
+    newRecord.setGatewayRequestId(linkRecordsRequest.getRequestId());
     HashMap<String, Object> map = new HashMap<>();
-    map.put("LinkRecordsResponse", linkRecordsResponse);
+    map.put("LinkRecordsResponse", linkRecordsRequest);
     newRecord.setRawResponse(map);
     mongoTemplate.save(newRecord);
   }
@@ -296,9 +296,9 @@ public class RequestLogService<T> {
                         : linkOnAddCareContextsResponse.getAcknowledgement().getStatus())
                 .set("rawResponse", map);
         mongoTemplate.updateFirst(query, update, RequestLog.class);
-        LinkRecordsResponse linkRecordsResponse =
-            (LinkRecordsResponse) existingRecord.getRawResponse().get("LinkRecordsResponse");
-        patientService.addPatientCareContexts(linkRecordsResponse);
+        LinkRecordsRequest linkRecordsRequest =
+            (LinkRecordsRequest) existingRecord.getRawResponse().get("LinkRecordsResponse");
+        patientService.addPatientCareContexts(linkRecordsRequest);
       }
     } catch (Exception e) {
       log.error(Exceptions.unwrap(e));
