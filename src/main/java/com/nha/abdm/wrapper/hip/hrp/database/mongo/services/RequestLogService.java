@@ -211,7 +211,7 @@ public class RequestLogService<T> {
    *
    * <p>Adding linkOnConfirmResponse dump into db.
    *
-   * @param linkOnConfirmResponse Response from ABDM gateway for successful auth/on-init.
+   * @param linkOnConfirmResponse Response from ABDM gateway for successful auth/on-confirm.
    */
   @Transactional
   public void setHipOnConfirmResponse(

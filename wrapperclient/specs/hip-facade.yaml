@@ -1,0 +1,189 @@
+openapi: 3.0.3
+info:
+  title: Swagger HIP Facade - OpenAPI 3.0
+  description: |-
+    This is a set of interfaces based on the OpenAPI 3.0 specification for a wrapper client
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080/v1
+paths:
+  /add-patients:
+    put:
+      tags:
+        - patients
+      summary: Insert or Update a list of patients
+      description: Insert or Update a list of patients
+      operationId: upsertPatients
+      requestBody:
+        description: Insert or update a list of patients in the wrapper database
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Patient'
+        required: true
+      responses:
+        '200':
+          description: Successfully added patients
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Patient not found
+        '422':
+          description: Validation exception
+  /verify-otp:
+    post:
+      tags:
+        - link
+      summary: Verify OTP for link auth modes Mobile and Aadhaar
+      description: Verify OTP for link auth modes Mobile and Aadhaar
+      operationId: verifyOTP
+      requestBody:
+        description: Verifies OTP
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                loginHint:
+                  type: string
+                  enum: [hipLinking]
+                  example: hipLinking
+                requestId:
+                  type: string
+                authCode:
+                  type: string
+      responses:
+        '200':
+          description: Successfully added patients
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Invalid request body supplied
+        '404':
+          description: Address not found
+        '422':
+          description: Validation exception
+  /link-carecontexts:
+    post:
+      tags:
+        - link
+      summary: Links care contexts for a given patient's abha address
+      description: Links care contexts for a given patient's abha address
+      operationId: linkCareContexts
+      requestBody:
+        description: Links Care Contexts
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                requestId:
+                  type: string
+                requesterId:
+                  type: string
+                abhaAddress:
+                  type: string
+                authMode:
+                  type: string
+                  enum: [DEMOGRAPHICS, MOBILE_OTP, AADHAAR_OTP]
+                  example: DEMOGRAPHICS
+                patient:
+                  $ref: '#/components/schemas/PatientWithCareContext'
+      responses:
+        '200':
+          description: Submitted request for linking care contexts
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Invalid request body supplied
+        '404':
+          description: Address not found
+        '422':
+          description: Validation exception
+  /link-status/{requestId}:
+    get:
+      tags:
+        - link
+      summary: Get status of Link request.
+      parameters:
+        - in: path
+          name: requestId
+          schema:
+            type: string
+          required: true
+          description: Request Id of the link care context request.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacadeResponse'
+components:
+  schemas:
+    Patient:
+      type: object
+      properties:
+        abhaAddress:
+          type: string
+        name:
+          type: string
+        gender:
+          type: string
+          example: M
+        dateOfBirth:
+          type: string
+          example: '2003-09-23'
+        patientReference:
+          type: string
+        patientDisplay:
+          type: string
+        patientMobile:
+          type: string
+    PatientWithCareContext:
+      type: object
+      properties:
+        id:
+          type: string
+          description: ABHA Address
+        referenceNumber:
+          type: string
+        careContexts:
+          type: array
+          items:
+            $ref: '#/components/schemas/CareContext'
+    CareContext:
+      type: object
+      properties:
+        referenceNumber:
+          type: string
+        display:
+          type: string
+    FacadeResponse:
+      type: object
+      properties:
+        requestId:
+          type: string
+        code:
+          type: integer
+        message:
+          type: string
+        error:
+          $ref: '#/components/schemas/ErrorResponse'
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
