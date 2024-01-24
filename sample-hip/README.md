@@ -1,5 +1,15 @@
 ## Steps to use Sample HIP
 
+### Here are the apis exposed by wrapper which an HIP application needs to call:
+- add-patients
+- link-carecontexts
+- verify-otp
+- link-status/{requestId}
+
+To do this, we have a way to use generated code based on Open API 3.0 spec apis.
+HIP needs to implement get patient api and expose an endpoint:
+- patients/{abhaAddress}
+
 ### A lot of pieces are already done like creating of spec and generating of code and a springboot application demonstrating how to use them. If you are starting from scratch, then follow below steps:
 
 - Create a valid yaml file of OpenAPI 3.0 spec. You can use https://editor.swagger.io/ for this. And place this yaml

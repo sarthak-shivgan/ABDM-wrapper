@@ -6,7 +6,7 @@ import com.nha.abdm.wrapper.common.models.FacadeResponse;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.hip.hrp.WorkflowManager;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkRecordsResponse;
+import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
 import java.util.List;
 import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
@@ -33,12 +33,12 @@ public class HIPFacadeLinkController {
   /**
    * <B>Facade</B> POST method to facade for linking careContexts i.e. hipInitiatedLinking.
    *
-   * @param linkRecordsResponse Response which has authMode, patient details and careContexts.
+   * @param linkRecordsRequest Response which has authMode, patient details and careContexts.
    * @return acknowledgement of status.
    */
   @PostMapping({"/link-carecontexts"})
-  public FacadeResponse linkRecords(@RequestBody LinkRecordsResponse linkRecordsResponse) {
-    return workflowManager.initiateHipAuthInit(linkRecordsResponse);
+  public FacadeResponse linkRecords(@RequestBody LinkRecordsRequest linkRecordsRequest) {
+    return workflowManager.initiateHipAuthInit(linkRecordsRequest);
   }
 
   /**

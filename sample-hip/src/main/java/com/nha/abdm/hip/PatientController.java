@@ -52,8 +52,8 @@ public class PatientController {
         return patientsApi.upsertPatients(patients);
     }
 
-    @PostMapping({"/test-wrapper/link-carecontexts"})
-    public String linkCareContexts() throws  ApiException {
+    @PostMapping({"/test-wrapper/link-carecontexts-demographics"})
+    public String linkCareContextsDemographics() throws  ApiException {
         LinkApi linkApi = new LinkApi();
 
         CareContext careContext1 = new CareContext();
@@ -83,8 +83,39 @@ public class PatientController {
         return linkApi.linkCareContexts(linkCareContextsRequest);
     }
 
-    @PostMapping({"/test-wrapper/verify-otp/{otp}"})
-    public String verifyOtp(@PathVariable String otp) throws ApiException {
+    @PostMapping({"/test-wrapper/link-carecontexts-mobile-otp"})
+    public String linkCareContextsMobileOtp() throws  ApiException {
+        LinkApi linkApi = new LinkApi();
+
+        CareContext careContext1 = new CareContext();
+        careContext1.setReferenceNumber("care-context-reference3");
+        careContext1.setDisplay("care-context-display3");
+
+        CareContext careContext2 = new CareContext();
+        careContext2.setReferenceNumber("care-context-reference4");
+        careContext2.setDisplay("care-context-display4");
+
+        List<CareContext> careContexts = new ArrayList<>();
+        careContexts.add(careContext1);
+        careContexts.add(careContext2);
+
+        PatientWithCareContext patient = new PatientWithCareContext();
+        patient.setId("atul_kumar13@sbx");
+        patient.setReferenceNumber("patient123");
+        patient.setCareContexts(careContexts);
+
+        LinkCareContextsRequest linkCareContextsRequest = new LinkCareContextsRequest();
+        linkCareContextsRequest.setRequestId(requestId);
+        linkCareContextsRequest.setRequesterId("Demo_Atul_HIP");
+        linkCareContextsRequest.setAbhaAddress("atul_kumar13@sbx");
+        linkCareContextsRequest.setAuthMode(LinkCareContextsRequest.AuthModeEnum.MOBILE_OTP);
+        linkCareContextsRequest.setPatient(patient);
+
+        return linkApi.linkCareContexts(linkCareContextsRequest);
+    }
+
+    @PostMapping({"/test-wrapper/verify-otp"})
+    public String verifyOtp(@RequestBody String otp) throws ApiException {
         LinkApi linkApi = new LinkApi();
 
         VerifyOTPRequest verifyOTPRequest = new VerifyOTPRequest();

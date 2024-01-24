@@ -1,7 +1,6 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nha.abdm.wrapper.common.models.FacadeResponse;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
@@ -10,13 +9,12 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.discover.DiscoveryInterface;
 import com.nha.abdm.wrapper.hip.hrp.discover.responses.DiscoverResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.HipLinkInterface;
+import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkRecordsResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.LinkInterface;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
-import java.net.URISyntaxException;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,8 +37,7 @@ public class WorkflowManager {
    *
    * @param discoverResponse Response from ABDM gateway for patient discovery
    */
-  public void initiateOnDiscover(DiscoverResponse discoverResponse)
-      throws URISyntaxException, JsonProcessingException {
+  public void initiateOnDiscover(DiscoverResponse discoverResponse) {
     if (discoverResponse != null) {
       discoveryInterface.onDiscover(discoverResponse);
     } else {
@@ -55,8 +52,7 @@ public class WorkflowManager {
    *
    * @param initResponse Response from ABDM gateway after successful on-Discover request.
    */
-  public void initiateOnInit(InitResponse initResponse)
-      throws URISyntaxException, JsonProcessingException {
+  public void initiateOnInit(InitResponse initResponse) {
     if (initResponse != null) {
       linkInterface.onInit(initResponse);
     } else {
@@ -71,8 +67,7 @@ public class WorkflowManager {
    *
    * @param confirmResponse Response form ABDM gateway after successful on-init request.
    */
-  public void initiateOnConfirmCall(ConfirmResponse confirmResponse)
-      throws URISyntaxException, JsonProcessingException {
+  public void initiateOnConfirmCall(ConfirmResponse confirmResponse) {
     if (confirmResponse != null) {
       linkInterface.onConfirm(confirmResponse);
     } else {
@@ -97,12 +92,12 @@ public class WorkflowManager {
    *
    * <p>Routing linkRecordsResponse to hipLinkInterface for making authInit body and POST auth/init.
    *
-   * @param linkRecordsResponse Response received from facility to facade to link careContext
+   * @param linkRecordsRequest Response received from facility to facade to link careContext
    * @return clientRequestId and statusCode.
    */
-  public FacadeResponse initiateHipAuthInit(LinkRecordsResponse linkRecordsResponse) {
-    if (linkRecordsResponse != null) {
-      return hipLinkInterface.hipAuthInit(linkRecordsResponse);
+  public FacadeResponse initiateHipAuthInit(LinkRecordsRequest linkRecordsRequest) {
+    if (linkRecordsRequest != null) {
+      return hipLinkInterface.hipAuthInit(linkRecordsRequest);
     }
     String error = "initiateHipAuthInit: Error in linkRecordsResponse";
     log.debug(error);
@@ -124,7 +119,7 @@ public class WorkflowManager {
         hipLinkInterface.hipConfirmCall(linkOnInitResponse);
       else if (linkOnInitResponse.getAuth().getMode().equals("MOBILE_OTP"))
         requestLogService.setHipOnInitResponseOTP(linkOnInitResponse);
-    } else if (linkOnInitResponse.getError() != null) {
+    } else if (linkOnInitResponse != null) {
       log.error("OnInit error" + linkOnInitResponse.getError().getMessage());
     } else {
       log.error("Oninit -> error due to response");
@@ -142,7 +137,7 @@ public class WorkflowManager {
   public void addCareContext(LinkOnConfirmResponse linkOnConfirmResponse) {
     if (linkOnConfirmResponse != null && linkOnConfirmResponse.getError() == null) {
       hipLinkInterface.hipAddCareContext(linkOnConfirmResponse);
-    } else if (linkOnConfirmResponse.getError() != null) {
+    } else if (linkOnConfirmResponse != null) {
       log.error("OnConfirm error" + linkOnConfirmResponse.getError().getMessage());
     } else {
       log.error("OnConfirm -> error due to response");
