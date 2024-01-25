@@ -22,7 +22,7 @@ HIP needs to implement get patient api and expose an endpoint:
 - Now in `PatientController.java` create request parameters and provide in respective API's method e.g. `PatientsApi.upsertPatients(patients)`
 
 #### Bring the applications up to test your changes.
-- Run ABDM wrapper by going to root directory and issuing command ``gradle bootRun``
+- Run ABDM wrapper by going to root directory and issuing command ``docker-compose up``
 - Now change directory to sample-hip and run command ``gradle bootRun``. It should bring up sample hip application.
 - You can test respective api methods by calling apis on PatientController.
 
