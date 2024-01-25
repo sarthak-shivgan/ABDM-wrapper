@@ -10,12 +10,8 @@ import org.springframework.stereotype.Repository;
 public interface LogsRepo extends MongoRepository<RequestLog, String> {
   RequestLog findByClientRequestId(String clientRequestId);
 
-  RequestLog findByTransactionId(String transactionId);
-
   @Query("{linkRefNumber :?0}")
   RequestLog findByLinkRefNumber(String linkRefNumber);
 
   RequestLog findByGatewayRequestId(String clientRequestId);
-
-  RequestLog findByRequestId(String requestId);
 }

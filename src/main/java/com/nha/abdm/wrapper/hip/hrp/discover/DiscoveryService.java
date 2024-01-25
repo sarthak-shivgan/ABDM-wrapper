@@ -1,10 +1,8 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.discover;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.common.ErrorResponse;
 import com.nha.abdm.wrapper.common.RequestManager;
-import com.nha.abdm.wrapper.common.SessionManager;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.hip.hrp.common.requests.CareContextRequest;
@@ -13,6 +11,7 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.discover.requests.*;
 import com.nha.abdm.wrapper.hip.hrp.discover.responses.DiscoverResponse;
+import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
 import info.debatty.java.stringsimilarity.JaroWinkler;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,7 +27,6 @@ public class DiscoveryService implements DiscoveryInterface {
 
   @Autowired PatientRepo patientRepo;
   private final RequestManager requestManager;
-  private final SessionManager sessionManager;
   @Autowired RequestLogService requestLogService;
   ErrorResponse errorResponse = new ErrorResponse();
   JaroWinkler jaroWinkler = new JaroWinkler();
@@ -37,9 +35,8 @@ public class DiscoveryService implements DiscoveryInterface {
   public String onDiscoverPath;
 
   @Autowired
-  public DiscoveryService(RequestManager requestManager, SessionManager sessionManager) {
+  public DiscoveryService(RequestManager requestManager) {
     this.requestManager = requestManager;
-    this.sessionManager = sessionManager;
   }
 
   private static final Logger log = LogManager.getLogger(DiscoveryService.class);
@@ -196,8 +193,8 @@ public class DiscoveryService implements DiscoveryInterface {
             .build();
     log.info("onDiscover : " + onDiscoverRequest.toString());
     try {
-      ResponseEntity<ObjectNode> responseEntity =
-          requestManager.fetchResponseFromPostRequest(onDiscoverPath, onDiscoverRequest);
+      ResponseEntity<GatewayGenericResponse> responseEntity =
+          requestManager.fetchResponseFromGateway(onDiscoverPath, onDiscoverRequest);
       log.info(onDiscoverPath + " : onDiscoverCall: " + responseEntity.getStatusCode());
       requestLogService.setDiscoverResponse(discoverResponse);
     } catch (Exception e) {
@@ -226,7 +223,7 @@ public class DiscoveryService implements DiscoveryInterface {
             .build();
     log.info("onDiscover : " + onDiscoverErrorRequest.toString());
     try {
-      requestManager.fetchResponseFromPostRequest(onDiscoverPath, onDiscoverErrorRequest);
+      requestManager.fetchResponseFromGateway(onDiscoverPath, onDiscoverErrorRequest);
       log.info(
           onDiscoverPath
               + " Discover: requestId : "

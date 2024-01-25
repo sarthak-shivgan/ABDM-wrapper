@@ -1,7 +1,9 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.facade.link;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.nha.abdm.wrapper.common.ErrorResponse;
+import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.FacadeResponse;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.hip.hrp.WorkflowManager;
@@ -12,6 +14,7 @@ import java.util.Objects;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -23,11 +26,12 @@ public class HIPFacadeLinkController {
   /**
    * <B>Facade</B> GET method to facade for checking status of hipInitiatedLinking.
    *
-   * @param requestId clientRequestId which is used in linkRecordsResponse as well as in auth/init.
+   * @param requestId clientRequestId which is used in linkRecordsRequest as well as in auth/init.
    * @return acknowledgement of status.
    */
   @GetMapping({"/link-status/{requestId}"})
-  public FacadeResponse fetchCareContextStatus(@PathVariable("requestId") String requestId) {
+  public FacadeResponse fetchCareContextStatus(@PathVariable("requestId") String requestId)
+      throws IllegalDataStateException {
     return workflowManager.getCareContextRequestStatus(requestId);
   }
   /**
@@ -47,13 +51,18 @@ public class HIPFacadeLinkController {
    * @param verifyOTP Response has OTP and clientRequestId.
    */
   @PostMapping({"/verify-otp"})
-  public FacadeResponse verifyOtp(@RequestBody VerifyOTP verifyOTP) {
+  public FacadeResponse verifyOtp(@RequestBody VerifyOTP verifyOTP)
+      throws IllegalDataStateException {
     log.debug(verifyOTP.toString());
     if (Objects.equals(verifyOTP.getLoginHint(), "hipLinking")) {
-      return workflowManager.initiateHipConfirmCallOTP(verifyOTP);
+      return workflowManager.confirmAuthOtp(verifyOTP);
     }
     return FacadeResponse.builder()
-        .error(ErrorResponse.builder().message("Unknown Login Hint").build())
+        .error(
+            ErrorResponse.builder()
+                .message("Unknown Login Hint")
+                .code(HttpStatus.BAD_REQUEST.value())
+                .build())
         .build();
   }
 
@@ -66,5 +75,25 @@ public class HIPFacadeLinkController {
   @PutMapping({"/add-patients"})
   public FacadeResponse addPatients(@RequestBody List<Patient> patients) {
     return workflowManager.addPatients(patients);
+  }
+
+  /**
+   * Convert JsonProcessingException exceptions thrown by HIP Facade Link controller to API error
+   * response.
+   */
+  @ExceptionHandler(JsonProcessingException.class)
+  private FacadeResponse handleJsonProcessingException(JsonProcessingException ex) {
+    return FacadeResponse.builder()
+        .message(ex.getMessage())
+        .code(HttpStatus.BAD_REQUEST.value())
+        .build();
+  }
+
+  @ExceptionHandler(IllegalDataStateException.class)
+  private FacadeResponse handleIllegalDataStateException(Exception ex) {
+    return FacadeResponse.builder()
+        .message(ex.getMessage())
+        .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+        .build();
   }
 }

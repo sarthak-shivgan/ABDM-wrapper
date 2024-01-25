@@ -2,7 +2,11 @@
 package com.nha.abdm.wrapper.hip.hrp;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.nha.abdm.wrapper.common.ErrorResponse;
+import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.discover.responses.DiscoverResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnAddCareContextsResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
@@ -24,6 +28,7 @@ public class GatewayCallbackController {
 
   @Autowired WorkflowManager workflowManager;
   @Autowired RequestLogService requestLogService;
+  @Autowired LogsRepo logsRepo;
 
   private static final Logger log = LogManager.getLogger(GatewayCallbackController.class);
 
@@ -53,10 +58,9 @@ public class GatewayCallbackController {
    * @param initResponse Response from ABDM gateway which has careContexts.
    */
   @PostMapping("/v0.5/links/link/init")
-  public void initCall(@RequestBody InitResponse initResponse)
-      throws URISyntaxException, JsonProcessingException {
+  public void initCall(@RequestBody InitResponse initResponse) {
     if (initResponse != null && initResponse.getError() == null) {
-      log.info("/v0.5/links/link/init :" + initResponse.toString());
+      log.info("/v0.5/links/link/init :" + initResponse);
       workflowManager.initiateOnInit(initResponse);
     } else {
       log.error("/v0.5/links/link/init :" + initResponse.getError().getMessage());
@@ -72,10 +76,9 @@ public class GatewayCallbackController {
    *     authentication.
    */
   @PostMapping("/v0.5/links/link/confirm")
-  public void confirmCall(@RequestBody ConfirmResponse confirmResponse)
-      throws URISyntaxException, JsonProcessingException {
+  public void confirmCall(@RequestBody ConfirmResponse confirmResponse) {
     if (confirmResponse != null && confirmResponse.getError() == null) {
-      log.info("/v0.5/links/link/confirm : " + confirmResponse.toString());
+      log.info("/v0.5/links/link/confirm : " + confirmResponse);
       workflowManager.initiateOnConfirmCall(confirmResponse);
     } else {
       log.error("/v0.5/links/link/confirm : " + confirmResponse.getError().getMessage());
@@ -90,15 +93,22 @@ public class GatewayCallbackController {
    * @param linkOnInitResponse Response from ABDM gateway after auth/init which has transactionId.
    */
   @PostMapping({"/v0.5/users/auth/on-init"})
-  public void onAuthInitCall(@RequestBody LinkOnInitResponse linkOnInitResponse) {
+  public ErrorResponse onAuthInitCall(@RequestBody LinkOnInitResponse linkOnInitResponse)
+      throws IllegalDataStateException {
     if (linkOnInitResponse != null && linkOnInitResponse.getError() == null) {
-      log.info(linkOnInitResponse.toString());
-      this.workflowManager.initiateAuthConfirmDemographics(linkOnInitResponse);
+      log.debug(linkOnInitResponse.toString());
+      this.workflowManager.initiateAuthConfirm(linkOnInitResponse);
     } else if (linkOnInitResponse.getError() != null) {
-      log.info("got Error in OnInitRequest callback: " + linkOnInitResponse.getError().toString());
+      updateRequestError(
+          linkOnInitResponse.getResp().getRequestId(),
+          "onAuthInitCall",
+          linkOnInitResponse.getError().getMessage());
     } else {
-      log.error("got Error in OnInitRequest callback");
+      String error = "Got Error in OnInitRequest callback: gateway response was null";
+      updateRequestError(linkOnInitResponse.getResp().getRequestId(), "onAuthInitCall", error);
+      return ErrorResponse.builder().code(1000).message(error).build();
     }
+    return null;
   }
 
   /**
@@ -110,15 +120,22 @@ public class GatewayCallbackController {
    *     linkToken to link careContext.
    */
   @PostMapping({"/v0.5/users/auth/on-confirm"})
-  public void onAuthConfirmCall(@RequestBody LinkOnConfirmResponse linkOnConfirmResponse) {
+  public ErrorResponse onAuthConfirmCall(@RequestBody LinkOnConfirmResponse linkOnConfirmResponse)
+      throws IllegalDataStateException {
     if (linkOnConfirmResponse != null && linkOnConfirmResponse.getError() == null) {
       log.debug(linkOnConfirmResponse.toString());
       this.workflowManager.addCareContext(linkOnConfirmResponse);
     } else if (linkOnConfirmResponse.getError() != null) {
-      log.error("gotError in OnInitRequest callback: " + linkOnConfirmResponse.getError());
+      updateRequestError(
+          linkOnConfirmResponse.getResp().getRequestId(),
+          "onAuthConfirmCall",
+          linkOnConfirmResponse.getError().getMessage());
     } else {
-      log.error("gotError in OnInitRequest callback");
+      String error = "Got Error in onAuthConfirmCall callback: gateway response was null";
+      updateRequestError(linkOnConfirmResponse.getResp().getRequestId(), "onAuthInitCall", error);
+      return ErrorResponse.builder().code(1000).message(error).build();
     }
+    return null;
   }
 
   /**
@@ -130,18 +147,39 @@ public class GatewayCallbackController {
    *     linking.
    */
   @PostMapping({"/v0.5/links/link/on-add-contexts"})
-  public void onAddCareContext(
-      @RequestBody LinkOnAddCareContextsResponse linkOnAddCareContextsResponse) {
+  public ErrorResponse onAddCareContext(
+      @RequestBody LinkOnAddCareContextsResponse linkOnAddCareContextsResponse)
+      throws IllegalDataStateException {
     log.debug(linkOnAddCareContextsResponse.toString());
     if (linkOnAddCareContextsResponse != null) {
       if (linkOnAddCareContextsResponse.getError() != null) {
-        log.error(
-            "/v0.5/links/link/on-add-contexts error: "
-                + linkOnAddCareContextsResponse.getError().getMessage());
+        updateRequestError(
+            linkOnAddCareContextsResponse.getResp().getRequestId(),
+            "onAddCareContext",
+            linkOnAddCareContextsResponse.getError().getMessage());
+      } else {
+        requestLogService.setHipOnAddCareContextResponse(linkOnAddCareContextsResponse);
       }
-      requestLogService.setHipOnAddCareContextResponse(linkOnAddCareContextsResponse);
     } else {
-      log.error("Failed to add Context");
+      String error = "Got Error in onAddCareContext callback: gateway response was null";
+      updateRequestError(
+          linkOnAddCareContextsResponse.getResp().getRequestId(), "onAddCareContext", error);
+      return ErrorResponse.builder().code(1000).message(error).build();
     }
+    return null;
+  }
+
+  private void updateRequestError(String requestId, String methodName, String errorMessage)
+      throws IllegalDataStateException {
+    RequestLog requestLog = logsRepo.findByGatewayRequestId(requestId);
+    if (requestLog == null) {
+      String error = "Illegal State - Request Id not found in database: " + requestId;
+      log.error(error);
+      throw new IllegalDataStateException(error);
+    }
+    String error = String.format("Got Error in %s callback: %s", methodName, errorMessage);
+    log.error(error);
+    requestLog.setError(error);
+    requestLogService.updateError(requestLog, error);
   }
 }

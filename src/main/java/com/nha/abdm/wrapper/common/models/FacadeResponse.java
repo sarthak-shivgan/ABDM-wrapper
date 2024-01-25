@@ -10,7 +10,6 @@ import lombok.Data;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FacadeResponse {
-  private String requestId;
   private int code;
   private String message;
   private ErrorResponse error;

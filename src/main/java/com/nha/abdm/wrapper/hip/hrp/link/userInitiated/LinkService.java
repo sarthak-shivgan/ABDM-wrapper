@@ -1,10 +1,8 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.link.userInitiated;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.common.ErrorResponse;
 import com.nha.abdm.wrapper.common.RequestManager;
-import com.nha.abdm.wrapper.common.SessionManager;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.hip.hrp.common.requests.CareContextRequest;
@@ -13,6 +11,7 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.discover.requests.Response;
+import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.requests.*;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
@@ -33,7 +32,6 @@ public class LinkService implements LinkInterface {
 
   @Autowired PatientRepo patientRepo;
   private final RequestManager requestManager;
-  private final SessionManager sessionManager;
   @Autowired RequestLogService requestLogService;
   @Autowired PatientService patientService;
 
@@ -44,9 +42,8 @@ public class LinkService implements LinkInterface {
   public String onConfirmLinkPath;
 
   @Autowired
-  public LinkService(RequestManager requestManager, SessionManager sessionManager) {
+  public LinkService(RequestManager requestManager) {
     this.requestManager = requestManager;
-    this.sessionManager = sessionManager;
   }
 
   private static final Logger log = LogManager.getLogger(LinkService.class);
@@ -107,8 +104,8 @@ public class LinkService implements LinkInterface {
     }
     log.info("onInit body : " + onInitRequest.toString());
     try {
-      ResponseEntity<ObjectNode> responseEntity =
-          requestManager.fetchResponseFromPostRequest(onInitLinkPath, onInitRequest);
+      ResponseEntity<GatewayGenericResponse> responseEntity =
+          requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
       log.info(onInitLinkPath + " : onInitCall: " + responseEntity.getStatusCode());
     } catch (Exception e) {
       log.info(onInitLinkPath + " : OnInitCall -> Error : " + Arrays.toString(e.getStackTrace()));
@@ -187,7 +184,7 @@ public class LinkService implements LinkInterface {
     log.info("onConfirm : " + onConfirmRequest.toString());
     try {
       ResponseEntity responseEntity =
-          requestManager.fetchResponseFromPostRequest(onConfirmLinkPath, onConfirmRequest);
+          requestManager.fetchResponseFromGateway(onConfirmLinkPath, onConfirmRequest);
       log.info(onConfirmLinkPath + " : onConfirmCall: " + responseEntity.getStatusCode());
       patientService.updateCareContextStatus(patientReference, selectedCareContexts);
     } catch (Exception e) {

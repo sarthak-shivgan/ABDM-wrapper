@@ -1,11 +1,10 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.link.hipInitiated;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.common.ErrorResponse;
 import com.nha.abdm.wrapper.common.RequestManager;
-import com.nha.abdm.wrapper.common.SessionManager;
 import com.nha.abdm.wrapper.common.Utils;
+import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.FacadeResponse;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.hip.HIPClient;
@@ -15,21 +14,25 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
 import com.nha.abdm.wrapper.hip.hrp.discover.requests.OnDiscoverPatient;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkAddCareContext;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkAuthInit;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkConfirm;
+import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkConfirmRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.helpers.*;
+import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
-import java.util.Arrays;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.Exceptions;
@@ -39,11 +42,10 @@ public class HipLinkService implements HipLinkInterface {
   @Autowired PatientRepo patientRepo;
   @Autowired LogsRepo logsRepo;
   private final RequestManager requestManager;
-  private final SessionManager sessionManager;
   @Autowired RequestLogService requestLogService;
   private final HIPClient hipClient;
-  private final String requesterType = "HIP";
-  private final String linkPurpose = "KYC_AND_LINK";
+  private static final String REQUESTER_TYPE = "HIP";
+  private static final String LINK_PURPOSE = "KYC_AND_LINK";
 
   @Value("${linkAuthInitPath}")
   public String linkAuthInitPath;
@@ -54,14 +56,10 @@ public class HipLinkService implements HipLinkInterface {
   @Value("${linkAddContextsPath}")
   public String linkAddContextsPath;
 
-  ResponseEntity<ObjectNode> responseEntity;
-
   @Autowired
-  public HipLinkService(
-      HIPClient hipClient, RequestManager requestManager, SessionManager sessionManager) {
+  public HipLinkService(HIPClient hipClient, RequestManager requestManager) {
     this.hipClient = hipClient;
     this.requestManager = requestManager;
-    this.sessionManager = sessionManager;
   }
 
   private static final Logger log = LogManager.getLogger(HipLinkService.class);
@@ -70,71 +68,65 @@ public class HipLinkService implements HipLinkInterface {
    * <B>hipInitiatedLinking</B>
    *
    * <p>1)Build the required body for /auth/init including abhaAddress.<br>
-   * 2)Stores the request of linkRecordsResponse into requestLog.<br>
+   * 2)Stores the request of linkRecordsRequest into requestLog.<br>
    * 3)makes a POST request to /auth/init API
    *
    * @param linkRecordsRequest Response which has authMode, patient details and careContexts.
    * @return it returns the requestId and status of initiation to the Facility for future tracking
    */
   public FacadeResponse hipAuthInit(LinkRecordsRequest linkRecordsRequest) {
-    try {
-      LinkRequester linkRequester =
-          LinkRequester.builder()
-              .id(linkRecordsRequest.getRequesterId())
-              .type(requesterType)
-              .build();
 
-      LinkQuery linkQuery =
-          LinkQuery.builder()
-              .id(linkRecordsRequest.getAbhaAddress())
-              .purpose(linkPurpose)
-              .authMode(linkRecordsRequest.getAuthMode())
-              .requester(linkRequester)
-              .build();
-
-      LinkAuthInit linkAuthInit =
-          LinkAuthInit.builder()
-              .requestId(linkRecordsRequest.getRequestId())
-              .timestamp(Utils.getCurrentTimeStamp())
-              .query(linkQuery)
-              .build();
-
-      log.debug("LinkAuthInit : " + linkAuthInit.toString());
-      log.debug("LinkRecords storing data");
-      requestLogService.setHipLinkResponse(linkRecordsRequest);
-      try {
-        responseEntity =
-            requestManager.fetchResponseFromPostRequest(linkAuthInitPath, linkAuthInit);
-        log.info(linkAuthInitPath + " : linkAuthInit: " + responseEntity.getStatusCode());
-        return FacadeResponse.builder()
-            .code(responseEntity.getStatusCode().value())
-            .requestId(linkAuthInit.getRequestId())
+    LinkRequester linkRequester =
+        LinkRequester.builder()
+            .id(linkRecordsRequest.getRequesterId())
+            .type(REQUESTER_TYPE)
             .build();
-      } catch (Exception e) {
-        log.error(linkAuthInitPath + " : linkAuthInit -> Error : " + Exceptions.unwrap(e));
-        ErrorResponse errorResponse =
-            ErrorResponse.builder()
-                .message(
-                    "Error while link auth init: "
-                        + e.getMessage()
-                        + " exception: "
-                        + Exceptions.unwrap(e))
-                .build();
-        return FacadeResponse.builder().error(errorResponse).build();
-      }
 
-    } catch (Exception e) {
-      log.error("Link authInit : " + Exceptions.unwrap(e));
-      ErrorResponse errorResponse =
-          ErrorResponse.builder()
-              .code(1000)
-              .message(
-                  "Error while linking care contexts in auth init: "
-                      + e.getMessage()
-                      + " exception: "
-                      + Exceptions.unwrap(e))
-              .build();
-      return FacadeResponse.builder().error(errorResponse).build();
+    LinkQuery linkQuery =
+        LinkQuery.builder()
+            .id(linkRecordsRequest.getAbhaAddress())
+            .purpose(LINK_PURPOSE)
+            .authMode(linkRecordsRequest.getAuthMode())
+            .requester(linkRequester)
+            .build();
+
+    LinkAuthInit linkAuthInit =
+        LinkAuthInit.builder()
+            .requestId(linkRecordsRequest.getRequestId())
+            .timestamp(Utils.getCurrentTimeStamp())
+            .query(linkQuery)
+            .build();
+
+    log.debug("LinkAuthInit : " + linkAuthInit.toString());
+
+    try {
+      ResponseEntity<GatewayGenericResponse> response =
+          requestManager.fetchResponseFromGateway(linkAuthInitPath, linkAuthInit);
+      log.debug(linkAuthInitPath + " : linkAuthInit: " + response.getStatusCode());
+      if (response.getStatusCode() == HttpStatus.ACCEPTED) {
+        requestLogService.persistHipLinkRequest(
+            linkRecordsRequest, RequestStatus.AUTH_INIT_ACCEPTED, null);
+      } else if (Objects.nonNull(response.getBody())
+          && Objects.nonNull(response.getBody().getErrorResponse())) {
+        requestLogService.persistHipLinkRequest(
+            linkRecordsRequest, RequestStatus.AUTH_INIT_ERROR, null);
+        return FacadeResponse.builder()
+            .error(response.getBody().getErrorResponse())
+            .code(response.getStatusCode().value())
+            .build();
+      }
+      return FacadeResponse.builder().code(response.getStatusCode().value()).build();
+    } catch (Exception ex) {
+      String error =
+          "Exception while Initiating HIP auth: "
+              + ex.getMessage()
+              + " unwrapped exception: "
+              + Exceptions.unwrap(ex);
+      log.debug(error);
+      return FacadeResponse.builder()
+          .message(error)
+          .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+          .build();
     }
   }
 
@@ -150,16 +142,21 @@ public class HipLinkService implements HipLinkInterface {
    * @param linkOnInitResponse Response from ABDM gateway with transactionId after successful
    *     auth/init.
    */
-  public void hipConfirmCall(LinkOnInitResponse linkOnInitResponse) {
-    RequestLog existingRecord =
+  public void confirmAuthDemographics(LinkOnInitResponse linkOnInitResponse)
+      throws IllegalDataStateException {
+    RequestLog requestLog =
         logsRepo.findByGatewayRequestId(linkOnInitResponse.getResp().getRequestId());
-    if (existingRecord == null) {
-      log.error("hipConfirmCall: Illegal State - Request Id not found in database.");
-      return;
+    if (requestLog == null) {
+      String error = "confirmAuthDemographics: Illegal State - Request Id not found in database.";
+      log.error(error);
+      throw new IllegalDataStateException(error);
     }
-    log.debug("In confirmAuth found existing record");
+    log.debug(
+        "In confirmAuthDemographics found existing record log for client request: "
+            + requestLog.getClientRequestId());
     LinkRecordsRequest linkRecordsRequest =
-        (LinkRecordsRequest) existingRecord.getRawResponse().get("LinkRecordsResponse");
+        (LinkRecordsRequest)
+            requestLog.getRequestDetails().get(FieldIdentifiers.LINK_RECORDS_REQUEST);
     Patient patient =
         Optional.ofNullable(patientRepo.findByAbhaAddress(linkRecordsRequest.getAbhaAddress()))
             .orElseGet(() -> getPatient(linkRecordsRequest.getAbhaAddress()));
@@ -170,21 +167,35 @@ public class HipLinkService implements HipLinkInterface {
             .dateOfBirth(patient.getDateOfBirth())
             .build();
     LinkCredential linkCredential = LinkCredential.builder().demographic(userDemographic).build();
-    LinkConfirm linkConfirm =
-        LinkConfirm.builder()
+    LinkConfirmRequest linkConfirmRequest =
+        LinkConfirmRequest.builder()
             .requestId(UUID.randomUUID().toString())
             .timestamp(Utils.getCurrentTimeStamp())
             .transactionId(linkOnInitResponse.getAuth().getTransactionId())
             .credential(linkCredential)
             .build();
-    log.debug("hipConfirmCall" + linkConfirm.toString());
-    requestLogService.setHipOnInitResponse(linkOnInitResponse, linkConfirm);
+    log.debug("confirmAuthDemographics linkConfirmRequest: " + linkConfirmRequest.toString());
+    requestLogService.updateHipOnInitResponse(linkOnInitResponse, linkConfirmRequest);
     try {
-      responseEntity =
-          requestManager.fetchResponseFromPostRequest(linkConfirmAuthPath, linkConfirm);
-      log.info(linkConfirmAuthPath + " : linkConfirmAuth: " + responseEntity.getStatusCode());
+      ResponseEntity<GatewayGenericResponse> response =
+          requestManager.fetchResponseFromGateway(linkConfirmAuthPath, linkConfirmRequest);
+      log.info(linkConfirmAuthPath + " : confirmAuthDemographics: " + response.getStatusCode());
+      if (response.getStatusCode() == HttpStatus.ACCEPTED) {
+        requestLogService.updateStatus(requestLog, RequestStatus.AUTH_CONFIRM_ACCEPTED);
+      } else if (Objects.nonNull(response.getBody())) {
+        requestLogService.updateError(
+            requestLog, response.getBody().getErrorResponse().getMessage());
+      }
     } catch (Exception e) {
-      log.info(linkConfirmAuthPath + " : linkConfirmAuth -> Error : " + Exceptions.unwrap(e));
+      String error =
+          linkConfirmAuthPath
+              + " : confirmAuthDemographics: Error while performing confirm auth: "
+              + e.getMessage()
+              + " unwrapped exception: "
+              + Exceptions.unwrap(e);
+      log.error(error);
+      requestLog.setError(error);
+      requestLogService.updateError(requestLog, error);
     }
   }
 
@@ -217,38 +228,43 @@ public class HipLinkService implements HipLinkInterface {
    *
    * @param verifyOTP Response to facade with OTP for authentication.
    */
-  public FacadeResponse hipConfirmCallOtp(VerifyOTP verifyOTP) {
-    RequestLog existingRecord = logsRepo.findByClientRequestId(verifyOTP.getRequestId());
-    if (existingRecord == null) {
-      return FacadeResponse.builder()
-          .error(
-              ErrorResponse.builder()
-                  .message("Illegal State: Request Not found in database.")
-                  .build())
-          .build();
+  public FacadeResponse confirmAuthOtp(VerifyOTP verifyOTP) throws IllegalDataStateException {
+    RequestLog requestLog = logsRepo.findByClientRequestId(verifyOTP.getRequestId());
+    if (requestLog == null) {
+      throw new IllegalDataStateException(
+          "Illegal State: Request Not found in database: " + verifyOTP.getRequestId());
     }
-    log.debug("In confirmAuth found existing record");
+    log.debug("In confirmAuthOtp found existing record");
 
     LinkCredential linkCredential =
         LinkCredential.builder().authCode(verifyOTP.getAuthCode()).build();
 
     LinkOnInitResponse linkOnInitResponse =
-        (LinkOnInitResponse) existingRecord.getRawResponse().get("HIPOnInitOtp");
-    LinkConfirm linkConfirm =
-        LinkConfirm.builder()
+        (LinkOnInitResponse)
+            requestLog.getRequestDetails().get(FieldIdentifiers.HIP_ON_INIT_RESPONSE);
+    LinkConfirmRequest linkConfirmRequest =
+        LinkConfirmRequest.builder()
             .requestId(UUID.randomUUID().toString())
             .timestamp(Utils.getCurrentTimeStamp())
             .transactionId(linkOnInitResponse.getAuth().getTransactionId())
             .credential(linkCredential)
             .build();
-    log.info("hipConfirmCallOtp" + linkConfirm.toString());
-    requestLogService.updateOnInitResponseOTP(verifyOTP.getRequestId(), linkConfirm.getRequestId());
+    log.debug("confirmAuthOtp" + linkConfirmRequest.toString());
+    requestLogService.updateOnInitResponseOTP(
+        verifyOTP.getRequestId(), linkConfirmRequest.getRequestId());
     try {
-      responseEntity =
-          requestManager.fetchResponseFromPostRequest(linkConfirmAuthPath, linkConfirm);
-      log.info(linkConfirmAuthPath + " : linkConfirmAuth: " + responseEntity.getStatusCode());
+      ResponseEntity<GatewayGenericResponse> response =
+          requestManager.fetchResponseFromGateway(linkConfirmAuthPath, linkConfirmRequest);
+      log.debug(linkConfirmAuthPath + " : confirmAuthOtp: " + response.getStatusCode());
+      if (response.getStatusCode() == HttpStatus.ACCEPTED) {
+        requestLogService.updateStatus(requestLog, RequestStatus.AUTH_CONFIRM_ACCEPTED);
+      } else if (Objects.nonNull(response.getBody())) {
+        requestLogService.updateError(
+            requestLog, response.getBody().getErrorResponse().getMessage());
+      }
       return FacadeResponse.builder()
-          .message(linkConfirmAuthPath + " : linkConfirmAuth: " + responseEntity.getStatusCode())
+          .message(linkConfirmAuthPath + " : confirmAuthOtp: " + response.getStatusCode())
+          .error(Objects.nonNull(response.getBody()) ? response.getBody().getErrorResponse() : null)
           .build();
     } catch (Exception e) {
       String error =
@@ -273,19 +289,23 @@ public class HipLinkService implements HipLinkInterface {
    *
    * @param linkOnConfirmResponse Response from ABDM gateway with linkToken for linking careContext.
    */
-  public void hipAddCareContext(LinkOnConfirmResponse linkOnConfirmResponse) {
-    RequestLog existingRecord =
+  public void hipAddCareContext(LinkOnConfirmResponse linkOnConfirmResponse)
+      throws IllegalDataStateException {
+    RequestLog requestLog =
         logsRepo.findByGatewayRequestId(linkOnConfirmResponse.getResp().getRequestId());
-    if (existingRecord == null) {
-      log.error("hipAddCareContext: Illegal state - Gateway request Id not found in database");
-      return;
+    if (requestLog == null) {
+      String error = "hipAddCareContext: Illegal state - Gateway request Id not found in database";
+      log.error(error);
+      throw new IllegalDataStateException(error);
     }
     LinkRecordsRequest linkRecordsRequest =
-        (LinkRecordsRequest) existingRecord.getRawResponse().get("LinkRecordsResponse");
+        (LinkRecordsRequest)
+            requestLog.getRequestDetails().get(FieldIdentifiers.LINK_RECORDS_REQUEST);
     Patient patient = patientRepo.findByAbhaAddress(linkRecordsRequest.getAbhaAddress());
     if (patient == null) {
-      log.error("hipAddCareContext: Illegal state - Patient not found in database");
-      return;
+      String error = "hipAddCareContext: Illegal state - Patient not found in database";
+      log.error(error);
+      throw new IllegalDataStateException(error);
     }
 
     OnDiscoverPatient patientNode =
@@ -308,15 +328,25 @@ public class HipLinkService implements HipLinkInterface {
     log.debug("Link AddCareContext : " + linkAddCareContext.toString());
     requestLogService.setHipOnConfirmResponse(linkOnConfirmResponse, linkAddCareContext);
     try {
-      responseEntity =
-          requestManager.fetchResponseFromPostRequest(linkAddContextsPath, linkAddCareContext);
-      log.debug(linkAddContextsPath + " : linkAddContexts: " + responseEntity.getStatusCode());
-
+      ResponseEntity<GatewayGenericResponse> response =
+          requestManager.fetchResponseFromGateway(linkAddContextsPath, linkAddCareContext);
+      log.debug(linkAddContextsPath + " : linkAddContexts: " + response.getStatusCode());
+      if (response.getStatusCode() == HttpStatus.ACCEPTED) {
+        requestLogService.updateStatus(requestLog, RequestStatus.ADD_CARE_CONTEXT_ACCEPTED);
+      } else if (Objects.nonNull(response.getBody())) {
+        requestLogService.updateError(
+            requestLog, response.getBody().getErrorResponse().getMessage());
+      }
     } catch (Exception e) {
-      log.error(
-          linkAddContextsPath
-              + " : linkAddContexts -> Error : "
-              + Arrays.toString(e.getStackTrace()));
+      String error =
+          linkConfirmAuthPath
+              + " : hipAddCareContext: Error while performing add care contexts: "
+              + e.getMessage()
+              + " unwrapped exception: "
+              + Exceptions.unwrap(e);
+      log.error(error);
+      requestLog.setError(error);
+      requestLogService.updateError(requestLog, error);
     }
   }
 }

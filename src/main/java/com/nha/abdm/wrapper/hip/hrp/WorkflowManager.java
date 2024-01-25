@@ -1,6 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp;
 
+import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.FacadeResponse;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
@@ -19,6 +20,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -83,14 +85,15 @@ public class WorkflowManager {
    * @param requestId clientRequestId for tracking the linking status.
    * @return "Success", "Initiated", "appropriate error message".
    */
-  public FacadeResponse getCareContextRequestStatus(String requestId) {
-    return FacadeResponse.builder().message(requestLogService.getStatus(requestId)).build();
+  public FacadeResponse getCareContextRequestStatus(String requestId)
+      throws IllegalDataStateException {
+    return requestLogService.getStatus(requestId);
   }
 
   /**
    * hipInitiatedLinking
    *
-   * <p>Routing linkRecordsResponse to hipLinkInterface for making authInit body and POST auth/init.
+   * <p>Routing linkRecordsRequest to hipLinkInterface for making authInit body and POST auth/init.
    *
    * @param linkRecordsRequest Response received from facility to facade to link careContext
    * @return clientRequestId and statusCode.
@@ -99,9 +102,9 @@ public class WorkflowManager {
     if (linkRecordsRequest != null) {
       return hipLinkInterface.hipAuthInit(linkRecordsRequest);
     }
-    String error = "initiateHipAuthInit: Error in linkRecordsResponse";
+    String error = "initiateHipAuthInit: Error in LinkRecordsRequest";
     log.debug(error);
-    return FacadeResponse.builder().message(error).build();
+    return FacadeResponse.builder().message(error).code(HttpStatus.BAD_REQUEST.value()).build();
   }
 
   /**
@@ -113,10 +116,11 @@ public class WorkflowManager {
    *
    * @param linkOnInitResponse Response from ABDM gateway after successful auth/init request.
    */
-  public void initiateAuthConfirmDemographics(LinkOnInitResponse linkOnInitResponse) {
+  public void initiateAuthConfirm(LinkOnInitResponse linkOnInitResponse)
+      throws IllegalDataStateException {
     if (linkOnInitResponse != null && linkOnInitResponse.getError() == null) {
       if (linkOnInitResponse.getAuth().getMode().equals("DEMOGRAPHICS"))
-        hipLinkInterface.hipConfirmCall(linkOnInitResponse);
+        hipLinkInterface.confirmAuthDemographics(linkOnInitResponse);
       else if (linkOnInitResponse.getAuth().getMode().equals("MOBILE_OTP"))
         requestLogService.setHipOnInitResponseOTP(linkOnInitResponse);
     } else if (linkOnInitResponse != null) {
@@ -134,7 +138,8 @@ public class WorkflowManager {
    *
    * @param linkOnConfirmResponse Response from ABDM gateway after successful auth/confirm.<br>
    */
-  public void addCareContext(LinkOnConfirmResponse linkOnConfirmResponse) {
+  public void addCareContext(LinkOnConfirmResponse linkOnConfirmResponse)
+      throws IllegalDataStateException {
     if (linkOnConfirmResponse != null && linkOnConfirmResponse.getError() == null) {
       hipLinkInterface.hipAddCareContext(linkOnConfirmResponse);
     } else if (linkOnConfirmResponse != null) {
@@ -161,7 +166,7 @@ public class WorkflowManager {
    *
    * @param verifyOTP request body which has OTP and clientRequestId.
    */
-  public FacadeResponse initiateHipConfirmCallOTP(VerifyOTP verifyOTP) {
-    return hipLinkInterface.hipConfirmCallOtp(verifyOTP);
+  public FacadeResponse confirmAuthOtp(VerifyOTP verifyOTP) throws IllegalDataStateException {
+    return hipLinkInterface.confirmAuthOtp(verifyOTP);
   }
 }

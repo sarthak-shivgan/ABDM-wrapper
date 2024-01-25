@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LinkConfirm {
+public class LinkConfirmRequest {
   private String requestId;
   private String timestamp;
   private String transactionId;

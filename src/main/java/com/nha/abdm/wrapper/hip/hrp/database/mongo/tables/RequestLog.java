@@ -1,6 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.database.mongo.tables;
 
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
 import java.util.HashMap;
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -12,14 +13,8 @@ public class RequestLog {
   @Field("clientRequestId")
   public String clientRequestId;
 
-  @Field("requestId")
-  public String requestId;
-
   @Field("gatewayRequestId")
   public String gatewayRequestId;
-
-  @Field("linkStatus")
-  public String linkStatus;
 
   @Field("transactionId")
   public String transactionId;
@@ -30,20 +25,30 @@ public class RequestLog {
   @Field("abhaAddress")
   public String abhaAddress;
 
+  @Field("status")
+  public RequestStatus status;
+
+  @Field("error")
+  public String error;
+
   @Field("otp")
   public String otp;
 
-  @Field("rawResponse")
-  public HashMap<String, Object> rawResponse;
+  @Field("requestDetails")
+  public HashMap<String, Object> requestDetails;
 
   public RequestLog(
-      String clientRequestId, String gatewayRequestId, String abhaAddress, String transactionId) {
+      String clientRequestId,
+      String gatewayRequestId,
+      String abhaAddress,
+      String transactionId,
+      RequestStatus status) {
     this.clientRequestId = clientRequestId;
     this.gatewayRequestId = gatewayRequestId;
     this.abhaAddress = abhaAddress;
     this.transactionId = transactionId;
-    this.linkStatus = "Initiated";
-    this.rawResponse = new HashMap<>();
+    this.status = status;
+    this.requestDetails = new HashMap<>();
   }
 
   public RequestLog() {}
