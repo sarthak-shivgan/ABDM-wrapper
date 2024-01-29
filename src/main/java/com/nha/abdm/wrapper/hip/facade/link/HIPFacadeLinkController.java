@@ -2,10 +2,10 @@
 package com.nha.abdm.wrapper.hip.facade.link;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.nha.abdm.wrapper.common.ErrorResponse;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
-import com.nha.abdm.wrapper.common.models.FacadeResponse;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
+import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.hip.hrp.WorkflowManager;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
@@ -82,6 +82,7 @@ public class HIPFacadeLinkController {
    * response.
    */
   @ExceptionHandler(JsonProcessingException.class)
+  @ResponseStatus(code = HttpStatus.BAD_REQUEST)
   private FacadeResponse handleJsonProcessingException(JsonProcessingException ex) {
     return FacadeResponse.builder()
         .message(ex.getMessage())
@@ -90,7 +91,7 @@ public class HIPFacadeLinkController {
   }
 
   @ExceptionHandler(IllegalDataStateException.class)
-  private FacadeResponse handleIllegalDataStateException(Exception ex) {
+  private FacadeResponse handleIllegalDataStateException(IllegalDataStateException ex) {
     return FacadeResponse.builder()
         .message(ex.getMessage())
         .code(HttpStatus.INTERNAL_SERVER_ERROR.value())

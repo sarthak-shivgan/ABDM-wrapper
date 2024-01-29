@@ -1,7 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses;
 
-import com.nha.abdm.wrapper.common.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.hip.hrp.discover.requests.Response;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.helpers.LinkAcknowledgement;
 import java.io.Serializable;
