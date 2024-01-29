@@ -128,7 +128,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FacadeResponse'
+                $ref: '#/components/schemas/RequestStatusResponse'
         '400':
           description: Invalid request body supplied
         '404':
@@ -175,6 +175,13 @@ components:
           type: string
         display:
           type: string
+    RequestStatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        error:
+          $ref: '#/components/schemas/ErrorResponse'
     FacadeResponse:
       type: object
       properties:

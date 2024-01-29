@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping(path = "/v1")
 public class PatientController {
 
-    private static final String requestId = "262ad625-ffb9-4c7d-b5bc-e099577e7e99";
+    private static final String requestId = "263ad632-ffb9-4c7d-b5bc-e099577e7e99";
 
     @GetMapping({"/patients/{patientId}"})
     public Patient fetchPatientById(@PathVariable("patientId") String abhaAddress) {
@@ -57,12 +57,12 @@ public class PatientController {
         LinkApi linkApi = new LinkApi();
 
         CareContext careContext1 = new CareContext();
-        careContext1.setReferenceNumber("care-context-reference9");
-        careContext1.setDisplay("care-context-display7");
+        careContext1.setReferenceNumber("care-context-reference11");
+        careContext1.setDisplay("care-context-display11");
 
         CareContext careContext2 = new CareContext();
-        careContext2.setReferenceNumber("care-context-reference10");
-        careContext2.setDisplay("care-context-display8");
+        careContext2.setReferenceNumber("care-context-reference12");
+        careContext2.setDisplay("care-context-display12");
 
         List<CareContext> careContexts = new ArrayList<>();
         careContexts.add(careContext1);
@@ -130,12 +130,12 @@ public class PatientController {
         LinkApi linkApi = new LinkApi();
 
         // To make this periodic poll, requestId can be persisted to facility's / HIP's database.
-        FacadeResponse facadeResponse = linkApi.linkStatusRequestIdGet(requestId);
-        System.out.println(facadeResponse.getMessage());
-        if (facadeResponse.getError() != null) {
-            System.out.println("Error: " + facadeResponse.getError().getMessage());
-            return facadeResponse.getError().getMessage();
+        RequestStatusResponse response = linkApi.linkStatusRequestIdGet(requestId);
+        System.out.println(response.getStatus());
+        if (response.getError() != null) {
+            System.out.println("Error: " + response.getError().getMessage());
+            return response.getError().getMessage();
         }
-        return  facadeResponse.getMessage();
+        return  response.getStatus();
     }
 }

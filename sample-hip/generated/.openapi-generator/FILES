@@ -14,6 +14,7 @@ docs/LinkCareContextsRequest.md
 docs/Patient.md
 docs/PatientWithCareContext.md
 docs/PatientsApi.md
+docs/RequestStatusResponse.md
 docs/VerifyOTPRequest.md
 git_push.sh
 gradle.properties
@@ -50,6 +51,7 @@ src/main/java/com/nha/abdm/wrapper/client/model/FacadeResponse.java
 src/main/java/com/nha/abdm/wrapper/client/model/LinkCareContextsRequest.java
 src/main/java/com/nha/abdm/wrapper/client/model/Patient.java
 src/main/java/com/nha/abdm/wrapper/client/model/PatientWithCareContext.java
+src/main/java/com/nha/abdm/wrapper/client/model/RequestStatusResponse.java
 src/main/java/com/nha/abdm/wrapper/client/model/VerifyOTPRequest.java
 src/test/java/com/nha/abdm/wrapper/client/api/LinkApiTest.java
 src/test/java/com/nha/abdm/wrapper/client/api/PatientsApiTest.java
@@ -59,4 +61,5 @@ src/test/java/com/nha/abdm/wrapper/client/model/FacadeResponseTest.java
 src/test/java/com/nha/abdm/wrapper/client/model/LinkCareContextsRequestTest.java
 src/test/java/com/nha/abdm/wrapper/client/model/PatientTest.java
 src/test/java/com/nha/abdm/wrapper/client/model/PatientWithCareContextTest.java
+src/test/java/com/nha/abdm/wrapper/client/model/RequestStatusResponseTest.java
 src/test/java/com/nha/abdm/wrapper/client/model/VerifyOTPRequestTest.java

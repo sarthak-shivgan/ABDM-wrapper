@@ -2,7 +2,7 @@
 
 Swagger HIP Facade - OpenAPI 3.0
 - API version: 1.0.0
-  - Build date: 2024-01-25T13:03:05.345504874Z[Etc/UTC]
+  - Build date: 2024-01-29T15:44:24.772190301Z[Etc/UTC]
 
 This is a set of interfaces based on the OpenAPI 3.0 specification for a wrapper client
 
@@ -128,6 +128,7 @@ Class | Method | HTTP request | Description
  - [LinkCareContextsRequest](docs/LinkCareContextsRequest.md)
  - [Patient](docs/Patient.md)
  - [PatientWithCareContext](docs/PatientWithCareContext.md)
+ - [RequestStatusResponse](docs/RequestStatusResponse.md)
  - [VerifyOTPRequest](docs/VerifyOTPRequest.md)
 
 

@@ -76,7 +76,7 @@ No authorization required
 
 <a id="linkStatusRequestIdGet"></a>
 # **linkStatusRequestIdGet**
-> FacadeResponse linkStatusRequestIdGet(requestId)
+> RequestStatusResponse linkStatusRequestIdGet(requestId)
 
 Get status of Link request.
 
@@ -97,7 +97,7 @@ public class Example {
     LinkApi apiInstance = new LinkApi(defaultClient);
     String requestId = "requestId_example"; // String | Request Id of the link care context request.
     try {
-      FacadeResponse result = apiInstance.linkStatusRequestIdGet(requestId);
+      RequestStatusResponse result = apiInstance.linkStatusRequestIdGet(requestId);
       System.out.println(result);
     } catch (ApiException e) {
       System.err.println("Exception when calling LinkApi#linkStatusRequestIdGet");
@@ -118,7 +118,7 @@ public class Example {
 
 ### Return type
 
-[**FacadeResponse**](FacadeResponse.md)
+[**RequestStatusResponse**](RequestStatusResponse.md)
 
 ### Authorization
 

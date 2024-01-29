@@ -8,6 +8,7 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
+import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
@@ -162,17 +163,17 @@ public class RequestLogService<T> {
    * @param requestId Response from ABDM gateway for discovery.
    * @return status of linking after /on-add-contexts acknowledgment.
    */
-  public FacadeResponse getStatus(String requestId) throws IllegalDataStateException {
+  public RequestStatusResponse getStatus(String requestId) throws IllegalDataStateException {
     RequestLog requestLog = logsRepo.findByClientRequestId(requestId);
     if (requestLog != null) {
       if (StringUtils.isNotBlank(requestLog.getError())) {
-        return FacadeResponse.builder()
+        return RequestStatusResponse.builder()
             .error(ErrorResponse.builder().message(requestLog.getError()).build())
             .build();
       }
       if (Objects.nonNull(requestLog.getStatus())
           && StringUtils.isNotBlank(requestLog.getStatus().getValue())) {
-        return FacadeResponse.builder().message(requestLog.getStatus().getValue()).build();
+        return RequestStatusResponse.builder().status(requestLog.getStatus().getValue()).build();
       }
     }
     throw new IllegalDataStateException("Request not found in database for: " + requestId);

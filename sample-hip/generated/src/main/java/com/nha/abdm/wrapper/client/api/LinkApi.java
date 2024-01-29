@@ -29,6 +29,7 @@ import java.io.IOException;
 
 import com.nha.abdm.wrapper.client.model.FacadeResponse;
 import com.nha.abdm.wrapper.client.model.LinkCareContextsRequest;
+import com.nha.abdm.wrapper.client.model.RequestStatusResponse;
 import com.nha.abdm.wrapper.client.model.VerifyOTPRequest;
 
 import java.lang.reflect.Type;
@@ -280,7 +281,7 @@ public class LinkApi {
      * Get status of Link request.
      * 
      * @param requestId Request Id of the link care context request. (required)
-     * @return FacadeResponse
+     * @return RequestStatusResponse
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
@@ -291,8 +292,8 @@ public class LinkApi {
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public FacadeResponse linkStatusRequestIdGet(String requestId) throws ApiException {
-        ApiResponse<FacadeResponse> localVarResp = linkStatusRequestIdGetWithHttpInfo(requestId);
+    public RequestStatusResponse linkStatusRequestIdGet(String requestId) throws ApiException {
+        ApiResponse<RequestStatusResponse> localVarResp = linkStatusRequestIdGetWithHttpInfo(requestId);
         return localVarResp.getData();
     }
 
@@ -300,7 +301,7 @@ public class LinkApi {
      * Get status of Link request.
      * 
      * @param requestId Request Id of the link care context request. (required)
-     * @return ApiResponse&lt;FacadeResponse&gt;
+     * @return ApiResponse&lt;RequestStatusResponse&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
@@ -311,9 +312,9 @@ public class LinkApi {
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<FacadeResponse> linkStatusRequestIdGetWithHttpInfo(String requestId) throws ApiException {
+    public ApiResponse<RequestStatusResponse> linkStatusRequestIdGetWithHttpInfo(String requestId) throws ApiException {
         okhttp3.Call localVarCall = linkStatusRequestIdGetValidateBeforeCall(requestId, null);
-        Type localVarReturnType = new TypeToken<FacadeResponse>(){}.getType();
+        Type localVarReturnType = new TypeToken<RequestStatusResponse>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
 
@@ -333,10 +334,10 @@ public class LinkApi {
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call linkStatusRequestIdGetAsync(String requestId, final ApiCallback<FacadeResponse> _callback) throws ApiException {
+    public okhttp3.Call linkStatusRequestIdGetAsync(String requestId, final ApiCallback<RequestStatusResponse> _callback) throws ApiException {
 
         okhttp3.Call localVarCall = linkStatusRequestIdGetValidateBeforeCall(requestId, _callback);
-        Type localVarReturnType = new TypeToken<FacadeResponse>(){}.getType();
+        Type localVarReturnType = new TypeToken<RequestStatusResponse>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }

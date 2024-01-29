@@ -6,6 +6,7 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
+import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
 import com.nha.abdm.wrapper.hip.hrp.WorkflowManager;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
@@ -30,7 +31,7 @@ public class HIPFacadeLinkController {
    * @return acknowledgement of status.
    */
   @GetMapping({"/link-status/{requestId}"})
-  public FacadeResponse fetchCareContextStatus(@PathVariable("requestId") String requestId)
+  public RequestStatusResponse fetchCareContextStatus(@PathVariable("requestId") String requestId)
       throws IllegalDataStateException {
     return workflowManager.getCareContextRequestStatus(requestId);
   }
