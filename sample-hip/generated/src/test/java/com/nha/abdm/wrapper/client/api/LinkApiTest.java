@@ -16,6 +16,7 @@ package com.nha.abdm.wrapper.client.api;
 import com.nha.abdm.wrapper.client.invoker.ApiException;
 import com.nha.abdm.wrapper.client.model.FacadeResponse;
 import com.nha.abdm.wrapper.client.model.LinkCareContextsRequest;
+import com.nha.abdm.wrapper.client.model.RequestStatusResponse;
 import com.nha.abdm.wrapper.client.model.VerifyOTPRequest;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -43,7 +44,7 @@ public class LinkApiTest {
     @Test
     public void linkCareContextsTest() throws ApiException {
         LinkCareContextsRequest linkCareContextsRequest = null;
-        String response = api.linkCareContexts(linkCareContextsRequest);
+        FacadeResponse response = api.linkCareContexts(linkCareContextsRequest);
         // TODO: test validations
     }
 
@@ -55,7 +56,7 @@ public class LinkApiTest {
     @Test
     public void linkStatusRequestIdGetTest() throws ApiException {
         String requestId = null;
-        FacadeResponse response = api.linkStatusRequestIdGet(requestId);
+        RequestStatusResponse response = api.linkStatusRequestIdGet(requestId);
         // TODO: test validations
     }
 
@@ -69,7 +70,7 @@ public class LinkApiTest {
     @Test
     public void verifyOTPTest() throws ApiException {
         VerifyOTPRequest verifyOTPRequest = null;
-        String response = api.verifyOTP(verifyOTPRequest);
+        FacadeResponse response = api.verifyOTP(verifyOTPRequest);
         // TODO: test validations
     }
 

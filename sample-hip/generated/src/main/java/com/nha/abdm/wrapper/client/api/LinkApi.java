@@ -29,6 +29,7 @@ import java.io.IOException;
 
 import com.nha.abdm.wrapper.client.model.FacadeResponse;
 import com.nha.abdm.wrapper.client.model.LinkCareContextsRequest;
+import com.nha.abdm.wrapper.client.model.RequestStatusResponse;
 import com.nha.abdm.wrapper.client.model.VerifyOTPRequest;
 
 import java.lang.reflect.Type;
@@ -84,7 +85,7 @@ public class LinkApi {
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Submitted request for linking care contexts </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
         <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
         <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
@@ -145,19 +146,19 @@ public class LinkApi {
      * Links care contexts for a given patient&#39;s abha address
      * Links care contexts for a given patient&#39;s abha address
      * @param linkCareContextsRequest Links Care Contexts (optional)
-     * @return String
+     * @return FacadeResponse
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Submitted request for linking care contexts </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
         <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
         <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public String linkCareContexts(LinkCareContextsRequest linkCareContextsRequest) throws ApiException {
-        ApiResponse<String> localVarResp = linkCareContextsWithHttpInfo(linkCareContextsRequest);
+    public FacadeResponse linkCareContexts(LinkCareContextsRequest linkCareContextsRequest) throws ApiException {
+        ApiResponse<FacadeResponse> localVarResp = linkCareContextsWithHttpInfo(linkCareContextsRequest);
         return localVarResp.getData();
     }
 
@@ -165,20 +166,20 @@ public class LinkApi {
      * Links care contexts for a given patient&#39;s abha address
      * Links care contexts for a given patient&#39;s abha address
      * @param linkCareContextsRequest Links Care Contexts (optional)
-     * @return ApiResponse&lt;String&gt;
+     * @return ApiResponse&lt;FacadeResponse&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Submitted request for linking care contexts </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
         <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
         <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<String> linkCareContextsWithHttpInfo(LinkCareContextsRequest linkCareContextsRequest) throws ApiException {
+    public ApiResponse<FacadeResponse> linkCareContextsWithHttpInfo(LinkCareContextsRequest linkCareContextsRequest) throws ApiException {
         okhttp3.Call localVarCall = linkCareContextsValidateBeforeCall(linkCareContextsRequest, null);
-        Type localVarReturnType = new TypeToken<String>(){}.getType();
+        Type localVarReturnType = new TypeToken<FacadeResponse>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
 
@@ -192,16 +193,16 @@ public class LinkApi {
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Submitted request for linking care contexts </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
         <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
         <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call linkCareContextsAsync(LinkCareContextsRequest linkCareContextsRequest, final ApiCallback<String> _callback) throws ApiException {
+    public okhttp3.Call linkCareContextsAsync(LinkCareContextsRequest linkCareContextsRequest, final ApiCallback<FacadeResponse> _callback) throws ApiException {
 
         okhttp3.Call localVarCall = linkCareContextsValidateBeforeCall(linkCareContextsRequest, _callback);
-        Type localVarReturnType = new TypeToken<String>(){}.getType();
+        Type localVarReturnType = new TypeToken<FacadeResponse>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }
@@ -215,6 +216,9 @@ public class LinkApi {
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
     public okhttp3.Call linkStatusRequestIdGetCall(String requestId, final ApiCallback _callback) throws ApiException {
@@ -277,16 +281,19 @@ public class LinkApi {
      * Get status of Link request.
      * 
      * @param requestId Request Id of the link care context request. (required)
-     * @return FacadeResponse
+     * @return RequestStatusResponse
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public FacadeResponse linkStatusRequestIdGet(String requestId) throws ApiException {
-        ApiResponse<FacadeResponse> localVarResp = linkStatusRequestIdGetWithHttpInfo(requestId);
+    public RequestStatusResponse linkStatusRequestIdGet(String requestId) throws ApiException {
+        ApiResponse<RequestStatusResponse> localVarResp = linkStatusRequestIdGetWithHttpInfo(requestId);
         return localVarResp.getData();
     }
 
@@ -294,17 +301,20 @@ public class LinkApi {
      * Get status of Link request.
      * 
      * @param requestId Request Id of the link care context request. (required)
-     * @return ApiResponse&lt;FacadeResponse&gt;
+     * @return ApiResponse&lt;RequestStatusResponse&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<FacadeResponse> linkStatusRequestIdGetWithHttpInfo(String requestId) throws ApiException {
+    public ApiResponse<RequestStatusResponse> linkStatusRequestIdGetWithHttpInfo(String requestId) throws ApiException {
         okhttp3.Call localVarCall = linkStatusRequestIdGetValidateBeforeCall(requestId, null);
-        Type localVarReturnType = new TypeToken<FacadeResponse>(){}.getType();
+        Type localVarReturnType = new TypeToken<RequestStatusResponse>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
 
@@ -319,12 +329,15 @@ public class LinkApi {
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
         <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call linkStatusRequestIdGetAsync(String requestId, final ApiCallback<FacadeResponse> _callback) throws ApiException {
+    public okhttp3.Call linkStatusRequestIdGetAsync(String requestId, final ApiCallback<RequestStatusResponse> _callback) throws ApiException {
 
         okhttp3.Call localVarCall = linkStatusRequestIdGetValidateBeforeCall(requestId, _callback);
-        Type localVarReturnType = new TypeToken<FacadeResponse>(){}.getType();
+        Type localVarReturnType = new TypeToken<RequestStatusResponse>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }
@@ -337,7 +350,7 @@ public class LinkApi {
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Verification successful </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
         <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
         <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
@@ -398,19 +411,19 @@ public class LinkApi {
      * Verify OTP for link auth modes Mobile and Aadhaar
      * Verify OTP for link auth modes Mobile and Aadhaar
      * @param verifyOTPRequest Verifies OTP (optional)
-     * @return String
+     * @return FacadeResponse
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Verification successful </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
         <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
         <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public String verifyOTP(VerifyOTPRequest verifyOTPRequest) throws ApiException {
-        ApiResponse<String> localVarResp = verifyOTPWithHttpInfo(verifyOTPRequest);
+    public FacadeResponse verifyOTP(VerifyOTPRequest verifyOTPRequest) throws ApiException {
+        ApiResponse<FacadeResponse> localVarResp = verifyOTPWithHttpInfo(verifyOTPRequest);
         return localVarResp.getData();
     }
 
@@ -418,20 +431,20 @@ public class LinkApi {
      * Verify OTP for link auth modes Mobile and Aadhaar
      * Verify OTP for link auth modes Mobile and Aadhaar
      * @param verifyOTPRequest Verifies OTP (optional)
-     * @return ApiResponse&lt;String&gt;
+     * @return ApiResponse&lt;FacadeResponse&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Verification successful </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
         <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
         <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<String> verifyOTPWithHttpInfo(VerifyOTPRequest verifyOTPRequest) throws ApiException {
+    public ApiResponse<FacadeResponse> verifyOTPWithHttpInfo(VerifyOTPRequest verifyOTPRequest) throws ApiException {
         okhttp3.Call localVarCall = verifyOTPValidateBeforeCall(verifyOTPRequest, null);
-        Type localVarReturnType = new TypeToken<String>(){}.getType();
+        Type localVarReturnType = new TypeToken<FacadeResponse>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
 
@@ -445,16 +458,16 @@ public class LinkApi {
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Verification successful </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
         <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
         <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call verifyOTPAsync(VerifyOTPRequest verifyOTPRequest, final ApiCallback<String> _callback) throws ApiException {
+    public okhttp3.Call verifyOTPAsync(VerifyOTPRequest verifyOTPRequest, final ApiCallback<FacadeResponse> _callback) throws ApiException {
 
         okhttp3.Call localVarCall = verifyOTPValidateBeforeCall(verifyOTPRequest, _callback);
-        Type localVarReturnType = new TypeToken<String>(){}.getType();
+        Type localVarReturnType = new TypeToken<FacadeResponse>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }

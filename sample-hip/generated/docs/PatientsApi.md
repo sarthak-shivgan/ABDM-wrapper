@@ -9,7 +9,7 @@ All URIs are relative to *http://localhost:8082/v1*
 
 <a id="upsertPatients"></a>
 # **upsertPatients**
-> String upsertPatients(patient)
+> FacadeResponse upsertPatients(patient)
 
 Insert or Update a list of patients
 
@@ -32,7 +32,7 @@ public class Example {
     PatientsApi apiInstance = new PatientsApi(defaultClient);
     List<Patient> patient = Arrays.asList(); // List<Patient> | Insert or update a list of patients in the wrapper database
     try {
-      String result = apiInstance.upsertPatients(patient);
+      FacadeResponse result = apiInstance.upsertPatients(patient);
       System.out.println(result);
     } catch (ApiException e) {
       System.err.println("Exception when calling PatientsApi#upsertPatients");
@@ -53,7 +53,7 @@ public class Example {
 
 ### Return type
 
-**String**
+[**FacadeResponse**](FacadeResponse.md)
 
 ### Authorization
 
@@ -67,8 +67,8 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Successfully added patients |  -  |
-| **400** | Invalid ID supplied |  -  |
-| **404** | Patient not found |  -  |
+| **200** | OK |  -  |
+| **400** | Invalid request body supplied |  -  |
+| **404** | Address not found |  -  |
 | **422** | Validation exception |  -  |
 

@@ -1,6 +1,6 @@
 /*
  * Swagger HIP Facade - OpenAPI 3.0
- * This is a sample HIP Initiated Linking Client based on the OpenAPI 3.0 specification
+ * This is a set of interfaces based on the OpenAPI 3.0 specification for a wrapper client
  *
  * The version of the OpenAPI document: 1.0.0
  * 

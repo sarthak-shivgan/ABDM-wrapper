@@ -2,7 +2,7 @@
 
 Swagger HIP Facade - OpenAPI 3.0
 - API version: 1.0.0
-  - Build date: 2024-01-24T09:50:26.426989326Z[Etc/UTC]
+  - Build date: 2024-01-29T15:44:24.772190301Z[Etc/UTC]
 
 This is a set of interfaces based on the OpenAPI 3.0 specification for a wrapper client
 
@@ -94,7 +94,7 @@ public class Example {
     LinkApi apiInstance = new LinkApi(defaultClient);
     LinkCareContextsRequest linkCareContextsRequest = new LinkCareContextsRequest(); // LinkCareContextsRequest | Links Care Contexts
     try {
-      String result = apiInstance.linkCareContexts(linkCareContextsRequest);
+      FacadeResponse result = apiInstance.linkCareContexts(linkCareContextsRequest);
       System.out.println(result);
     } catch (ApiException e) {
       System.err.println("Exception when calling LinkApi#linkCareContexts");
@@ -128,6 +128,7 @@ Class | Method | HTTP request | Description
  - [LinkCareContextsRequest](docs/LinkCareContextsRequest.md)
  - [Patient](docs/Patient.md)
  - [PatientWithCareContext](docs/PatientWithCareContext.md)
+ - [RequestStatusResponse](docs/RequestStatusResponse.md)
  - [VerifyOTPRequest](docs/VerifyOTPRequest.md)
 
 

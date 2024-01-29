@@ -1,6 +1,6 @@
 /*
  * Swagger HIP Facade - OpenAPI 3.0
- * This is a sample HIP Initiated Linking Client based on the OpenAPI 3.0 specification
+ * This is a set of interfaces based on the OpenAPI 3.0 specification for a wrapper client
  *
  * The version of the OpenAPI document: 1.0.0
  * 
@@ -14,6 +14,7 @@
 package com.nha.abdm.wrapper.client.api;
 
 import com.nha.abdm.wrapper.client.invoker.ApiException;
+import com.nha.abdm.wrapper.client.model.FacadeResponse;
 import com.nha.abdm.wrapper.client.model.Patient;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,7 @@ public class PatientsApiTest {
     @Test
     public void upsertPatientsTest() throws ApiException {
         List<Patient> patient = null;
-        String response = api.upsertPatients(patient);
+        FacadeResponse response = api.upsertPatients(patient);
         // TODO: test validations
     }
 

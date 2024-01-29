@@ -25,33 +25,25 @@ import org.junit.jupiter.api.Test;
 
 
 /**
- * Model tests for FacadeResponse
+ * Model tests for RequestStatusResponse
  */
-public class FacadeResponseTest {
-    private final FacadeResponse model = new FacadeResponse();
+public class RequestStatusResponseTest {
+    private final RequestStatusResponse model = new RequestStatusResponse();
 
     /**
-     * Model tests for FacadeResponse
+     * Model tests for RequestStatusResponse
      */
     @Test
-    public void testFacadeResponse() {
-        // TODO: test FacadeResponse
+    public void testRequestStatusResponse() {
+        // TODO: test RequestStatusResponse
     }
 
     /**
-     * Test the property 'code'
+     * Test the property 'status'
      */
     @Test
-    public void codeTest() {
-        // TODO: test code
-    }
-
-    /**
-     * Test the property 'message'
-     */
-    @Test
-    public void messageTest() {
-        // TODO: test message
+    public void statusTest() {
+        // TODO: test status
     }
 
     /**

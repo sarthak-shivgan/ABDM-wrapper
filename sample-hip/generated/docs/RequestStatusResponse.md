@@ -1,14 +1,13 @@
 
 
-# FacadeResponse
+# RequestStatusResponse
 
 
 ## Properties
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**code** | **Integer** |  |  [optional] |
-|**message** | **String** |  |  [optional] |
+|**status** | **String** |  |  [optional] |
 |**error** | [**ErrorResponse**](ErrorResponse.md) |  |  [optional] |
 
 

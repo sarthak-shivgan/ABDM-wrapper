@@ -1,8 +1,7 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.common.models;
+package com.nha.abdm.wrapper.common.responses;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.nha.abdm.wrapper.common.ErrorResponse;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,7 +9,6 @@ import lombok.Data;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FacadeResponse {
-  private String requestId;
   private int code;
   private String message;
   private ErrorResponse error;

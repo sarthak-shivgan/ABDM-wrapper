@@ -4,12 +4,18 @@ package com.nha.abdm.wrapper.hip.hrp.database.mongo.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.CareContext;
+import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.FacadeResponse;
+import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
 import com.nha.abdm.wrapper.hip.hrp.discover.responses.DiscoverResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkAddCareContext;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkConfirm;
+import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkConfirmRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnAddCareContextsResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
@@ -17,6 +23,7 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitRespon
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +33,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
-import reactor.core.Exceptions;
 
 @Service
 public class RequestLogService<T> {
@@ -45,7 +50,7 @@ public class RequestLogService<T> {
    */
   public String getPatientId(String linkRefNumber) {
     RequestLog existingRecord = logsRepo.findByLinkRefNumber(linkRefNumber);
-    InitResponse data = (InitResponse) existingRecord.getRawResponse().get("InitResponse");
+    InitResponse data = (InitResponse) existingRecord.getRequestDetails().get("InitResponse");
     return data.getPatient().getId();
   }
   /**
@@ -56,7 +61,7 @@ public class RequestLogService<T> {
    */
   public String getPatientReference(String linkRefNumber) {
     RequestLog existingRecord = logsRepo.findByLinkRefNumber(linkRefNumber);
-    InitResponse data = (InitResponse) existingRecord.getRawResponse().get("InitResponse");
+    InitResponse data = (InitResponse) existingRecord.getRequestDetails().get("InitResponse");
     return data.getPatient().getReferenceNumber();
   }
 
@@ -77,7 +82,7 @@ public class RequestLogService<T> {
     newRecord.setTransactionId(discoverResponse.getTransactionId());
     HashMap<String, Object> map = new HashMap<>();
     map.put("DiscoverResponse", discoverResponse);
-    newRecord.setRawResponse(map);
+    newRecord.setRequestDetails(map);
     mongoTemplate.save(newRecord);
   }
 
@@ -102,10 +107,11 @@ public class RequestLogService<T> {
               initResponse.getRequestId(),
               requestId,
               initResponse.getPatient().getId(),
-              initResponse.getTransactionId());
+              initResponse.getTransactionId(),
+              RequestStatus.USER_INIT_REQUEST_RECEIVED_BY_WRAPPER);
       mongoTemplate.insert(newRecord);
     } else {
-      Map<String, Object> map = existingRecord.getRawResponse();
+      Map<String, Object> map = existingRecord.getRequestDetails();
       map.put("InitResponse", initResponse);
       Update update =
           (new Update())
@@ -131,7 +137,7 @@ public class RequestLogService<T> {
     if (existingRecord != null) {
       ObjectNode dump =
           objectMapper.convertValue(
-              existingRecord.getRawResponse().get("InitResponse"), ObjectNode.class);
+              existingRecord.getRequestDetails().get("InitResponse"), ObjectNode.class);
       if (dump != null && dump.has("patient") && dump.get("patient").has("careContexts")) {
         ArrayNode careContexts = (ArrayNode) dump.path("patient").path("careContexts");
         List<String> selectedList = careContexts.findValuesAsText("referenceNumber");
@@ -148,6 +154,7 @@ public class RequestLogService<T> {
     }
     return null;
   }
+
   /**
    * <B>hipInitiatedLinking</B>
    *
@@ -156,33 +163,50 @@ public class RequestLogService<T> {
    * @param requestId Response from ABDM gateway for discovery.
    * @return status of linking after /on-add-contexts acknowledgment.
    */
-  public String getStatus(String requestId) {
-    RequestLog existingRecord = logsRepo.findByClientRequestId(requestId);
-    if (existingRecord != null && existingRecord.getLinkStatus() != null) {
-      return existingRecord.getLinkStatus();
+  public RequestStatusResponse getStatus(String requestId) throws IllegalDataStateException {
+    RequestLog requestLog = logsRepo.findByClientRequestId(requestId);
+    if (requestLog != null) {
+      if (StringUtils.isNotBlank(requestLog.getError())) {
+        return RequestStatusResponse.builder()
+            .error(ErrorResponse.builder().message(requestLog.getError()).build())
+            .build();
+      }
+      if (Objects.nonNull(requestLog.getStatus())
+          && StringUtils.isNotBlank(requestLog.getStatus().getValue())) {
+        return RequestStatusResponse.builder().status(requestLog.getStatus().getValue()).build();
+      }
     }
-    return "Record failed to link with abhaAddress";
+    throw new IllegalDataStateException("Request not found in database for: " + requestId);
   }
+
   /**
    * <B>hipInitiatedLinking</B>
    *
-   * <p>Adding linkRecordsResponse dump into db.
+   * <p>Adds linkRecordsRequest into request-logs collection.
    *
-   * @param linkRecordsRequest Response received to facade for hipLinking.
+   * @param linkRecordsRequest Request received to facade for hipLinking.
    */
   @Transactional
-  public void setHipLinkResponse(LinkRecordsRequest linkRecordsRequest) {
+  public void persistHipLinkRequest(
+      LinkRecordsRequest linkRecordsRequest, RequestStatus status, String error) {
     if (Objects.isNull(linkRecordsRequest)) {
       return;
     }
-    RequestLog newRecord = new RequestLog();
-    newRecord.setClientRequestId(linkRecordsRequest.getRequestId());
-    newRecord.setGatewayRequestId(linkRecordsRequest.getRequestId());
+    RequestLog requestLog = new RequestLog();
+    requestLog.setClientRequestId(linkRecordsRequest.getRequestId());
+    requestLog.setGatewayRequestId(linkRecordsRequest.getRequestId());
+    requestLog.setStatus(status);
     HashMap<String, Object> map = new HashMap<>();
-    map.put("LinkRecordsResponse", linkRecordsRequest);
-    newRecord.setRawResponse(map);
-    mongoTemplate.save(newRecord);
+    map.put(FieldIdentifiers.LINK_RECORDS_REQUEST, linkRecordsRequest);
+    requestLog.setRequestDetails(map);
+    if (StringUtils.isNotBlank(error)) {
+      requestLog.setError(error);
+    }
+    mongoTemplate.save(requestLog);
   }
+
+  public void updateRequestError() {}
+
   /**
    * <B>hipInitiatedLinking</B>
    *
@@ -191,21 +215,24 @@ public class RequestLogService<T> {
    * @param linkOnInitResponse Response from ABDM gateway after successful auth/init.
    */
   @Transactional
-  public void setHipOnInitResponse(LinkOnInitResponse linkOnInitResponse, LinkConfirm linkConfirm) {
+  public void updateHipOnInitResponse(
+      LinkOnInitResponse linkOnInitResponse, LinkConfirmRequest linkConfirmRequest) {
     Query query =
         new Query(
-            Criteria.where("gatewayRequestId").is(linkOnInitResponse.getResp().getRequestId()));
-    RequestLog existingRecord = mongoTemplate.findOne(query, RequestLog.class);
-    HashMap<String, Object> map = existingRecord.getRawResponse();
-    map.put("HIPOnInitResponse", linkOnInitResponse);
-    if (existingRecord != null) {
+            Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID)
+                .is(linkOnInitResponse.getResp().getRequestId()));
+    RequestLog requestLog = mongoTemplate.findOne(query, RequestLog.class);
+    HashMap<String, Object> map = requestLog.getRequestDetails();
+    map.put(FieldIdentifiers.HIP_ON_INIT_RESPONSE, linkOnInitResponse);
+    if (requestLog != null) {
       Update update =
           (new Update())
-              .set("rawResponse", map)
-              .set("gatewayRequestId", linkConfirm.getRequestId());
+              .set(FieldIdentifiers.REQUEST_DETAILS, map)
+              .set(FieldIdentifiers.GATEWAY_REQUEST_ID, linkConfirmRequest.getRequestId());
       mongoTemplate.updateFirst(query, update, RequestLog.class);
     }
   }
+
   /**
    * <B>hipInitiatedLinking</B>
    *
@@ -220,7 +247,7 @@ public class RequestLogService<T> {
         new Query(
             Criteria.where("gatewayRequestId").is(linkOnConfirmResponse.getResp().getRequestId()));
     RequestLog existingRecord = mongoTemplate.findOne(query, RequestLog.class);
-    HashMap<String, Object> map = existingRecord.getRawResponse();
+    HashMap<String, Object> map = existingRecord.getRequestDetails();
     map.put("HIPOnConfirm", linkOnConfirmResponse);
     if (existingRecord != null) {
       Update update =
@@ -244,7 +271,7 @@ public class RequestLogService<T> {
         new Query(
             Criteria.where("gatewayRequestId").is(linkOnInitResponse.getResp().getRequestId()));
     RequestLog existingRecord = mongoTemplate.findOne(query, RequestLog.class);
-    HashMap<String, Object> map = existingRecord.getRawResponse();
+    HashMap<String, Object> map = existingRecord.getRequestDetails();
     map.put("HIPOnInitOtp", linkOnInitResponse);
     if (existingRecord != null) {
       Update update = (new Update()).set("rawResponse", map);
@@ -276,32 +303,56 @@ public class RequestLogService<T> {
    * @param linkOnAddCareContextsResponse Acknowledgement from ABDM gateway for HipLinking.
    */
   public void setHipOnAddCareContextResponse(
-      @RequestBody LinkOnAddCareContextsResponse linkOnAddCareContextsResponse) {
-    RequestLog existingRecord =
+      LinkOnAddCareContextsResponse linkOnAddCareContextsResponse)
+      throws IllegalDataStateException {
+    RequestLog requestLog =
         logsRepo.findByGatewayRequestId(linkOnAddCareContextsResponse.getResp().getRequestId());
-    try {
-      if (existingRecord != null) {
-        HashMap<String, Object> map = existingRecord.getRawResponse();
-        map.put("HIPOnAddCareContext", linkOnAddCareContextsResponse);
-        Query query =
-            new Query(
-                Criteria.where("gatewayRequestId")
-                    .is(linkOnAddCareContextsResponse.getResp().getRequestId()));
-        Update update =
-            (new Update())
-                .set(
-                    "linkStatus",
-                    linkOnAddCareContextsResponse.getAcknowledgement() == null
-                        ? linkOnAddCareContextsResponse.getError().getMessage()
-                        : linkOnAddCareContextsResponse.getAcknowledgement().getStatus())
-                .set("rawResponse", map);
-        mongoTemplate.updateFirst(query, update, RequestLog.class);
-        LinkRecordsRequest linkRecordsRequest =
-            (LinkRecordsRequest) existingRecord.getRawResponse().get("LinkRecordsResponse");
-        patientService.addPatientCareContexts(linkRecordsRequest);
-      }
-    } catch (Exception e) {
-      log.error(Exceptions.unwrap(e));
+
+    if (requestLog == null) {
+      throw new IllegalDataStateException(
+          "Request not found in database for: "
+              + linkOnAddCareContextsResponse.getResp().getRequestId());
     }
+    HashMap<String, Object> map = requestLog.getRequestDetails();
+    map.put(FieldIdentifiers.HIP_ON_ADD_CARE_CONTEXT_RESPONSE, linkOnAddCareContextsResponse);
+    Query query =
+        new Query(
+            Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID)
+                .is(linkOnAddCareContextsResponse.getResp().getRequestId()));
+    Update update = new Update();
+    if (linkOnAddCareContextsResponse.getAcknowledgement() == null
+        || (Objects.nonNull(linkOnAddCareContextsResponse.getError())
+            && StringUtils.isNotBlank(linkOnAddCareContextsResponse.getError().getMessage()))) {
+      update.set(FieldIdentifiers.ERROR, linkOnAddCareContextsResponse.getError().getMessage());
+    } else {
+      update.set(FieldIdentifiers.STATUS, RequestStatus.CARE_CONTEXT_LINKED);
+      LinkRecordsRequest linkRecordsRequest =
+          (LinkRecordsRequest)
+              requestLog.getRequestDetails().get(FieldIdentifiers.LINK_RECORDS_REQUEST);
+      patientService.addPatientCareContexts(linkRecordsRequest);
+    }
+    update.set(FieldIdentifiers.REQUEST_DETAILS, map);
+    mongoTemplate.updateFirst(query, update, RequestLog.class);
+  }
+
+  public void updateStatus(RequestLog requestLog, RequestStatus requestStatus) {
+    Query query =
+        new Query(
+            Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID)
+                .is(requestLog.getGatewayRequestId()));
+    Update update = new Update();
+    update.set(FieldIdentifiers.STATUS, requestStatus);
+    mongoTemplate.updateFirst(query, update, RequestLog.class);
+  }
+
+  public void updateError(RequestLog requestLog, String message, RequestStatus requestStatus) {
+    Query query =
+        new Query(
+            Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID)
+                .is(requestLog.getGatewayRequestId()));
+    Update update = new Update();
+    update.set(FieldIdentifiers.ERROR, message);
+    update.set(FieldIdentifiers.STATUS, requestStatus);
+    mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 }

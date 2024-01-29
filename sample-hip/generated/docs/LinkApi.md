@@ -11,7 +11,7 @@ All URIs are relative to *http://localhost:8082/v1*
 
 <a id="linkCareContexts"></a>
 # **linkCareContexts**
-> String linkCareContexts(linkCareContextsRequest)
+> FacadeResponse linkCareContexts(linkCareContextsRequest)
 
 Links care contexts for a given patient&#39;s abha address
 
@@ -34,7 +34,7 @@ public class Example {
     LinkApi apiInstance = new LinkApi(defaultClient);
     LinkCareContextsRequest linkCareContextsRequest = new LinkCareContextsRequest(); // LinkCareContextsRequest | Links Care Contexts
     try {
-      String result = apiInstance.linkCareContexts(linkCareContextsRequest);
+      FacadeResponse result = apiInstance.linkCareContexts(linkCareContextsRequest);
       System.out.println(result);
     } catch (ApiException e) {
       System.err.println("Exception when calling LinkApi#linkCareContexts");
@@ -55,7 +55,7 @@ public class Example {
 
 ### Return type
 
-**String**
+[**FacadeResponse**](FacadeResponse.md)
 
 ### Authorization
 
@@ -69,14 +69,14 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Submitted request for linking care contexts |  -  |
+| **200** | OK |  -  |
 | **400** | Invalid request body supplied |  -  |
 | **404** | Address not found |  -  |
 | **422** | Validation exception |  -  |
 
 <a id="linkStatusRequestIdGet"></a>
 # **linkStatusRequestIdGet**
-> FacadeResponse linkStatusRequestIdGet(requestId)
+> RequestStatusResponse linkStatusRequestIdGet(requestId)
 
 Get status of Link request.
 
@@ -97,7 +97,7 @@ public class Example {
     LinkApi apiInstance = new LinkApi(defaultClient);
     String requestId = "requestId_example"; // String | Request Id of the link care context request.
     try {
-      FacadeResponse result = apiInstance.linkStatusRequestIdGet(requestId);
+      RequestStatusResponse result = apiInstance.linkStatusRequestIdGet(requestId);
       System.out.println(result);
     } catch (ApiException e) {
       System.err.println("Exception when calling LinkApi#linkStatusRequestIdGet");
@@ -118,7 +118,7 @@ public class Example {
 
 ### Return type
 
-[**FacadeResponse**](FacadeResponse.md)
+[**RequestStatusResponse**](RequestStatusResponse.md)
 
 ### Authorization
 
@@ -133,10 +133,13 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+| **400** | Invalid request body supplied |  -  |
+| **404** | Address not found |  -  |
+| **422** | Validation exception |  -  |
 
 <a id="verifyOTP"></a>
 # **verifyOTP**
-> String verifyOTP(verifyOTPRequest)
+> FacadeResponse verifyOTP(verifyOTPRequest)
 
 Verify OTP for link auth modes Mobile and Aadhaar
 
@@ -159,7 +162,7 @@ public class Example {
     LinkApi apiInstance = new LinkApi(defaultClient);
     VerifyOTPRequest verifyOTPRequest = new VerifyOTPRequest(); // VerifyOTPRequest | Verifies OTP
     try {
-      String result = apiInstance.verifyOTP(verifyOTPRequest);
+      FacadeResponse result = apiInstance.verifyOTP(verifyOTPRequest);
       System.out.println(result);
     } catch (ApiException e) {
       System.err.println("Exception when calling LinkApi#verifyOTP");
@@ -180,7 +183,7 @@ public class Example {
 
 ### Return type
 
-**String**
+[**FacadeResponse**](FacadeResponse.md)
 
 ### Authorization
 
@@ -194,7 +197,7 @@ No authorization required
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-| **200** | Verification successful |  -  |
+| **200** | OK |  -  |
 | **400** | Invalid request body supplied |  -  |
 | **404** | Address not found |  -  |
 | **422** | Validation exception |  -  |

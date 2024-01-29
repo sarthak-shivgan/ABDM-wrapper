@@ -27,6 +27,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 
 
+import com.nha.abdm.wrapper.client.model.FacadeResponse;
 import com.nha.abdm.wrapper.client.model.Patient;
 
 import java.lang.reflect.Type;
@@ -82,9 +83,9 @@ public class PatientsApi {
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Successfully added patients </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Invalid ID supplied </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Patient not found </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
@@ -148,19 +149,19 @@ public class PatientsApi {
      * Insert or Update a list of patients
      * Insert or Update a list of patients
      * @param patient Insert or update a list of patients in the wrapper database (required)
-     * @return String
+     * @return FacadeResponse
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Successfully added patients </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Invalid ID supplied </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Patient not found </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public String upsertPatients(List<Patient> patient) throws ApiException {
-        ApiResponse<String> localVarResp = upsertPatientsWithHttpInfo(patient);
+    public FacadeResponse upsertPatients(List<Patient> patient) throws ApiException {
+        ApiResponse<FacadeResponse> localVarResp = upsertPatientsWithHttpInfo(patient);
         return localVarResp.getData();
     }
 
@@ -168,20 +169,20 @@ public class PatientsApi {
      * Insert or Update a list of patients
      * Insert or Update a list of patients
      * @param patient Insert or update a list of patients in the wrapper database (required)
-     * @return ApiResponse&lt;String&gt;
+     * @return ApiResponse&lt;FacadeResponse&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Successfully added patients </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Invalid ID supplied </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Patient not found </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<String> upsertPatientsWithHttpInfo(List<Patient> patient) throws ApiException {
+    public ApiResponse<FacadeResponse> upsertPatientsWithHttpInfo(List<Patient> patient) throws ApiException {
         okhttp3.Call localVarCall = upsertPatientsValidateBeforeCall(patient, null);
-        Type localVarReturnType = new TypeToken<String>(){}.getType();
+        Type localVarReturnType = new TypeToken<FacadeResponse>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
 
@@ -195,16 +196,16 @@ public class PatientsApi {
      * @http.response.details
      <table summary="Response Details" border="1">
         <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
-        <tr><td> 200 </td><td> Successfully added patients </td><td>  -  </td></tr>
-        <tr><td> 400 </td><td> Invalid ID supplied </td><td>  -  </td></tr>
-        <tr><td> 404 </td><td> Patient not found </td><td>  -  </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call upsertPatientsAsync(List<Patient> patient, final ApiCallback<String> _callback) throws ApiException {
+    public okhttp3.Call upsertPatientsAsync(List<Patient> patient, final ApiCallback<FacadeResponse> _callback) throws ApiException {
 
         okhttp3.Call localVarCall = upsertPatientsValidateBeforeCall(patient, _callback);
-        Type localVarReturnType = new TypeToken<String>(){}.getType();
+        Type localVarReturnType = new TypeToken<FacadeResponse>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;
     }

@@ -1,7 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses;
 
-import com.nha.abdm.wrapper.common.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.helpers.PatientWithCareContexts;
 import java.io.Serializable;
 import lombok.Data;
