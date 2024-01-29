@@ -184,7 +184,9 @@ public class HipLinkService implements HipLinkInterface {
         requestLogService.updateStatus(requestLog, RequestStatus.AUTH_CONFIRM_ACCEPTED);
       } else if (Objects.nonNull(response.getBody())) {
         requestLogService.updateError(
-            requestLog, response.getBody().getErrorResponse().getMessage());
+            requestLog,
+            response.getBody().getErrorResponse().getMessage(),
+            RequestStatus.AUTH_CONFIRM_ERROR);
       }
     } catch (Exception e) {
       String error =
@@ -195,7 +197,7 @@ public class HipLinkService implements HipLinkInterface {
               + Exceptions.unwrap(e);
       log.error(error);
       requestLog.setError(error);
-      requestLogService.updateError(requestLog, error);
+      requestLogService.updateError(requestLog, error, RequestStatus.AUTH_CONFIRM_ERROR);
     }
   }
 
@@ -258,9 +260,12 @@ public class HipLinkService implements HipLinkInterface {
       log.debug(linkConfirmAuthPath + " : confirmAuthOtp: " + response.getStatusCode());
       if (response.getStatusCode() == HttpStatus.ACCEPTED) {
         requestLogService.updateStatus(requestLog, RequestStatus.AUTH_CONFIRM_ACCEPTED);
-      } else if (Objects.nonNull(response.getBody())) {
+      } else if (Objects.nonNull(response.getBody())
+          && Objects.nonNull(response.getBody().getErrorResponse())) {
         requestLogService.updateError(
-            requestLog, response.getBody().getErrorResponse().getMessage());
+            requestLog,
+            response.getBody().getErrorResponse().getMessage(),
+            RequestStatus.AUTH_CONFIRM_ERROR);
       }
       return FacadeResponse.builder()
           .message(linkConfirmAuthPath + " : confirmAuthOtp: " + response.getStatusCode())
@@ -274,6 +279,7 @@ public class HipLinkService implements HipLinkInterface {
               + " exception: "
               + Exceptions.unwrap(e);
       log.error(error);
+      requestLogService.updateError(requestLog, error, RequestStatus.AUTH_CONFIRM_ERROR);
       return FacadeResponse.builder().error(ErrorResponse.builder().message(error).build()).build();
     }
   }
@@ -333,9 +339,12 @@ public class HipLinkService implements HipLinkInterface {
       log.debug(linkAddContextsPath + " : linkAddContexts: " + response.getStatusCode());
       if (response.getStatusCode() == HttpStatus.ACCEPTED) {
         requestLogService.updateStatus(requestLog, RequestStatus.ADD_CARE_CONTEXT_ACCEPTED);
-      } else if (Objects.nonNull(response.getBody())) {
+      } else if (Objects.nonNull(response.getBody())
+          && Objects.nonNull(response.getBody().getErrorResponse())) {
         requestLogService.updateError(
-            requestLog, response.getBody().getErrorResponse().getMessage());
+            requestLog,
+            response.getBody().getErrorResponse().getMessage(),
+            RequestStatus.ADD_CARE_CONTEXT_ERROR);
       }
     } catch (Exception e) {
       String error =
@@ -345,8 +354,7 @@ public class HipLinkService implements HipLinkInterface {
               + " unwrapped exception: "
               + Exceptions.unwrap(e);
       log.error(error);
-      requestLog.setError(error);
-      requestLogService.updateError(requestLog, error);
+      requestLogService.updateError(requestLog, error, RequestStatus.ADD_CARE_CONTEXT_ERROR);
     }
   }
 }

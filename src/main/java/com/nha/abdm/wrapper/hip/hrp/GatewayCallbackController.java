@@ -8,6 +8,7 @@ import com.nha.abdm.wrapper.common.responses.GatewayCallbackResponse;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
 import com.nha.abdm.wrapper.hip.hrp.discover.responses.DiscoverResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnAddCareContextsResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
@@ -96,14 +97,15 @@ public class GatewayCallbackController {
   @PostMapping({"/v0.5/users/auth/on-init"})
   public ResponseEntity<GatewayCallbackResponse> onAuthInitCall(
       @RequestBody LinkOnInitResponse linkOnInitResponse) throws IllegalDataStateException {
-    if (linkOnInitResponse != null && linkOnInitResponse.getError() == null) {
-      log.debug(linkOnInitResponse.toString());
-      this.workflowManager.initiateAuthConfirm(linkOnInitResponse);
-    } else if (linkOnInitResponse != null) {
+    if (linkOnInitResponse != null && linkOnInitResponse.getError() != null) {
       updateRequestError(
           linkOnInitResponse.getResp().getRequestId(),
           "onAuthInitCall",
-          linkOnInitResponse.getError().getMessage());
+          linkOnInitResponse.getError().getMessage(),
+          RequestStatus.AUTH_ON_INIT_ERROR);
+    } else if (linkOnInitResponse != null) {
+      log.debug(linkOnInitResponse.toString());
+      this.workflowManager.initiateAuthConfirm(linkOnInitResponse);
     } else {
       String error = "Got Error in OnInitRequest callback: gateway response was null";
       return new ResponseEntity<>(
@@ -127,14 +129,15 @@ public class GatewayCallbackController {
   @PostMapping({"/v0.5/users/auth/on-confirm"})
   public ResponseEntity<GatewayCallbackResponse> onAuthConfirmCall(
       @RequestBody LinkOnConfirmResponse linkOnConfirmResponse) throws IllegalDataStateException {
-    if (linkOnConfirmResponse != null && linkOnConfirmResponse.getError() == null) {
-      log.debug(linkOnConfirmResponse.toString());
-      this.workflowManager.addCareContext(linkOnConfirmResponse);
-    } else if (linkOnConfirmResponse != null) {
+    if (linkOnConfirmResponse != null && linkOnConfirmResponse.getError() != null) {
       updateRequestError(
           linkOnConfirmResponse.getResp().getRequestId(),
           "onAuthConfirmCall",
-          linkOnConfirmResponse.getError().getMessage());
+          linkOnConfirmResponse.getError().getMessage(),
+          RequestStatus.AUTH_ON_CONFIRM_ERROR);
+    } else if (linkOnConfirmResponse != null) {
+      log.debug(linkOnConfirmResponse.toString());
+      this.workflowManager.addCareContext(linkOnConfirmResponse);
     } else {
       String error = "Got Error in onAuthConfirmCall callback: gateway response was null";
       return new ResponseEntity<>(
@@ -159,14 +162,15 @@ public class GatewayCallbackController {
   public ResponseEntity<GatewayCallbackResponse> onAddCareContext(
       @RequestBody LinkOnAddCareContextsResponse linkOnAddCareContextsResponse)
       throws IllegalDataStateException {
-    if (linkOnAddCareContextsResponse != null && linkOnAddCareContextsResponse.getError() == null) {
-      log.debug(linkOnAddCareContextsResponse.toString());
-      requestLogService.setHipOnAddCareContextResponse(linkOnAddCareContextsResponse);
-    } else if (linkOnAddCareContextsResponse != null) {
+    if (linkOnAddCareContextsResponse != null && linkOnAddCareContextsResponse.getError() != null) {
       updateRequestError(
           linkOnAddCareContextsResponse.getResp().getRequestId(),
           "onAddCareContext",
-          linkOnAddCareContextsResponse.getError().getMessage());
+          linkOnAddCareContextsResponse.getError().getMessage(),
+          RequestStatus.AUTH_ON_ADD_CARE_CONTEXT_ERROR);
+    } else if (linkOnAddCareContextsResponse != null) {
+      log.debug(linkOnAddCareContextsResponse.toString());
+      requestLogService.setHipOnAddCareContextResponse(linkOnAddCareContextsResponse);
     } else {
       String error = "Got Error in onAddCareContext callback: gateway response was null";
       return new ResponseEntity<>(
@@ -179,7 +183,8 @@ public class GatewayCallbackController {
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
-  private void updateRequestError(String requestId, String methodName, String errorMessage)
+  private void updateRequestError(
+      String requestId, String methodName, String errorMessage, RequestStatus requestStatus)
       throws IllegalDataStateException {
     RequestLog requestLog = logsRepo.findByGatewayRequestId(requestId);
     if (requestLog == null) {
@@ -189,7 +194,6 @@ public class GatewayCallbackController {
     }
     String error = String.format("Got Error in %s callback: %s", methodName, errorMessage);
     log.error(error);
-    requestLog.setError(error);
-    requestLogService.updateError(requestLog, error);
+    requestLogService.updateError(requestLog, error, requestStatus);
   }
 }

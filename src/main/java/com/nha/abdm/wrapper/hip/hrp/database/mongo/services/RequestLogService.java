@@ -344,13 +344,14 @@ public class RequestLogService<T> {
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 
-  public void updateError(RequestLog requestLog, String message) {
+  public void updateError(RequestLog requestLog, String message, RequestStatus requestStatus) {
     Query query =
         new Query(
             Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID)
                 .is(requestLog.getGatewayRequestId()));
     Update update = new Update();
     update.set(FieldIdentifiers.ERROR, message);
+    update.set(FieldIdentifiers.STATUS, requestStatus);
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 }
