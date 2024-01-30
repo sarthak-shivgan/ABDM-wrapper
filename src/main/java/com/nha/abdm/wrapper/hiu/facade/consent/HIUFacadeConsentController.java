@@ -1,5 +1,5 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hiu.facade;
+package com.nha.abdm.wrapper.hiu.facade.consent;
 
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.hiu.hrp.consent.HIUConsentInterface;
