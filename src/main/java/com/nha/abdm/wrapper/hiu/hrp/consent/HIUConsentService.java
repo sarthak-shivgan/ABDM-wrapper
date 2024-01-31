@@ -227,6 +227,14 @@ public class HIUConsentService implements HIUConsentInterface {
         return ConsentResponse.builder().consent(consent).build();
       }
     }
+    // If the below request was already made then upon success of on fetch request, status would be
+    // CONSENT_FETCH_ACCEPTED. In that case, we should not issue another request to gateway.
+    if (requestLog.getStatus() == RequestStatus.CONSENT_FETCH_ACCEPTED) {
+      return ConsentResponse.builder()
+              .status(RequestStatus.CONSENT_FETCH_ACCEPTED)
+              .httpStatusCode(HttpStatus.OK)
+              .build();
+    }
     try {
       ResponseEntity<GatewayGenericResponse> response =
           requestManager.fetchResponseFromGateway(fetchConsentPath, fetchConsentRequest);
