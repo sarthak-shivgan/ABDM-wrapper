@@ -7,7 +7,9 @@ import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.OnFetchRequest;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.OnInitConsentRequest;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.OnStatusRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
+@Service
 public class GatewayCallbackService implements GatewayCallbackInterface {
   @Override
   public ResponseEntity<GatewayCallbackResponse> onInitConsent(
