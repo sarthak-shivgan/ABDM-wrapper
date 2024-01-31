@@ -1,5 +1,5 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.common.responses;
+package com.nha.abdm.wrapper.hiu.hrp.consent.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequestStatusResponse {
-  private String status;
-  private ErrorResponse error;
+public class OnNotifyRespRequest {
+  private String requestId;
 }
