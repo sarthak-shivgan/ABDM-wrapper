@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OnStatusConsentRequest {
+public class ConsentStatus {
   private String id;
   private String status;
   private List<ConsentArtefact> consentArtefacts;

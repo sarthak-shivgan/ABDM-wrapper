@@ -37,6 +37,9 @@ public class RequestLog {
   @Field("requestDetails")
   public HashMap<String, Object> requestDetails;
 
+  @Field("responseDetails")
+  public HashMap<String, Object> responseDetails;
+
   public RequestLog(
       String clientRequestId,
       String gatewayRequestId,

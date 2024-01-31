@@ -15,4 +15,5 @@ public class HIPNotification {
   private String status;
   private String consentId;
   private ConsentDetail consentDetail;
+  private String signature;
 }

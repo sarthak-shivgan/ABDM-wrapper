@@ -1,19 +1,16 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hiu.hrp.consent;
 
-import com.nha.abdm.wrapper.common.responses.GatewayCallbackResponse;
-import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.NotifyHIURequest;
-import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.OnFetchRequest;
-import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.OnInitConsentRequest;
-import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.OnStatusRequest;
-import org.springframework.http.ResponseEntity;
+import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.*;
 
 public interface GatewayCallbackInterface {
-  ResponseEntity<GatewayCallbackResponse> onInitConsent(OnInitConsentRequest onInitConsentRequest);
+  void onInitConsent(OnInitRequest onInitRequest);
 
-  ResponseEntity<GatewayCallbackResponse> consentOnStatus(OnStatusRequest onStatusRequest);
+  void consentOnStatus(HIUConsentOnStatusRequest HIUConsentOnStatusRequest)
+      throws IllegalDataStateException;
 
-  ResponseEntity<GatewayCallbackResponse> hiuNotify(NotifyHIURequest notifyHIURequest);
+  void hiuNotify(NotifyHIURequest notifyHIURequest) throws IllegalDataStateException;
 
-  ResponseEntity<GatewayCallbackResponse> consentOnFetch(OnFetchRequest onFetchRequest);
+  void consentOnFetch(OnFetchRequest onFetchRequest) throws IllegalDataStateException;
 }

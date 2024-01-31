@@ -5,10 +5,11 @@ import com.nha.abdm.wrapper.common.GatewayConstants;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.Acknowledgement;
+import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
-import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.common.responses.GatewayCallbackResponse;
 import com.nha.abdm.wrapper.hip.hrp.consent.ConsentService;
+import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotification;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPOnNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
@@ -195,12 +196,22 @@ public class GatewayCallbackController {
 
   @PostMapping({"/v0.5/consents/hip/notify"})
   public ResponseEntity<GatewayCallbackResponse> hipNotify(
-      @RequestBody HIPNotifyRequest hipNotifyRequest) {
+      @RequestBody HIPNotifyRequest hipNotifyRequest) throws IllegalDataStateException {
     if (hipNotifyRequest != null
         && hipNotifyRequest.getHIPNotification() != null
         && hipNotifyRequest.getHIPNotification().getConsentDetail() != null
         && hipNotifyRequest.getHIPNotification().getConsentDetail().getPatient() != null) {
-      patientService.addConsentArtefacts(hipNotifyRequest);
+
+      HIPNotification hipNotification = hipNotifyRequest.getHIPNotification();
+      Consent consent =
+          Consent.builder()
+              .status(hipNotification.getStatus())
+              .consentDetail(hipNotification.getConsentDetail())
+              .signature(hipNotification.getSignature())
+              .build();
+      patientService.addConsent(
+          hipNotifyRequest.getHIPNotification().getConsentDetail().getPatient().getId(), consent);
+
       HIPOnNotifyRequest hipOnNotifyRequest =
           HIPOnNotifyRequest.builder()
               .requestId(hipNotifyRequest.getRequestId())
@@ -235,15 +246,15 @@ public class GatewayCallbackController {
     }
     String error = String.format("Got Error in %s callback: %s", methodName, errorMessage);
     log.error(error);
-    requestLogService.updateError(requestLog, error, requestStatus);
+    requestLogService.updateError(requestLog.getGatewayRequestId(), error, requestStatus);
   }
 
-  @ExceptionHandler(Exception.class)
-  private ResponseEntity<FacadeResponse> handleException(Exception ex) {
+  @ExceptionHandler(IllegalDataStateException.class)
+  private ResponseEntity<GatewayCallbackResponse> handleIllegalDataStateException(
+      IllegalDataStateException ex) {
     return new ResponseEntity<>(
-        FacadeResponse.builder()
-            .message(ex.getMessage())
-            .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+        GatewayCallbackResponse.builder()
+            .error(ErrorResponse.builder().message(ex.getMessage()).build())
             .build(),
         HttpStatus.INTERNAL_SERVER_ERROR);
   }

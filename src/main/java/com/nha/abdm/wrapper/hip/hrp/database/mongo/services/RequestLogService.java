@@ -20,6 +20,8 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnAddCareCon
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.InitConsentRequest;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.ConsentStatus;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -285,6 +287,7 @@ public class RequestLogService<T> {
    * @param gateWayRequestId requestId in auth/confirm.
    * @param clientRequestId requestId in auth/on-init.
    */
+  @Transactional
   public void updateOnInitResponseOTP(String clientRequestId, String gateWayRequestId) {
     Query query = new Query(Criteria.where("clientRequestId").is(clientRequestId));
     RequestLog existingRecord = mongoTemplate.findOne(query, RequestLog.class);
@@ -301,6 +304,7 @@ public class RequestLogService<T> {
    *
    * @param linkOnAddCareContextsResponse Acknowledgement from ABDM gateway for HipLinking.
    */
+  @Transactional
   public void setHipOnAddCareContextResponse(
       LinkOnAddCareContextsResponse linkOnAddCareContextsResponse)
       throws IllegalDataStateException {
@@ -334,24 +338,60 @@ public class RequestLogService<T> {
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 
-  public void updateStatus(RequestLog requestLog, RequestStatus requestStatus) {
-    Query query =
-        new Query(
-            Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID)
-                .is(requestLog.getGatewayRequestId()));
+  @Transactional
+  public void updateStatus(String requestId, RequestStatus requestStatus) {
+    Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
     Update update = new Update();
     update.set(FieldIdentifiers.STATUS, requestStatus);
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 
-  public void updateError(RequestLog requestLog, String message, RequestStatus requestStatus) {
-    Query query =
-        new Query(
-            Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID)
-                .is(requestLog.getGatewayRequestId()));
+  @Transactional
+  public void updateError(String requestId, String message, RequestStatus requestStatus) {
+    Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
     Update update = new Update();
     update.set(FieldIdentifiers.ERROR, message);
     update.set(FieldIdentifiers.STATUS, requestStatus);
+    mongoTemplate.updateFirst(query, update, RequestLog.class);
+  }
+
+  @Transactional
+  public void persistConsentInitRequest(
+      InitConsentRequest initConsentRequest, RequestStatus status, String error) {
+    RequestLog requestLog = new RequestLog();
+    requestLog.setClientRequestId(initConsentRequest.getRequestId());
+    requestLog.setGatewayRequestId(initConsentRequest.getRequestId());
+    requestLog.setStatus(status);
+    if (StringUtils.isNotBlank(error)) {
+      requestLog.setError(error);
+    }
+    mongoTemplate.save(requestLog);
+  }
+
+  @Transactional
+  public void updateConsentResponse(String requestId, String consentRequestId) {
+    Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
+    Map<String, Object> map = new HashMap<>();
+    map.put(FieldIdentifiers.CONSENT_REQUEST_ID, consentRequestId);
+    Update update = new Update();
+    update.set(FieldIdentifiers.RESPONSE_DETAILS, map);
+    update.set(FieldIdentifiers.STATUS, RequestStatus.CONSENT_ON_INIT_RESPONSE_RECEIVED);
+    mongoTemplate.updateFirst(query, update, RequestLog.class);
+  }
+
+  @Transactional
+  public void updateConsentResponse(String requestId, ConsentStatus consentDetails)
+      throws IllegalDataStateException {
+    Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
+    RequestLog requestLog = mongoTemplate.findOne(query, RequestLog.class);
+    if (requestLog == null) {
+      throw new IllegalDataStateException("Request not found for request id: " + requestId);
+    }
+    Map<String, Object> map = requestLog.getResponseDetails();
+    map.put(FieldIdentifiers.CONSENT_DETAILS_RESPONSE, consentDetails);
+    Update update = new Update();
+    update.set(FieldIdentifiers.RESPONSE_DETAILS, map);
+    update.set(FieldIdentifiers.STATUS, RequestStatus.CONSENT_ON_STATUS_RESPONSE_RECEIVED);
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 }

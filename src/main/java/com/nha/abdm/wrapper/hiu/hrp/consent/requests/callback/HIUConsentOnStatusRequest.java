@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OnStatusRequest {
+public class HIUConsentOnStatusRequest {
   private String requestId;
   private String timestamp;
-  private OnStatusConsentRequest consentRequest;
+  private ConsentStatus consentRequest;
   private ErrorResponse error;
   private RespRequest resp;
 }

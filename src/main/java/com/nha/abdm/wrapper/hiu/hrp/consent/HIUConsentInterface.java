@@ -1,19 +1,22 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hiu.hrp.consent;
 
+import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
-import com.nha.abdm.wrapper.hiu.hrp.consent.requests.ConsentStatusRequest;
-import com.nha.abdm.wrapper.hiu.hrp.consent.requests.FetchConsentRequest;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.FetchPatientConsentRequest;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.InitConsentRequest;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.OnNotifyRequest;
-import org.springframework.http.ResponseEntity;
+import com.nha.abdm.wrapper.hiu.hrp.consent.responses.ConsentResponse;
+import com.nha.abdm.wrapper.hiu.hrp.consent.responses.ConsentStatusResponse;
 
 public interface HIUConsentInterface {
-  ResponseEntity<FacadeResponse> initiateConsentRequest(InitConsentRequest initConsentRequest);
+  FacadeResponse initiateConsentRequest(InitConsentRequest initConsentRequest);
 
-  ResponseEntity<FacadeResponse> consentRequestStatus(ConsentStatusRequest consentStatusRequest);
+  ConsentStatusResponse consentRequestStatus(String clientRequestId)
+      throws IllegalDataStateException;
 
-  ResponseEntity<FacadeResponse> hiuOnNotify(OnNotifyRequest onNotifyRequest);
+  void hiuOnNotify(OnNotifyRequest onNotifyRequest);
 
-  ResponseEntity<FacadeResponse> fetchConsent(FetchConsentRequest fetchConsentRequest);
+  ConsentResponse fetchConsent(FetchPatientConsentRequest fetchPatientConsentRequest)
+      throws IllegalDataStateException;
 }

@@ -1,13 +1,14 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hiu.hrp.consent;
 
+import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
+import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.GatewayCallbackResponse;
-import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.NotifyHIURequest;
-import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.OnFetchRequest;
-import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.OnInitConsentRequest;
-import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.OnStatusRequest;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,25 +20,40 @@ public class HIUGatewayCallbackController {
 
   @PostMapping({"/v0.5/consent-requests/on-init"})
   public ResponseEntity<GatewayCallbackResponse> onInitConsent(
-      @RequestBody OnInitConsentRequest onInitConsentRequest) {
-    return gatewayCallback.onInitConsent(onInitConsentRequest);
+      @RequestBody OnInitRequest onInitRequest) {
+    gatewayCallback.onInitConsent(onInitRequest);
+    return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
   @PostMapping({"/v0.5/consent-requests/on-status"})
   public ResponseEntity<GatewayCallbackResponse> consentOnStatus(
-      @RequestBody OnStatusRequest onStatusRequest) {
-    return gatewayCallback.consentOnStatus(onStatusRequest);
+      @RequestBody HIUConsentOnStatusRequest HIUConsentOnStatusRequest)
+      throws IllegalDataStateException {
+    gatewayCallback.consentOnStatus(HIUConsentOnStatusRequest);
+    return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
   @PostMapping({"/v0.5/consent/hiu/notify"})
   public ResponseEntity<GatewayCallbackResponse> onInitConsent(
-      @RequestBody NotifyHIURequest notifyHIURequest) {
-    return gatewayCallback.hiuNotify(notifyHIURequest);
+      @RequestBody NotifyHIURequest notifyHIURequest) throws IllegalDataStateException {
+    gatewayCallback.hiuNotify(notifyHIURequest);
+    return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
   @PostMapping({"/v0.5/consent/on-fetch"})
-  public ResponseEntity<GatewayCallbackResponse> onInitConsent(
-      @RequestBody OnFetchRequest onFetchRequest) {
-    return gatewayCallback.consentOnFetch(onFetchRequest);
+  public ResponseEntity<GatewayCallbackResponse> onFetchConsent(
+      @RequestBody OnFetchRequest onFetchRequest) throws IllegalDataStateException {
+    gatewayCallback.consentOnFetch(onFetchRequest);
+    return new ResponseEntity<>(HttpStatus.ACCEPTED);
+  }
+
+  @ExceptionHandler(IllegalDataStateException.class)
+  private ResponseEntity<GatewayCallbackResponse> handleIllegalDataStateException(
+      IllegalDataStateException ex) {
+    return new ResponseEntity<>(
+        GatewayCallbackResponse.builder()
+            .error(ErrorResponse.builder().message(ex.getMessage()).build())
+            .build(),
+        HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

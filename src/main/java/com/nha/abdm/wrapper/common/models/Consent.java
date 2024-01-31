@@ -1,7 +1,6 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback;
+package com.nha.abdm.wrapper.common.models;
 
-import com.nha.abdm.wrapper.common.models.ConsentDetail;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OnFetchConsent {
+public class Consent {
   private String status;
   private ConsentDetail consentDetail;
+  private String signature;
 }

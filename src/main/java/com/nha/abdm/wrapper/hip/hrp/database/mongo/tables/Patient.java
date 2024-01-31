@@ -2,7 +2,7 @@
 package com.nha.abdm.wrapper.hip.hrp.database.mongo.tables;
 
 import com.nha.abdm.wrapper.common.models.CareContext;
-import com.nha.abdm.wrapper.common.models.ConsentDetail;
+import com.nha.abdm.wrapper.common.models.Consent;
 import java.util.List;
 import lombok.Data;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -38,8 +38,8 @@ public class Patient {
   @Field("careContext")
   public List<CareContext> careContexts;
 
-  @Field("consentArtefacts")
-  public List<ConsentDetail> consentArtefacts;
+  @Field("consents")
+  public List<Consent> consents;
 
   @Field("lastUpdated")
   public String lastUpdated;
