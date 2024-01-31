@@ -41,18 +41,23 @@ public class HIUConsentService implements HIUConsentInterface {
   }
 
   @Override
-  public FacadeResponse initiateConsentRequest(InitConsentRequest initConsentRequest) {
+  public ResponseEntity<FacadeResponse> initiateConsentRequest(
+      InitConsentRequest initConsentRequest) {
     try {
       ResponseEntity<GatewayGenericResponse> response =
           requestManager.fetchResponseFromGateway(consentInitPath, initConsentRequest);
       if (Objects.nonNull(response.getBody())
           && Objects.nonNull(response.getBody().getErrorResponse())) {
-        return FacadeResponse.builder()
-            .error(response.getBody().getErrorResponse())
-            .code(response.getStatusCode().value())
-            .build();
+        return new ResponseEntity<>(
+            FacadeResponse.builder()
+                .error(response.getBody().getErrorResponse())
+                .code(response.getStatusCode().value())
+                .build(),
+            HttpStatus.BAD_GATEWAY);
       }
-      return FacadeResponse.builder().code(response.getStatusCode().value()).build();
+      return new ResponseEntity<>(
+          FacadeResponse.builder().code(response.getStatusCode().value()).build(),
+          HttpStatus.ACCEPTED);
     } catch (Exception ex) {
       String error =
           "Exception while initiating consent request: "
@@ -60,26 +65,33 @@ public class HIUConsentService implements HIUConsentInterface {
               + " unwrapped exception: "
               + Exceptions.unwrap(ex);
       log.debug(error);
-      return FacadeResponse.builder()
-          .message(error)
-          .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-          .build();
+      return new ResponseEntity<>(
+          FacadeResponse.builder()
+              .message(error)
+              .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+              .build(),
+          HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Override
-  public FacadeResponse consentRequestStatus(ConsentStatusRequest consentStatusRequest) {
+  public ResponseEntity<FacadeResponse> consentRequestStatus(
+      ConsentStatusRequest consentStatusRequest) {
     try {
       ResponseEntity<GatewayGenericResponse> response =
           requestManager.fetchResponseFromGateway(consentStatusPath, consentStatusRequest);
       if (Objects.nonNull(response.getBody())
           && Objects.nonNull(response.getBody().getErrorResponse())) {
-        return FacadeResponse.builder()
-            .error(response.getBody().getErrorResponse())
-            .code(response.getStatusCode().value())
-            .build();
+        return new ResponseEntity<>(
+            FacadeResponse.builder()
+                .error(response.getBody().getErrorResponse())
+                .code(response.getStatusCode().value())
+                .build(),
+            HttpStatus.BAD_GATEWAY);
       }
-      return FacadeResponse.builder().code(response.getStatusCode().value()).build();
+      return new ResponseEntity<>(
+          FacadeResponse.builder().code(response.getStatusCode().value()).build(),
+          HttpStatus.ACCEPTED);
     } catch (Exception ex) {
       String error =
           "Exception while fetching consent status: "
@@ -87,26 +99,32 @@ public class HIUConsentService implements HIUConsentInterface {
               + " unwrapped exception: "
               + Exceptions.unwrap(ex);
       log.debug(error);
-      return FacadeResponse.builder()
-          .message(error)
-          .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-          .build();
+      return new ResponseEntity<>(
+          FacadeResponse.builder()
+              .message(error)
+              .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+              .build(),
+          HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Override
-  public FacadeResponse hiuOnNotify(OnNotifyRequest onNotifyRequest) {
+  public ResponseEntity<FacadeResponse> hiuOnNotify(OnNotifyRequest onNotifyRequest) {
     try {
       ResponseEntity<GatewayGenericResponse> response =
           requestManager.fetchResponseFromGateway(consentOnNotifyPath, onNotifyRequest);
       if (Objects.nonNull(response.getBody())
           && Objects.nonNull(response.getBody().getErrorResponse())) {
-        return FacadeResponse.builder()
-            .error(response.getBody().getErrorResponse())
-            .code(response.getStatusCode().value())
-            .build();
+        return new ResponseEntity<>(
+            FacadeResponse.builder()
+                .error(response.getBody().getErrorResponse())
+                .code(response.getStatusCode().value())
+                .build(),
+            HttpStatus.BAD_GATEWAY);
       }
-      return FacadeResponse.builder().code(response.getStatusCode().value()).build();
+      return new ResponseEntity<>(
+          FacadeResponse.builder().code(response.getStatusCode().value()).build(),
+          HttpStatus.ACCEPTED);
     } catch (Exception ex) {
       String error =
           "Exception while executing on notify: "
@@ -114,26 +132,32 @@ public class HIUConsentService implements HIUConsentInterface {
               + " unwrapped exception: "
               + Exceptions.unwrap(ex);
       log.debug(error);
-      return FacadeResponse.builder()
-          .message(error)
-          .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-          .build();
+      return new ResponseEntity<>(
+          FacadeResponse.builder()
+              .message(error)
+              .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+              .build(),
+          HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   @Override
-  public FacadeResponse fetchConsent(FetchConsentRequest fetchConsentRequest) {
+  public ResponseEntity<FacadeResponse> fetchConsent(FetchConsentRequest fetchConsentRequest) {
     try {
       ResponseEntity<GatewayGenericResponse> response =
           requestManager.fetchResponseFromGateway(fetchConsentPath, fetchConsentRequest);
       if (Objects.nonNull(response.getBody())
           && Objects.nonNull(response.getBody().getErrorResponse())) {
-        return FacadeResponse.builder()
-            .error(response.getBody().getErrorResponse())
-            .code(response.getStatusCode().value())
-            .build();
+        return new ResponseEntity<>(
+            FacadeResponse.builder()
+                .error(response.getBody().getErrorResponse())
+                .code(response.getStatusCode().value())
+                .build(),
+            HttpStatus.BAD_GATEWAY);
       }
-      return FacadeResponse.builder().code(response.getStatusCode().value()).build();
+      return new ResponseEntity<>(
+          FacadeResponse.builder().code(response.getStatusCode().value()).build(),
+          HttpStatus.ACCEPTED);
     } catch (Exception ex) {
       String error =
           "Exception while fetching consent: "
@@ -141,10 +165,12 @@ public class HIUConsentService implements HIUConsentInterface {
               + " unwrapped exception: "
               + Exceptions.unwrap(ex);
       log.debug(error);
-      return FacadeResponse.builder()
-          .message(error)
-          .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
-          .build();
+      return new ResponseEntity<>(
+          FacadeResponse.builder()
+              .message(error)
+              .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+              .build(),
+          HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 }

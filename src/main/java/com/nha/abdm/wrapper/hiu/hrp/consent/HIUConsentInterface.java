@@ -6,13 +6,14 @@ import com.nha.abdm.wrapper.hiu.hrp.consent.requests.ConsentStatusRequest;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.FetchConsentRequest;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.InitConsentRequest;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.OnNotifyRequest;
+import org.springframework.http.ResponseEntity;
 
 public interface HIUConsentInterface {
-  FacadeResponse initiateConsentRequest(InitConsentRequest initConsentRequest);
+  ResponseEntity<FacadeResponse> initiateConsentRequest(InitConsentRequest initConsentRequest);
 
-  FacadeResponse consentRequestStatus(ConsentStatusRequest consentStatusRequest);
+  ResponseEntity<FacadeResponse> consentRequestStatus(ConsentStatusRequest consentStatusRequest);
 
-  FacadeResponse hiuOnNotify(OnNotifyRequest onNotifyRequest);
+  ResponseEntity<FacadeResponse> hiuOnNotify(OnNotifyRequest onNotifyRequest);
 
-  FacadeResponse fetchConsent(FetchConsentRequest fetchConsentRequest);
+  ResponseEntity<FacadeResponse> fetchConsent(FetchConsentRequest fetchConsentRequest);
 }

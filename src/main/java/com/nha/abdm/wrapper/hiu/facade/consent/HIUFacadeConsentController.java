@@ -8,6 +8,7 @@ import com.nha.abdm.wrapper.hiu.hrp.consent.requests.FetchConsentRequest;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.InitConsentRequest;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.OnNotifyRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,23 +19,25 @@ public class HIUFacadeConsentController {
   @Autowired private HIUConsentInterface hiuConsentInterface;
 
   @PostMapping({"/consent-init"})
-  public FacadeResponse initiateConsentRequest(@RequestBody InitConsentRequest initConsentRequest) {
+  public ResponseEntity<FacadeResponse> initiateConsentRequest(
+      @RequestBody InitConsentRequest initConsentRequest) {
     return hiuConsentInterface.initiateConsentRequest(initConsentRequest);
   }
 
   @PostMapping({"/consent-status"})
-  public FacadeResponse consentRequestStatus(
+  public ResponseEntity<FacadeResponse> consentRequestStatus(
       @RequestBody ConsentStatusRequest consentStatusRequest) {
     return hiuConsentInterface.consentRequestStatus(consentStatusRequest);
   }
 
   @PostMapping({"/hiu-on-notify"})
-  public FacadeResponse hiuOnNotify(@RequestBody OnNotifyRequest onNotifyRequest) {
+  public ResponseEntity<FacadeResponse> hiuOnNotify(@RequestBody OnNotifyRequest onNotifyRequest) {
     return hiuConsentInterface.hiuOnNotify(onNotifyRequest);
   }
 
   @PostMapping({"/fetch-consent"})
-  public FacadeResponse fetchConsent(@RequestBody FetchConsentRequest fetchConsentRequest) {
+  public ResponseEntity<FacadeResponse> fetchConsent(
+      @RequestBody FetchConsentRequest fetchConsentRequest) {
     return hiuConsentInterface.fetchConsent(fetchConsentRequest);
   }
 }
