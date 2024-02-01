@@ -7,7 +7,9 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericRe
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
+@Service
 public class ConsentService implements ConsentInterface {
 
   @Autowired RequestManager requestManager;
