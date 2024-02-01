@@ -2,7 +2,7 @@
 
 Swagger HIP Facade - OpenAPI 3.0
 - API version: 1.0.0
-  - Build date: 2024-01-29T15:44:24.772190301Z[Etc/UTC]
+  - Build date: 2024-02-01T18:49:08.957071861Z[Etc/UTC]
 
 This is a set of interfaces based on the OpenAPI 3.0 specification for a wrapper client
 

@@ -1,24 +1,61 @@
-# ABDM-Wrapper
 This project is created to solve the challenges and issues faced by integrators to bring their systems into ABDM ecosystem.
 Wrapper tries to abstract complex workflows and algorithms exposing clean and simple interfaces for integrators.
 
-## Discovery and User-Initiated Linking
-Click [here](src/main/java/com/nha/abdm/wrapper/hip/hrp/discover/README.md) to get details on testing this workflow.
-## HIP-Initiated Linking
-Click [here](src/main/java/com/nha/abdm/wrapper/hip/hrp/link/hipInitiated/README.md) to get details on testing this workflow.
+## Pre-requisites
+### 1. Install ABHA SBX PHR App on your mobile.
 
-## Pre-requisite to start the application
-- Start Mongodb server and make sure that the port and database name matches with those provided in application.properties
-- Provide your credentials(clientId and clientSecret) in application.properties
+> https://sandbox.abdm.gov.in/docs/phr_app
+
+
+### 2. Create ABHA Address
+
+```
+* Skip if ABHA Address already exists.
+
+ABHA Address can be created using: 
+- Mobile Number
+- Aadhaar Number
+- E-mail
+
+After creating the ABHA Address, your id should look like "yourAbha@sbx"
+```
+
+### 3. Tech Stack required to be installed on your system:
+- docker
+- docker-compose
+- jdk 17
+
+### 4. Register bridge (hostUrl) with ABDM for callbacks.
+1. Get Access Token.
+```
+curl --location 'https://dev.abdm.gov.in/gateway/v0.5/sessions' \
+--header 'Content-Type: application/json' \
+--data '{
+    "clientId": <client id provided>,
+    "clientSecret": <client secret provided>
+}'
+```
+2. Register bridge url
+```
+curl --location --request PATCH 'https://dev.abdm.gov.in/devservice/v1/bridges' \
+--header 'Authorization: Bearer <your accessToken>' \
+--header 'Content-Type: application/json' \
+--data '{
+    "url": <your bridge url>
+}'
+```
+### 5. Provide your credentials
+- Provide clientId and clientSecret in [application.properties](src/main/resources/application.properties)
+
+## Bring the application up.
+```
+docker-compose up
+```
 
 ## Sample HIP
-Click [here](sample-hip/README.md) to get details on how to run sample hip application. 
+Click [here](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Sample-HIP) for more details on this.
 
-## Docker
-Instead of running docker command to bring mongodb container up, you can bring both wrapper and mongodb services up by running these commands 
-(Pre-requisites: You need to have docker and docker-compose installed on your system):
-- ``gradle build``
-- ``docker-compose up``
+## Test Discovery and User-Initiated Linking
+Click [here](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Test-Discovery-and-User-Initiated-Linking) to get more details on this.
 
-## Spotless
-To apply spotless plugin run ```gradle spotlessApply```
+## [Developer Guide](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Developer-guide)
