@@ -212,6 +212,8 @@ public class GatewayCallbackController {
       patientService.addConsent(
           hipNotifyRequest.getHIPNotification().getConsentDetail().getPatient().getId(), consent);
 
+      // TODO: Get confirmation on whether request id should be hipNotifyRequest.getRequestId() or
+      // hipNotifyRequest.getResp().getRequestId()
       HIPOnNotifyRequest hipOnNotifyRequest =
           HIPOnNotifyRequest.builder()
               .requestId(hipNotifyRequest.getRequestId())
