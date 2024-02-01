@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class GatewayCallbackService implements GatewayCallbackInterface {
@@ -113,6 +114,7 @@ public class GatewayCallbackService implements GatewayCallbackInterface {
   }
 
   @Override
+  @Transactional
   public void consentOnFetch(OnFetchRequest onFetchRequest) throws IllegalDataStateException {
     if (Objects.nonNull(onFetchRequest)
         && Objects.nonNull(onFetchRequest.getConsent())

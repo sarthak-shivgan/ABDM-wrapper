@@ -177,9 +177,8 @@ public class PatientService {
           .getConsentId()
           .equals(consent.getConsentDetail().getConsentId())) {
         String message =
-            String.format(
-                "Consent %s already exists for patient %s: ", consent.toString(), abhaAddress);
-        log.info(message);
+            String.format("Consent %s already exists for patient %s: ", consent, abhaAddress);
+        log.warn(message);
         return;
       }
     }

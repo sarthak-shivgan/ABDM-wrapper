@@ -33,7 +33,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class RequestLogService<T> {
@@ -73,7 +72,6 @@ public class RequestLogService<T> {
    *
    * @param discoverResponse Response from ABDM gateway for discovery
    */
-  @Transactional
   public void setDiscoverResponse(DiscoverResponse discoverResponse) {
     if (Objects.isNull(discoverResponse)) {
       return;
@@ -94,7 +92,6 @@ public class RequestLogService<T> {
    *
    * @param initResponse Response from ABDM gateway for linking particular careContexts.
    */
-  @Transactional
   public void setLinkResponse(InitResponse initResponse, String requestId, String referenceNumber) {
     if (Objects.isNull(initResponse)) {
       return;
@@ -187,7 +184,6 @@ public class RequestLogService<T> {
    *
    * @param linkRecordsRequest Request received to facade for hipLinking.
    */
-  @Transactional
   public void persistHipLinkRequest(
       LinkRecordsRequest linkRecordsRequest, RequestStatus status, String error) {
     if (Objects.isNull(linkRecordsRequest)) {
@@ -215,7 +211,6 @@ public class RequestLogService<T> {
    *
    * @param linkOnInitResponse Response from ABDM gateway after successful auth/init.
    */
-  @Transactional
   public void updateHipOnInitResponse(
       LinkOnInitResponse linkOnInitResponse, LinkConfirmRequest linkConfirmRequest) {
     Query query =
@@ -241,7 +236,6 @@ public class RequestLogService<T> {
    *
    * @param linkOnConfirmResponse Response from ABDM gateway for successful auth/on-confirm.
    */
-  @Transactional
   public void setHipOnConfirmResponse(
       LinkOnConfirmResponse linkOnConfirmResponse, LinkAddCareContext linkAddCareContext) {
     Query query =
@@ -266,7 +260,6 @@ public class RequestLogService<T> {
    *
    * @param linkOnInitResponse Response from ABDM gateway for successful auth/init.
    */
-  @Transactional
   public void setHipOnInitResponseOTP(LinkOnInitResponse linkOnInitResponse) {
     Query query =
         new Query(
@@ -287,7 +280,6 @@ public class RequestLogService<T> {
    * @param gateWayRequestId requestId in auth/confirm.
    * @param clientRequestId requestId in auth/on-init.
    */
-  @Transactional
   public void updateOnInitResponseOTP(String clientRequestId, String gateWayRequestId) {
     Query query = new Query(Criteria.where("clientRequestId").is(clientRequestId));
     RequestLog existingRecord = mongoTemplate.findOne(query, RequestLog.class);
@@ -304,7 +296,6 @@ public class RequestLogService<T> {
    *
    * @param linkOnAddCareContextsResponse Acknowledgement from ABDM gateway for HipLinking.
    */
-  @Transactional
   public void setHipOnAddCareContextResponse(
       LinkOnAddCareContextsResponse linkOnAddCareContextsResponse)
       throws IllegalDataStateException {
@@ -338,7 +329,6 @@ public class RequestLogService<T> {
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 
-  @Transactional
   public void updateStatus(String requestId, RequestStatus requestStatus) {
     Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
     Update update = new Update();
@@ -346,7 +336,6 @@ public class RequestLogService<T> {
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 
-  @Transactional
   public void updateError(String requestId, String message, RequestStatus requestStatus) {
     Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
     Update update = new Update();
@@ -355,7 +344,6 @@ public class RequestLogService<T> {
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 
-  @Transactional
   public void persistConsentInitRequest(
       InitConsentRequest initConsentRequest, RequestStatus status, String error) {
     RequestLog requestLog = new RequestLog();
@@ -368,7 +356,6 @@ public class RequestLogService<T> {
     mongoTemplate.save(requestLog);
   }
 
-  @Transactional
   public void updateConsentResponse(String requestId, String consentRequestId) {
     Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
     Map<String, Object> map = new HashMap<>();
@@ -379,7 +366,6 @@ public class RequestLogService<T> {
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 
-  @Transactional
   public void updateConsentResponse(String requestId, ConsentStatus consentDetails)
       throws IllegalDataStateException {
     Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
