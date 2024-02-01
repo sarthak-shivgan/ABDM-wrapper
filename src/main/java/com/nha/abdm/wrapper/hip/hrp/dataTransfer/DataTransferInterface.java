@@ -2,16 +2,16 @@
 package com.nha.abdm.wrapper.hip.hrp.dataTransfer;
 
 import com.nha.abdm.wrapper.common.responses.GatewayCallbackResponse;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.responses.BundleResponseHIP;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.responses.DataNotifyResponse;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.responses.DataRequestResponse;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.BundleResponseHIP;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPConsentNotification;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPHealthInformationRequest;
 
 public interface DataTransferInterface {
-  GatewayCallbackResponse DataOnNotifyCall(DataNotifyResponse data);
+  void notifyOnReceived(HIPConsentNotification data);
 
-  GatewayCallbackResponse DataOnRequestCall(DataRequestResponse data);
+  void requestOnReceived(HIPHealthInformationRequest data);
 
-  GatewayCallbackResponse initiateBundleRequest(DataRequestResponse dataRequestResponse);
+  void initiateBundleRequest(HIPHealthInformationRequest HIPHealthInformationRequest);
 
-  GatewayCallbackResponse initiateDataTransfer(BundleResponseHIP bundleResponseHIP) throws Exception;
+  void initiateDataTransfer(BundleResponseHIP bundleResponseHIP);
 }

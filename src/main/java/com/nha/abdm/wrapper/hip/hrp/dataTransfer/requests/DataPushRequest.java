@@ -1,8 +1,8 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests;
 
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.responses.helpers.DataEntries;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.responses.helpers.DataHiRequest.DatakeyMaterial.DataKeyMaterial;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataEntries;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataHiRequest.DatakeyMaterial.DataKeyMaterial;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
