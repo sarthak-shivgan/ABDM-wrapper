@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 public class NotifyHIURequest {
   private String requestId;
   private String timestamp;
-  private Notification notification;
+  private ConsentStatus notification;
 }

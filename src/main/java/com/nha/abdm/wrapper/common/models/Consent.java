@@ -1,7 +1,6 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback;
+package com.nha.abdm.wrapper.common.models;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,8 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Notification {
-  private String consentRequestId;
+public class Consent {
   private String status;
-  private List<ConsentArtefact> consentArtefacts;
+  private ConsentDetail consentDetail;
+  private String signature;
 }

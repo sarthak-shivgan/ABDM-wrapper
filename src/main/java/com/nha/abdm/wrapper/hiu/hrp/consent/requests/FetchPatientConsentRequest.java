@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Acknowledgement {
-  private String status;
-  private String consentId;
+public class FetchPatientConsentRequest {
+  private FetchConsentRequest fetchConsentRequest;
+  private String patientAbhaAddress;
 }

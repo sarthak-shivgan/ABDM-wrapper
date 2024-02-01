@@ -2,10 +2,18 @@
 package com.nha.abdm.wrapper.hip.hrp;
 
 import com.nha.abdm.wrapper.common.GatewayConstants;
+import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
+import com.nha.abdm.wrapper.common.models.Acknowledgement;
+import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.GatewayCallbackResponse;
+import com.nha.abdm.wrapper.hip.hrp.consent.ConsentService;
+import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotification;
+import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
+import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPOnNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
@@ -21,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -31,6 +40,8 @@ public class GatewayCallbackController {
 
   @Autowired WorkflowManager workflowManager;
   @Autowired RequestLogService requestLogService;
+  @Autowired PatientService patientService;
+  @Autowired ConsentService consentService;
   @Autowired LogsRepo logsRepo;
 
   private static final Logger log = LogManager.getLogger(GatewayCallbackController.class);
@@ -183,6 +194,49 @@ public class GatewayCallbackController {
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
+  @PostMapping({"/v0.5/consents/hip/notify"})
+  public ResponseEntity<GatewayCallbackResponse> hipNotify(
+      @RequestBody HIPNotifyRequest hipNotifyRequest) throws IllegalDataStateException {
+    if (hipNotifyRequest != null
+        && hipNotifyRequest.getHIPNotification() != null
+        && hipNotifyRequest.getHIPNotification().getConsentDetail() != null
+        && hipNotifyRequest.getHIPNotification().getConsentDetail().getPatient() != null) {
+
+      HIPNotification hipNotification = hipNotifyRequest.getHIPNotification();
+      Consent consent =
+          Consent.builder()
+              .status(hipNotification.getStatus())
+              .consentDetail(hipNotification.getConsentDetail())
+              .signature(hipNotification.getSignature())
+              .build();
+      patientService.addConsent(
+          hipNotifyRequest.getHIPNotification().getConsentDetail().getPatient().getId(), consent);
+
+      // TODO: Get confirmation on whether request id should be hipNotifyRequest.getRequestId() or
+      // hipNotifyRequest.getResp().getRequestId()
+      HIPOnNotifyRequest hipOnNotifyRequest =
+          HIPOnNotifyRequest.builder()
+              .requestId(hipNotifyRequest.getRequestId())
+              .timestamp(Utils.getCurrentTimeStamp())
+              .acknowledgement(
+                  Acknowledgement.builder()
+                      .consentId(hipNotifyRequest.getHIPNotification().getConsentId())
+                      .status(HttpStatus.OK.name())
+                      .build())
+              .build();
+      consentService.hipOnNotify(hipOnNotifyRequest);
+    } else {
+      String error = "Got Error in onAddCareContext callback: gateway response was null";
+      return new ResponseEntity<>(
+          GatewayCallbackResponse.builder()
+              .error(
+                  ErrorResponse.builder().code(GatewayConstants.ERROR_CODE).message(error).build())
+              .build(),
+          HttpStatus.BAD_REQUEST);
+    }
+    return new ResponseEntity<>(HttpStatus.ACCEPTED);
+  }
+
   private void updateRequestError(
       String requestId, String methodName, String errorMessage, RequestStatus requestStatus)
       throws IllegalDataStateException {
@@ -194,6 +248,16 @@ public class GatewayCallbackController {
     }
     String error = String.format("Got Error in %s callback: %s", methodName, errorMessage);
     log.error(error);
-    requestLogService.updateError(requestLog, error, requestStatus);
+    requestLogService.updateError(requestLog.getGatewayRequestId(), error, requestStatus);
+  }
+
+  @ExceptionHandler(IllegalDataStateException.class)
+  private ResponseEntity<GatewayCallbackResponse> handleIllegalDataStateException(
+      IllegalDataStateException ex) {
+    return new ResponseEntity<>(
+        GatewayCallbackResponse.builder()
+            .error(ErrorResponse.builder().message(ex.getMessage()).build())
+            .build(),
+        HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

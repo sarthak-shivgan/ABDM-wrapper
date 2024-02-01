@@ -6,11 +6,14 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.WriteModel;
+import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.CareContext;
+import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
 import java.util.ArrayList;
@@ -160,6 +163,28 @@ public class PatientService {
       log.info("addPatient :" + e);
     }
     log.info("Successfully Added Patient careContexts");
+  }
+
+  public void addConsent(String abhaAddress, Consent consent) throws IllegalDataStateException {
+    Patient patient = patientRepo.findByAbhaAddress(abhaAddress);
+    if (patient == null) {
+      throw new IllegalDataStateException("Patient not found in database: " + abhaAddress);
+    }
+    List<Consent> consents = patient.getConsents();
+    for (Consent storedConsent : consents) {
+      if (storedConsent
+          .getConsentDetail()
+          .getConsentId()
+          .equals(consent.getConsentDetail().getConsentId())) {
+        String message =
+            String.format("Consent %s already exists for patient %s: ", consent, abhaAddress);
+        log.warn(message);
+        return;
+      }
+    }
+    Query query = new Query(Criteria.where(FieldIdentifiers.ABHA_ADDRESS).is(abhaAddress));
+    Update update = new Update().addToSet(FieldIdentifiers.CONSENTS, consent);
+    mongoTemplate.updateFirst(query, update, Patient.class);
   }
 
   /**

@@ -1,6 +1,8 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback;
+package com.nha.abdm.wrapper.hip.hrp.consent.requests;
 
+import com.nha.abdm.wrapper.common.models.Acknowledgement;
+import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,10 +13,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OnStatusRequest {
+public class HIPOnNotifyRequest {
   private String requestId;
   private String timestamp;
-  private OnStatusConsentRequest consentRequest;
+  private Acknowledgement acknowledgement;
   private ErrorResponse error;
-  private CallbackRespRequest resp;
+  private RespRequest resp;
 }

@@ -20,6 +20,8 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnAddCareCon
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.InitConsentRequest;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.ConsentStatus;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -31,7 +33,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class RequestLogService<T> {
@@ -71,7 +72,6 @@ public class RequestLogService<T> {
    *
    * @param discoverResponse Response from ABDM gateway for discovery
    */
-  @Transactional
   public void setDiscoverResponse(DiscoverResponse discoverResponse) {
     if (Objects.isNull(discoverResponse)) {
       return;
@@ -92,7 +92,6 @@ public class RequestLogService<T> {
    *
    * @param initResponse Response from ABDM gateway for linking particular careContexts.
    */
-  @Transactional
   public void setLinkResponse(InitResponse initResponse, String requestId, String referenceNumber) {
     if (Objects.isNull(initResponse)) {
       return;
@@ -185,7 +184,6 @@ public class RequestLogService<T> {
    *
    * @param linkRecordsRequest Request received to facade for hipLinking.
    */
-  @Transactional
   public void persistHipLinkRequest(
       LinkRecordsRequest linkRecordsRequest, RequestStatus status, String error) {
     if (Objects.isNull(linkRecordsRequest)) {
@@ -213,7 +211,6 @@ public class RequestLogService<T> {
    *
    * @param linkOnInitResponse Response from ABDM gateway after successful auth/init.
    */
-  @Transactional
   public void updateHipOnInitResponse(
       LinkOnInitResponse linkOnInitResponse, LinkConfirmRequest linkConfirmRequest) {
     Query query =
@@ -239,7 +236,6 @@ public class RequestLogService<T> {
    *
    * @param linkOnConfirmResponse Response from ABDM gateway for successful auth/on-confirm.
    */
-  @Transactional
   public void setHipOnConfirmResponse(
       LinkOnConfirmResponse linkOnConfirmResponse, LinkAddCareContext linkAddCareContext) {
     Query query =
@@ -264,7 +260,6 @@ public class RequestLogService<T> {
    *
    * @param linkOnInitResponse Response from ABDM gateway for successful auth/init.
    */
-  @Transactional
   public void setHipOnInitResponseOTP(LinkOnInitResponse linkOnInitResponse) {
     Query query =
         new Query(
@@ -334,24 +329,55 @@ public class RequestLogService<T> {
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 
-  public void updateStatus(RequestLog requestLog, RequestStatus requestStatus) {
-    Query query =
-        new Query(
-            Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID)
-                .is(requestLog.getGatewayRequestId()));
+  public void updateStatus(String requestId, RequestStatus requestStatus) {
+    Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
     Update update = new Update();
     update.set(FieldIdentifiers.STATUS, requestStatus);
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 
-  public void updateError(RequestLog requestLog, String message, RequestStatus requestStatus) {
-    Query query =
-        new Query(
-            Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID)
-                .is(requestLog.getGatewayRequestId()));
+  public void updateError(String requestId, String message, RequestStatus requestStatus) {
+    Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
     Update update = new Update();
     update.set(FieldIdentifiers.ERROR, message);
     update.set(FieldIdentifiers.STATUS, requestStatus);
+    mongoTemplate.updateFirst(query, update, RequestLog.class);
+  }
+
+  public void persistConsentInitRequest(
+      InitConsentRequest initConsentRequest, RequestStatus status, String error) {
+    RequestLog requestLog = new RequestLog();
+    requestLog.setClientRequestId(initConsentRequest.getRequestId());
+    requestLog.setGatewayRequestId(initConsentRequest.getRequestId());
+    requestLog.setStatus(status);
+    if (StringUtils.isNotBlank(error)) {
+      requestLog.setError(error);
+    }
+    mongoTemplate.save(requestLog);
+  }
+
+  public void updateConsentResponse(String requestId, String consentRequestId) {
+    Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
+    Map<String, Object> map = new HashMap<>();
+    map.put(FieldIdentifiers.CONSENT_REQUEST_ID, consentRequestId);
+    Update update = new Update();
+    update.set(FieldIdentifiers.RESPONSE_DETAILS, map);
+    update.set(FieldIdentifiers.STATUS, RequestStatus.CONSENT_ON_INIT_RESPONSE_RECEIVED);
+    mongoTemplate.updateFirst(query, update, RequestLog.class);
+  }
+
+  public void updateConsentResponse(String requestId, ConsentStatus consentDetails)
+      throws IllegalDataStateException {
+    Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
+    RequestLog requestLog = mongoTemplate.findOne(query, RequestLog.class);
+    if (requestLog == null) {
+      throw new IllegalDataStateException("Request not found for request id: " + requestId);
+    }
+    Map<String, Object> map = requestLog.getResponseDetails();
+    map.put(FieldIdentifiers.CONSENT_DETAILS_RESPONSE, consentDetails);
+    Update update = new Update();
+    update.set(FieldIdentifiers.RESPONSE_DETAILS, map);
+    update.set(FieldIdentifiers.STATUS, RequestStatus.CONSENT_ON_STATUS_RESPONSE_RECEIVED);
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 }

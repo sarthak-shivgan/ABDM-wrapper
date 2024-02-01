@@ -15,6 +15,19 @@ public enum RequestStatus {
   CARE_CONTEXT_LINKED("Care Context(s) were linked"),
   USER_INIT_REQUEST_RECEIVED_BY_WRAPPER(
       "User initiated link request received by wrapper from gateway"),
+  CONSENT_INIT_ACCEPTED("Consent init request accepted by gateway"),
+  CONSENT_INIT_ERROR("Error thrown by Gateway for consent init"),
+  CONSENT_ON_INIT_ERROR("Error thrown by Gateway for consent on init"),
+  CONSENT_ON_INIT_RESPONSE_RECEIVED("Response received from gateway for consent on init"),
+  CONSENT_STATUS_ACCEPTED("Consent status request accepted by gateway"),
+  CONSENT_STATUS_ERROR("Error thrown by Gateway for consent status"),
+  CONSENT_ON_STATUS_ERROR("Error thrown by Gateway for on consent status"),
+  CONSENT_ON_STATUS_RESPONSE_RECEIVED("Response received from gateway for consent status"),
+  CONSENT_HIU_NOTIFY_ERROR("Something went wrong while executing consent hiu notify"),
+  CONSENT_FETCH_ACCEPTED("Consent fetch request accepted by gateway"),
+  CONSENT_FETCH_ERROR("Error thrown by Gateway for consent fetch"),
+  CONSENT_ON_FETCH_SUCCESS("Response received from gateway for consent fetch"),
+  CONSENT_ON_FETCH_ERROR("Error thrown by Gateway for on consent fetch"),
   ;
 
   private String value;
