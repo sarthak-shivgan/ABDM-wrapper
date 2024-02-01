@@ -27,8 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import reactor.core.Exceptions;
 
+@Service
 public class HIUConsentService implements HIUConsentInterface {
 
   private static final Logger log = LogManager.getLogger(HIUConsentService.class);
@@ -231,9 +233,9 @@ public class HIUConsentService implements HIUConsentInterface {
     // CONSENT_FETCH_ACCEPTED. In that case, we should not issue another request to gateway.
     if (requestLog.getStatus() == RequestStatus.CONSENT_FETCH_ACCEPTED) {
       return ConsentResponse.builder()
-              .status(RequestStatus.CONSENT_FETCH_ACCEPTED)
-              .httpStatusCode(HttpStatus.OK)
-              .build();
+          .status(RequestStatus.CONSENT_FETCH_ACCEPTED)
+          .httpStatusCode(HttpStatus.OK)
+          .build();
     }
     try {
       ResponseEntity<GatewayGenericResponse> response =
