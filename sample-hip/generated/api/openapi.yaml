@@ -139,6 +139,11 @@ components:
         name:
           type: string
         gender:
+          enum:
+          - M
+          - F
+          - O
+          - U
           example: M
           type: string
         dateOfBirth:

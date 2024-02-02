@@ -50,7 +50,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * Patient
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-01-29T15:44:24.772190301Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-01T18:49:08.957071861Z[Etc/UTC]")
 public class Patient {
   public static final String SERIALIZED_NAME_ABHA_ADDRESS = "abhaAddress";
   @SerializedName(SERIALIZED_NAME_ABHA_ADDRESS)
@@ -60,9 +60,60 @@ public class Patient {
   @SerializedName(SERIALIZED_NAME_NAME)
   private String name;
 
+  /**
+   * Gets or Sets gender
+   */
+  @JsonAdapter(GenderEnum.Adapter.class)
+  public enum GenderEnum {
+    M("M"),
+    
+    F("F"),
+    
+    O("O"),
+    
+    U("U");
+
+    private String value;
+
+    GenderEnum(String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    public static GenderEnum fromValue(String value) {
+      for (GenderEnum b : GenderEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+
+    public static class Adapter extends TypeAdapter<GenderEnum> {
+      @Override
+      public void write(final JsonWriter jsonWriter, final GenderEnum enumeration) throws IOException {
+        jsonWriter.value(enumeration.getValue());
+      }
+
+      @Override
+      public GenderEnum read(final JsonReader jsonReader) throws IOException {
+        String value =  jsonReader.nextString();
+        return GenderEnum.fromValue(value);
+      }
+    }
+  }
+
   public static final String SERIALIZED_NAME_GENDER = "gender";
   @SerializedName(SERIALIZED_NAME_GENDER)
-  private String gender;
+  private GenderEnum gender;
 
   public static final String SERIALIZED_NAME_DATE_OF_BIRTH = "dateOfBirth";
   @SerializedName(SERIALIZED_NAME_DATE_OF_BIRTH)
@@ -125,7 +176,7 @@ public class Patient {
   }
 
 
-  public Patient gender(String gender) {
+  public Patient gender(GenderEnum gender) {
     
     this.gender = gender;
     return this;
@@ -136,12 +187,12 @@ public class Patient {
    * @return gender
   **/
   @javax.annotation.Nullable
-  public String getGender() {
+  public GenderEnum getGender() {
     return gender;
   }
 
 
-  public void setGender(String gender) {
+  public void setGender(GenderEnum gender) {
     this.gender = gender;
   }
 
