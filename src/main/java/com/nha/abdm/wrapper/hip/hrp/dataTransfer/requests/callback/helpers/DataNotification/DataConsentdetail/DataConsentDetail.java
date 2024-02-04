@@ -1,7 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataNotification.DataConsentdetail;
 
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataNotification.DataConsentdetail.DataCareContexts.DataCareContexts;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataNotification.DataConsentdetail.DataCareContexts.CareContextsWithPatientReference;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataNotification.DataConsentdetail.DataConsentManager.DataConsentManager;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataNotification.DataConsentdetail.DataHip.DataHip;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataNotification.DataConsentdetail.DataPatient.DataPatient;
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class DataConsentDetail {
-  public List<DataCareContexts> careContexts;
+  public List<CareContextsWithPatientReference> careContexts;
   public String consentId;
   public DataConsentManager consentManager;
   public String createdAt;

@@ -10,6 +10,7 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataNotification.DataConsentdetail.DataCareContexts.CareContextsWithPatientReference;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
@@ -219,5 +220,36 @@ public class PatientService {
         .message(
             String.format("Successfully upserted %d patients", bulkWriteResult.getUpserts().size()))
         .build();
+  }
+
+  /**
+   * <B>Data Transfer</B>
+   * For a given list of careContextsReference and patientReference check whether careContexts match with patient.
+   * @param careContextsWithPatientReference Has CareContextReference and patientReference.
+   * @return if all the Contexts match with respective patient return true;
+   */
+  public boolean isCareContextPresent(List<CareContextsWithPatientReference> careContextsWithPatientReference) {
+    if (careContextsWithPatientReference == null) return false;
+    for (CareContextsWithPatientReference careContexts : careContextsWithPatientReference) {
+      Patient patient = patientRepo.findByPatientReference(careContexts.getPatientReference());
+      if (patient == null) {
+        return false;
+      }
+      List<CareContext> existingCareContexts = patient.getCareContexts();
+      if (existingCareContexts == null) return false;
+      if (!existingCareContexts.stream()
+              .anyMatch(
+                      existingContext ->
+                              careContextsWithPatientReference.stream()
+                                      .anyMatch(
+                                              context ->
+                                                      context.careContextReference.equals(
+                                                              existingContext.getReferenceNumber())
+                                                              && context.patientReference.equals(
+                                                              patient.getPatientReference())))) {
+        return false;
+      }
+    }
+    return true;
   }
 }

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class DataCareContexts {
+public class CareContextsWithPatientReference {
   public String careContextReference;
   public String patientReference;
 }

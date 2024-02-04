@@ -5,6 +5,9 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.DataTransferInterface;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPConsentNotification;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPHealthInformationRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
@@ -31,6 +34,7 @@ public class WorkflowManager {
   @Autowired PatientService patientService;
   @Autowired LinkInterface linkInterface;
   @Autowired HipLinkInterface hipLinkInterface;
+  @Autowired DataTransferInterface dataTransferInterface;
   @Autowired RequestLogService requestLogService;
 
   /**
@@ -169,5 +173,22 @@ public class WorkflowManager {
    */
   public FacadeResponse confirmAuthOtp(VerifyOTP verifyOTP) throws IllegalDataStateException {
     return hipLinkInterface.confirmAuthOtp(verifyOTP);
+  }
+
+  public void initiateDataOnNotify(HIPConsentNotification hipConsentNotification) {
+    if (hipConsentNotification != null) {
+      log.info(hipConsentNotification.toString());
+      dataTransferInterface.notifyOnReceived(hipConsentNotification);
+    } else log.debug("Error in response of Data Notify");
+  }
+
+  public void initiateDataTransferOnRequest(
+      HIPHealthInformationRequest hipHealthInformationRequest) {
+    if (hipHealthInformationRequest != null) {
+      log.info(hipHealthInformationRequest.toString());
+      dataTransferInterface.requestOnReceived(hipHealthInformationRequest);
+    } else {
+      log.debug("initiateDataTransferOnRequest: Error in POST onRequest");
+    }
   }
 }

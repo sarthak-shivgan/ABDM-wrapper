@@ -8,6 +8,10 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPConsentNotificationResponse;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPHealthInformationRequestAcknowledgement;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPConsentNotification;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPHealthInformationRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
@@ -378,6 +382,46 @@ public class RequestLogService<T> {
     Update update = new Update();
     update.set(FieldIdentifiers.RESPONSE_DETAILS, map);
     update.set(FieldIdentifiers.STATUS, RequestStatus.CONSENT_ON_STATUS_RESPONSE_RECEIVED);
+    mongoTemplate.updateFirst(query, update, RequestLog.class);
+  }
+
+  public void dataTransferNotify(
+      HIPConsentNotification hipConsentNotification,
+      RequestStatus requestStatus,
+      HIPConsentNotificationResponse hipConsentNotificationResponse) {
+    RequestLog requestLog = new RequestLog();
+    requestLog.setGatewayRequestId(hipConsentNotificationResponse.getRequestId());
+    requestLog.setStatus(requestStatus);
+    requestLog.setConsentId(hipConsentNotification.getNotification().getConsentId());
+    HashMap<String, Object> map = new HashMap<>();
+    map.put(FieldIdentifiers.DATA_NOTIFY_REQUEST, hipConsentNotification);
+    requestLog.setRequestDetails(map);
+    if (hipConsentNotificationResponse.getError() != null) {
+      requestLog.setError(hipConsentNotificationResponse.getError().getMessage());
+    }
+    mongoTemplate.save(requestLog);
+  }
+
+  public void dataTransferRequest(
+      HIPHealthInformationRequest hipHealthInformationRequest,
+      RequestStatus requestStatus,
+      HIPHealthInformationRequestAcknowledgement hipHealthInformationRequestAcknowledgement)
+      throws IllegalDataStateException {
+    Query query =
+        new Query(
+            Criteria.where(FieldIdentifiers.CONSENT_ID)
+                .is(hipHealthInformationRequest.getHiRequest().getConsent().getId()));
+    RequestLog existingLog = mongoTemplate.findOne(query, RequestLog.class);
+    if (existingLog == null) {
+      throw new IllegalDataStateException(
+          "Request not found for consentId: "
+              + hipHealthInformationRequest.getHiRequest().getConsent().getId());
+    }
+    Map<String, Object> map = new HashMap<>();
+    map.put(FieldIdentifiers.DATA_REQUEST, hipHealthInformationRequest);
+    Update update = new Update();
+    update.set(FieldIdentifiers.REQUEST_DETAILS, map);
+    update.set(FieldIdentifiers.STATUS, RequestStatus.DATA_ON_REQUEST_SUCCESS);
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 }
