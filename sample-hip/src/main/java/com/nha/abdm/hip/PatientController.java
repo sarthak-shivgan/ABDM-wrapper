@@ -127,7 +127,7 @@ public class PatientController {
     }
 
     @GetMapping({"/test-wrapper/link-status"})
-    public String linkStatus() throws ApiException, InterruptedException {
+    public String linkStatus() throws ApiException {
         LinkApi linkApi = new LinkApi();
 
         // To make this periodic poll, requestId can be persisted to facility's / HIP's database.

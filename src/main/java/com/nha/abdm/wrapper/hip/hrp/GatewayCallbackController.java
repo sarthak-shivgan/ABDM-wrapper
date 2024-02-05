@@ -6,6 +6,7 @@ import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.Acknowledgement;
 import com.nha.abdm.wrapper.common.models.Consent;
+import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.GatewayCallbackResponse;
 import com.nha.abdm.wrapper.hip.hrp.consent.ConsentService;
@@ -23,6 +24,7 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmRes
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
+import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -198,11 +200,11 @@ public class GatewayCallbackController {
   public ResponseEntity<GatewayCallbackResponse> hipNotify(
       @RequestBody HIPNotifyRequest hipNotifyRequest) throws IllegalDataStateException {
     if (hipNotifyRequest != null
-        && hipNotifyRequest.getHIPNotification() != null
-        && hipNotifyRequest.getHIPNotification().getConsentDetail() != null
-        && hipNotifyRequest.getHIPNotification().getConsentDetail().getPatient() != null) {
+        && hipNotifyRequest.getNotification() != null
+        && hipNotifyRequest.getNotification().getConsentDetail() != null
+        && hipNotifyRequest.getNotification().getConsentDetail().getPatient() != null) {
 
-      HIPNotification hipNotification = hipNotifyRequest.getHIPNotification();
+      HIPNotification hipNotification = hipNotifyRequest.getNotification();
       Consent consent =
           Consent.builder()
               .status(hipNotification.getStatus())
@@ -210,23 +212,22 @@ public class GatewayCallbackController {
               .signature(hipNotification.getSignature())
               .build();
       patientService.addConsent(
-          hipNotifyRequest.getHIPNotification().getConsentDetail().getPatient().getId(), consent);
+          hipNotifyRequest.getNotification().getConsentDetail().getPatient().getId(), consent);
 
-      // TODO: Get confirmation on whether request id should be hipNotifyRequest.getRequestId() or
-      // hipNotifyRequest.getResp().getRequestId()
       HIPOnNotifyRequest hipOnNotifyRequest =
           HIPOnNotifyRequest.builder()
-              .requestId(hipNotifyRequest.getRequestId())
+              .requestId(UUID.randomUUID().toString())
               .timestamp(Utils.getCurrentTimeStamp())
               .acknowledgement(
                   Acknowledgement.builder()
-                      .consentId(hipNotifyRequest.getHIPNotification().getConsentId())
+                      .consentId(hipNotifyRequest.getNotification().getConsentId())
                       .status(HttpStatus.OK.name())
                       .build())
+              .resp(RespRequest.builder().requestId(hipNotifyRequest.getRequestId()).build())
               .build();
       consentService.hipOnNotify(hipOnNotifyRequest);
     } else {
-      String error = "Got Error in onAddCareContext callback: gateway response was null";
+      String error = "Got Error in hipNotify callback: gateway response was null";
       return new ResponseEntity<>(
           GatewayCallbackResponse.builder()
               .error(

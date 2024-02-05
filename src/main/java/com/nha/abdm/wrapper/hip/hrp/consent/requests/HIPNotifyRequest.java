@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 public class HIPNotifyRequest {
   private String requestId;
   private String timestamp;
-  private HIPNotification HIPNotification;
+  private HIPNotification notification;
 }

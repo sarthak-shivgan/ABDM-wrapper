@@ -30,6 +30,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class PatientService {
@@ -171,15 +172,17 @@ public class PatientService {
       throw new IllegalDataStateException("Patient not found in database: " + abhaAddress);
     }
     List<Consent> consents = patient.getConsents();
-    for (Consent storedConsent : consents) {
-      if (storedConsent
-          .getConsentDetail()
-          .getConsentId()
-          .equals(consent.getConsentDetail().getConsentId())) {
-        String message =
-            String.format("Consent %s already exists for patient %s: ", consent, abhaAddress);
-        log.warn(message);
-        return;
+    if (!CollectionUtils.isEmpty(consents)) {
+      for (Consent storedConsent : consents) {
+        if (storedConsent
+            .getConsentDetail()
+            .getConsentId()
+            .equals(consent.getConsentDetail().getConsentId())) {
+          String message =
+              String.format("Consent %s already exists for patient %s: ", consent, abhaAddress);
+          log.warn(message);
+          return;
+        }
       }
     }
     Query query = new Query(Criteria.where(FieldIdentifiers.ABHA_ADDRESS).is(abhaAddress));
