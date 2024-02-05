@@ -17,4 +17,5 @@ public class FieldIdentifiers {
   public static final String HIP_ON_ADD_CARE_CONTEXT_RESPONSE = "HIPOnAddCareContext";
   public static final String CONSENT_REQUEST_ID = "ConsentRequestId";
   public static final String CONSENT_DETAILS_RESPONSE = "ConsentDetailsResponse";
+  public static final String HIP_ON_CONFIRM_RESPONSE = "HIPOnConfirmResponse";
 }

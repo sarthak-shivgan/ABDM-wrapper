@@ -51,7 +51,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * FacadeResponse
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-01T18:49:08.957071861Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-05T05:53:16.203072842Z[Etc/UTC]")
 public class FacadeResponse {
   public static final String SERIALIZED_NAME_CODE = "code";
   @SerializedName(SERIALIZED_NAME_CODE)
