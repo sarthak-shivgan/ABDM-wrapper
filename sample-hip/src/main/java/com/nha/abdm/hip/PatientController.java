@@ -13,7 +13,7 @@ import java.util.List;
 @RequestMapping(path = "/v1")
 public class PatientController {
 
-    private static final String requestId = "263ad632-ffb9-4c7d-b5bc-e099577e7e99";
+    private static final String requestId = "263ad640-ffb9-4c7d-b5bc-e099577e7e99";
 
     @GetMapping({"/patients/{patientId}"})
     public Patient fetchPatientById(@PathVariable("patientId") String abhaAddress) {
@@ -24,7 +24,7 @@ public class PatientController {
         Patient patient = new Patient();
         patient.setAbhaAddress(abhaAddress);
         patient.setName("random");
-        patient.setGender("M");
+        patient.setGender(Patient.GenderEnum.M);
         patient.setDateOfBirth("1986-10-13");
 
         return patient;
@@ -39,12 +39,12 @@ public class PatientController {
         Patient patient1 = new Patient();
         patient1.setAbhaAddress("abc@sbx");
         patient1.setName("random");
-        patient1.setGender("M");
+        patient1.setGender(Patient.GenderEnum.M);
 
         Patient patient2 = new Patient();
         patient2.setAbhaAddress("abcd@sbx");
         patient2.setName("kalyan");
-        patient2.setGender("M");
+        patient2.setGender(Patient.GenderEnum.M);
 
         patients.add(patient1);
         patients.add(patient2);
@@ -57,12 +57,12 @@ public class PatientController {
         LinkApi linkApi = new LinkApi();
 
         CareContext careContext1 = new CareContext();
-        careContext1.setReferenceNumber("care-context-reference11");
-        careContext1.setDisplay("care-context-display11");
+        careContext1.setReferenceNumber("care-context-reference13");
+        careContext1.setDisplay("care-context-display13");
 
         CareContext careContext2 = new CareContext();
-        careContext2.setReferenceNumber("care-context-reference12");
-        careContext2.setDisplay("care-context-display12");
+        careContext2.setReferenceNumber("care-context-reference14");
+        careContext2.setDisplay("care-context-display14");
 
         List<CareContext> careContexts = new ArrayList<>();
         careContexts.add(careContext1);
@@ -88,12 +88,12 @@ public class PatientController {
         LinkApi linkApi = new LinkApi();
 
         CareContext careContext1 = new CareContext();
-        careContext1.setReferenceNumber("care-context-reference3");
-        careContext1.setDisplay("care-context-display3");
+        careContext1.setReferenceNumber("care-context-reference15");
+        careContext1.setDisplay("care-context-display15");
 
         CareContext careContext2 = new CareContext();
-        careContext2.setReferenceNumber("care-context-reference4");
-        careContext2.setDisplay("care-context-display4");
+        careContext2.setReferenceNumber("care-context-reference16");
+        careContext2.setDisplay("care-context-display16");
 
         List<CareContext> careContexts = new ArrayList<>();
         careContexts.add(careContext1);
@@ -121,6 +121,7 @@ public class PatientController {
         VerifyOTPRequest verifyOTPRequest = new VerifyOTPRequest();
         verifyOTPRequest.setLoginHint(VerifyOTPRequest.LoginHintEnum.HIPLINKING);
         verifyOTPRequest.setRequestId(requestId);
+        System.out.println("otp:" + otp);
         verifyOTPRequest.setAuthCode(otp);
         return linkApi.verifyOTP(verifyOTPRequest);
     }
