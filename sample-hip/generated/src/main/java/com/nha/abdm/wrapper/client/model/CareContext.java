@@ -50,7 +50,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * CareContext
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-01T18:49:08.957071861Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-05T05:53:16.203072842Z[Etc/UTC]")
 public class CareContext {
   public static final String SERIALIZED_NAME_REFERENCE_NUMBER = "referenceNumber";
   @SerializedName(SERIALIZED_NAME_REFERENCE_NUMBER)
