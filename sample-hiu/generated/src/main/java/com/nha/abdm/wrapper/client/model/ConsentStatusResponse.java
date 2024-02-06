@@ -22,8 +22,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.nha.abdm.wrapper.client.model.ConsentStatus;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -53,7 +51,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * ConsentStatusResponse
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-05T21:22:55.033887239Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-06T16:01:17.762691067Z[Etc/UTC]")
 public class ConsentStatusResponse {
   public static final String SERIALIZED_NAME_STATUS = "status";
   @SerializedName(SERIALIZED_NAME_STATUS)
@@ -67,9 +65,9 @@ public class ConsentStatusResponse {
   @SerializedName(SERIALIZED_NAME_HTTP_STATUS_CODE)
   private String httpStatusCode;
 
-  public static final String SERIALIZED_NAME_CONSENT_STATUS = "consentStatus";
-  @SerializedName(SERIALIZED_NAME_CONSENT_STATUS)
-  private List<ConsentStatus> consentStatus;
+  public static final String SERIALIZED_NAME_CONSENT = "consent";
+  @SerializedName(SERIALIZED_NAME_CONSENT)
+  private ConsentStatus consent;
 
   public ConsentStatusResponse() {
   }
@@ -137,32 +135,24 @@ public class ConsentStatusResponse {
   }
 
 
-  public ConsentStatusResponse consentStatus(List<ConsentStatus> consentStatus) {
+  public ConsentStatusResponse consent(ConsentStatus consent) {
     
-    this.consentStatus = consentStatus;
-    return this;
-  }
-
-  public ConsentStatusResponse addConsentStatusItem(ConsentStatus consentStatusItem) {
-    if (this.consentStatus == null) {
-      this.consentStatus = new ArrayList<>();
-    }
-    this.consentStatus.add(consentStatusItem);
+    this.consent = consent;
     return this;
   }
 
    /**
-   * Get consentStatus
-   * @return consentStatus
+   * Get consent
+   * @return consent
   **/
   @javax.annotation.Nullable
-  public List<ConsentStatus> getConsentStatus() {
-    return consentStatus;
+  public ConsentStatus getConsent() {
+    return consent;
   }
 
 
-  public void setConsentStatus(List<ConsentStatus> consentStatus) {
-    this.consentStatus = consentStatus;
+  public void setConsent(ConsentStatus consent) {
+    this.consent = consent;
   }
 
 
@@ -179,12 +169,12 @@ public class ConsentStatusResponse {
     return Objects.equals(this.status, consentStatusResponse.status) &&
         Objects.equals(this.error, consentStatusResponse.error) &&
         Objects.equals(this.httpStatusCode, consentStatusResponse.httpStatusCode) &&
-        Objects.equals(this.consentStatus, consentStatusResponse.consentStatus);
+        Objects.equals(this.consent, consentStatusResponse.consent);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(status, error, httpStatusCode, consentStatus);
+    return Objects.hash(status, error, httpStatusCode, consent);
   }
 
   @Override
@@ -194,7 +184,7 @@ public class ConsentStatusResponse {
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    error: ").append(toIndentedString(error)).append("\n");
     sb.append("    httpStatusCode: ").append(toIndentedString(httpStatusCode)).append("\n");
-    sb.append("    consentStatus: ").append(toIndentedString(consentStatus)).append("\n");
+    sb.append("    consent: ").append(toIndentedString(consent)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -220,7 +210,7 @@ public class ConsentStatusResponse {
     openapiFields.add("status");
     openapiFields.add("error");
     openapiFields.add("httpStatusCode");
-    openapiFields.add("consentStatus");
+    openapiFields.add("consent");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
@@ -255,19 +245,9 @@ public class ConsentStatusResponse {
       if ((jsonObj.get("httpStatusCode") != null && !jsonObj.get("httpStatusCode").isJsonNull()) && !jsonObj.get("httpStatusCode").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `httpStatusCode` to be a primitive type in the JSON string but got `%s`", jsonObj.get("httpStatusCode").toString()));
       }
-      if (jsonObj.get("consentStatus") != null && !jsonObj.get("consentStatus").isJsonNull()) {
-        JsonArray jsonArrayconsentStatus = jsonObj.getAsJsonArray("consentStatus");
-        if (jsonArrayconsentStatus != null) {
-          // ensure the json data is an array
-          if (!jsonObj.get("consentStatus").isJsonArray()) {
-            throw new IllegalArgumentException(String.format("Expected the field `consentStatus` to be an array in the JSON string but got `%s`", jsonObj.get("consentStatus").toString()));
-          }
-
-          // validate the optional field `consentStatus` (array)
-          for (int i = 0; i < jsonArrayconsentStatus.size(); i++) {
-            ConsentStatus.validateJsonObject(jsonArrayconsentStatus.get(i).getAsJsonObject());
-          };
-        }
+      // validate the optional field `consent`
+      if (jsonObj.get("consent") != null && !jsonObj.get("consent").isJsonNull()) {
+        ConsentStatus.validateJsonObject(jsonObj.getAsJsonObject("consent"));
       }
   }
 

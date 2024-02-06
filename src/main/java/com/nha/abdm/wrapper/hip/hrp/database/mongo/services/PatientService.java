@@ -10,7 +10,6 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
-import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
@@ -36,7 +35,6 @@ import org.springframework.util.CollectionUtils;
 public class PatientService {
   private static final Logger log = LogManager.getLogger(PatientService.class);
   @Autowired private final PatientRepo patientRepo;
-  @Autowired private LogsRepo logsRepo;
 
   @Autowired MongoTemplate mongoTemplate;
 
@@ -210,7 +208,7 @@ public class PatientService {
               .append("display", patient.getDisplay())
               .append("patientMobile", patient.getPatientMobile());
       updates.add(
-          new UpdateOneModel<Document>(
+          new UpdateOneModel<>(
               new Document("abhaAddress", patient.getAbhaAddress()),
               new Document("$set", document),
               new UpdateOptions().upsert(true)));

@@ -24,6 +24,7 @@ public enum RequestStatus {
   CONSENT_ON_STATUS_ERROR("Error thrown by Gateway for on consent status"),
   CONSENT_ON_STATUS_RESPONSE_RECEIVED("Response received from gateway for consent status"),
   CONSENT_HIU_NOTIFY_ERROR("Something went wrong while executing consent hiu notify"),
+  CONSENT_ON_NOTIFY_RESPONSE_RECEIVED("Response received from gateway for hiu notify"),
   CONSENT_FETCH_ACCEPTED("Consent fetch request accepted by gateway"),
   CONSENT_FETCH_ERROR("Error thrown by Gateway for consent fetch"),
   CONSENT_ON_FETCH_SUCCESS("Response received from gateway for consent fetch"),

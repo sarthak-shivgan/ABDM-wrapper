@@ -20,7 +20,7 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.nha.abdm.wrapper.client.model.ConsentCareContext;
+import com.nha.abdm.wrapper.client.model.IdRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,7 +53,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * ConsentStatus
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-05T21:22:55.033887239Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-06T16:01:17.762691067Z[Etc/UTC]")
 public class ConsentStatus {
   public static final String SERIALIZED_NAME_ID = "id";
   @SerializedName(SERIALIZED_NAME_ID)
@@ -65,7 +65,7 @@ public class ConsentStatus {
 
   public static final String SERIALIZED_NAME_CONSENT_ARTEFACTS = "consentArtefacts";
   @SerializedName(SERIALIZED_NAME_CONSENT_ARTEFACTS)
-  private List<ConsentCareContext> consentArtefacts;
+  private List<IdRequest> consentArtefacts;
 
   public ConsentStatus() {
   }
@@ -112,13 +112,13 @@ public class ConsentStatus {
   }
 
 
-  public ConsentStatus consentArtefacts(List<ConsentCareContext> consentArtefacts) {
+  public ConsentStatus consentArtefacts(List<IdRequest> consentArtefacts) {
     
     this.consentArtefacts = consentArtefacts;
     return this;
   }
 
-  public ConsentStatus addConsentArtefactsItem(ConsentCareContext consentArtefactsItem) {
+  public ConsentStatus addConsentArtefactsItem(IdRequest consentArtefactsItem) {
     if (this.consentArtefacts == null) {
       this.consentArtefacts = new ArrayList<>();
     }
@@ -131,12 +131,12 @@ public class ConsentStatus {
    * @return consentArtefacts
   **/
   @javax.annotation.Nullable
-  public List<ConsentCareContext> getConsentArtefacts() {
+  public List<IdRequest> getConsentArtefacts() {
     return consentArtefacts;
   }
 
 
-  public void setConsentArtefacts(List<ConsentCareContext> consentArtefacts) {
+  public void setConsentArtefacts(List<IdRequest> consentArtefacts) {
     this.consentArtefacts = consentArtefacts;
   }
 
@@ -234,7 +234,7 @@ public class ConsentStatus {
 
           // validate the optional field `consentArtefacts` (array)
           for (int i = 0; i < jsonArrayconsentArtefacts.size(); i++) {
-            ConsentCareContext.validateJsonObject(jsonArrayconsentArtefacts.get(i).getAsJsonObject());
+            IdRequest.validateJsonObject(jsonArrayconsentArtefacts.get(i).getAsJsonObject());
           };
         }
       }

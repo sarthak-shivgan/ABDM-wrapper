@@ -9,7 +9,7 @@
 |------------ | ------------- | ------------- | -------------|
 |**id** | **String** |  |  [optional] |
 |**status** | **String** |  |  [optional] |
-|**consentArtefacts** | [**List&lt;ConsentCareContext&gt;**](ConsentCareContext.md) |  |  [optional] |
+|**consentArtefacts** | [**List&lt;IdRequest&gt;**](IdRequest.md) |  |  [optional] |
 
 
 

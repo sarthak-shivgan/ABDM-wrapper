@@ -71,7 +71,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/fetchConsent_request'
+              $ref: '#/components/schemas/FetchPatientConsentRequest'
         description: Request body for fetch consent request
       responses:
         "200":
@@ -174,9 +174,9 @@ components:
       type: object
     Frequency:
       example:
-        repeats: 1
+        repeats: 6
         unit: unit
-        value: 6
+        value: 0
       properties:
         unit:
           type: string
@@ -215,22 +215,13 @@ components:
       type: object
     ConsentStatusResponse:
       example:
-        consentStatus:
-        - id: id
-          status: status
-          consentArtefacts:
-          - patientReference: patientReference
-            careContextReference: careContextReference
-          - patientReference: patientReference
-            careContextReference: careContextReference
-        - id: id
-          status: status
-          consentArtefacts:
-          - patientReference: patientReference
-            careContextReference: careContextReference
-          - patientReference: patientReference
-            careContextReference: careContextReference
         error: error
+        consent:
+          id: id
+          status: status
+          consentArtefacts:
+          - id: id
+          - id: id
         status: status
         httpStatusCode: httpStatusCode
       properties:
@@ -240,20 +231,16 @@ components:
           type: string
         httpStatusCode:
           type: string
-        consentStatus:
-          items:
-            $ref: '#/components/schemas/ConsentStatus'
-          type: array
+        consent:
+          $ref: '#/components/schemas/ConsentStatus'
       type: object
     ConsentStatus:
       example:
         id: id
         status: status
         consentArtefacts:
-        - patientReference: patientReference
-          careContextReference: careContextReference
-        - patientReference: patientReference
-          careContextReference: careContextReference
+        - id: id
+        - id: id
       properties:
         id:
           type: string
@@ -261,7 +248,7 @@ components:
           type: string
         consentArtefacts:
           items:
-            $ref: '#/components/schemas/ConsentCareContext'
+            $ref: '#/components/schemas/IdRequest'
           type: array
       type: object
     ConsentResponse:
@@ -298,9 +285,9 @@ components:
               accessMode: accessMode
               dataEraseAt: dataEraseAt
               frequency:
-                repeats: 1
+                repeats: 6
                 unit: unit
-                value: 6
+                value: 0
             careContexts:
             - patientReference: patientReference
               careContextReference: careContextReference
@@ -310,14 +297,14 @@ components:
               id: id
           status: status
         status: status
-        httpStatusCode: 0
+        httpStatusCode: httpStatusCode
       properties:
         status:
           type: string
         error:
           type: string
         httpStatusCode:
-          type: integer
+          type: string
         consent:
           $ref: '#/components/schemas/Consent'
       type: object
@@ -353,9 +340,9 @@ components:
             accessMode: accessMode
             dataEraseAt: dataEraseAt
             frequency:
-              repeats: 1
+              repeats: 6
               unit: unit
-              value: 6
+              value: 0
           careContexts:
           - patientReference: patientReference
             careContextReference: careContextReference
@@ -401,9 +388,9 @@ components:
           accessMode: accessMode
           dataEraseAt: dataEraseAt
           frequency:
-            repeats: 1
+            repeats: 6
             unit: unit
-            value: 6
+            value: 0
         careContexts:
         - patientReference: patientReference
           careContextReference: careContextReference
@@ -449,9 +436,9 @@ components:
         accessMode: accessMode
         dataEraseAt: dataEraseAt
         frequency:
-          repeats: 1
+          repeats: 6
           unit: unit
-          value: 6
+          value: 0
       properties:
         accessMode:
           type: string
@@ -472,6 +459,32 @@ components:
         to:
           type: string
       type: object
+    FetchPatientConsentRequest:
+      example:
+        patientAbhaAddress: patientAbhaAddress
+        fetchConsentRequest:
+          consentId: consentId
+          requestId: requestId
+          timestamp: timestamp
+      properties:
+        patientAbhaAddress:
+          type: string
+        fetchConsentRequest:
+          $ref: '#/components/schemas/FetchConsentRequest'
+      type: object
+    FetchConsentRequest:
+      example:
+        consentId: consentId
+        requestId: requestId
+        timestamp: timestamp
+      properties:
+        requestId:
+          type: string
+        timestamp:
+          type: string
+        consentId:
+          type: string
+      type: object
     initConsent_request:
       properties:
         requestId:
@@ -480,14 +493,5 @@ components:
           type: string
         consent:
           $ref: '#/components/schemas/ConsentRequest'
-      type: object
-    fetchConsent_request:
-      properties:
-        requestId:
-          type: string
-        timestamp:
-          type: string
-        consentId:
-          type: string
       type: object
 

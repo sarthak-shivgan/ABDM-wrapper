@@ -12,10 +12,12 @@ public class FieldIdentifiers {
   public static final String RESPONSE_DETAILS = "responseDetails";
 
   // Nested fields.
-  public static final String LINK_RECORDS_REQUEST = "LinkRecordsRequest";
-  public static final String HIP_ON_INIT_RESPONSE = "HIPOnInitResponse";
-  public static final String HIP_ON_ADD_CARE_CONTEXT_RESPONSE = "HIPOnAddCareContext";
-  public static final String CONSENT_REQUEST_ID = "ConsentRequestId";
-  public static final String CONSENT_DETAILS_RESPONSE = "ConsentDetailsResponse";
-  public static final String HIP_ON_CONFIRM_RESPONSE = "HIPOnConfirmResponse";
+  public static final String LINK_RECORDS_REQUEST = "linkRecordsRequest";
+  public static final String HIP_ON_INIT_RESPONSE = "hipOnInitResponse";
+  public static final String HIP_ON_ADD_CARE_CONTEXT_RESPONSE = "hipOnAddCareContext";
+  public static final String CONSENT_REQUEST_ID = "consentRequestId";
+  public static final String CONSENT_ON_INIT_RESPONSE = "consentOnInitResponse";
+  public static final String CONSENT_ON_STATUS_RESPONSE = "consentOnStatusResponse";
+  public static final String CONSENT_ON_NOTIFY_RESPONSE = "consentOnNotifyResponse";
+  public static final String HIP_ON_CONFIRM_RESPONSE = "hipOnConfirmResponse";
 }

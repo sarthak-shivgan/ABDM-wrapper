@@ -10,7 +10,7 @@
 |**status** | **String** |  |  [optional] |
 |**error** | **String** |  |  [optional] |
 |**httpStatusCode** | **String** |  |  [optional] |
-|**consentStatus** | [**List&lt;ConsentStatus&gt;**](ConsentStatus.md) |  |  [optional] |
+|**consent** | [**ConsentStatus**](ConsentStatus.md) |  |  [optional] |
 
 
 

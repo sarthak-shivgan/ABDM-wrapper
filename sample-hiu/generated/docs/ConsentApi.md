@@ -74,7 +74,7 @@ No authorization required
 
 <a id="fetchConsent"></a>
 # **fetchConsent**
-> ConsentResponse fetchConsent(fetchConsentRequest)
+> ConsentResponse fetchConsent(fetchPatientConsentRequest)
 
 Fetches consent details
 
@@ -95,9 +95,9 @@ public class Example {
     defaultClient.setBasePath("http://localhost:8082/v1");
 
     ConsentApi apiInstance = new ConsentApi(defaultClient);
-    FetchConsentRequest fetchConsentRequest = new FetchConsentRequest(); // FetchConsentRequest | Request body for fetch consent request
+    FetchPatientConsentRequest fetchPatientConsentRequest = new FetchPatientConsentRequest(); // FetchPatientConsentRequest | Request body for fetch consent request
     try {
-      ConsentResponse result = apiInstance.fetchConsent(fetchConsentRequest);
+      ConsentResponse result = apiInstance.fetchConsent(fetchPatientConsentRequest);
       System.out.println(result);
     } catch (ApiException e) {
       System.err.println("Exception when calling ConsentApi#fetchConsent");
@@ -114,7 +114,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **fetchConsentRequest** | [**FetchConsentRequest**](FetchConsentRequest.md)| Request body for fetch consent request | [optional] |
+| **fetchPatientConsentRequest** | [**FetchPatientConsentRequest**](FetchPatientConsentRequest.md)| Request body for fetch consent request | [optional] |
 
 ### Return type
 

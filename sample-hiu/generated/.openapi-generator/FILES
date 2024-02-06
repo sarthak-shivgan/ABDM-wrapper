@@ -20,6 +20,7 @@ docs/DateRange.md
 docs/ErrorResponse.md
 docs/FacadeResponse.md
 docs/FetchConsentRequest.md
+docs/FetchPatientConsentRequest.md
 docs/Frequency.md
 docs/IdRequest.md
 docs/InitConsentRequest.md
@@ -66,6 +67,7 @@ src/main/java/com/nha/abdm/wrapper/client/model/DateRange.java
 src/main/java/com/nha/abdm/wrapper/client/model/ErrorResponse.java
 src/main/java/com/nha/abdm/wrapper/client/model/FacadeResponse.java
 src/main/java/com/nha/abdm/wrapper/client/model/FetchConsentRequest.java
+src/main/java/com/nha/abdm/wrapper/client/model/FetchPatientConsentRequest.java
 src/main/java/com/nha/abdm/wrapper/client/model/Frequency.java
 src/main/java/com/nha/abdm/wrapper/client/model/IdRequest.java
 src/main/java/com/nha/abdm/wrapper/client/model/InitConsentRequest.java
@@ -85,6 +87,7 @@ src/test/java/com/nha/abdm/wrapper/client/model/DateRangeTest.java
 src/test/java/com/nha/abdm/wrapper/client/model/ErrorResponseTest.java
 src/test/java/com/nha/abdm/wrapper/client/model/FacadeResponseTest.java
 src/test/java/com/nha/abdm/wrapper/client/model/FetchConsentRequestTest.java
+src/test/java/com/nha/abdm/wrapper/client/model/FetchPatientConsentRequestTest.java
 src/test/java/com/nha/abdm/wrapper/client/model/FrequencyTest.java
 src/test/java/com/nha/abdm/wrapper/client/model/IdRequestTest.java
 src/test/java/com/nha/abdm/wrapper/client/model/InitConsentRequestTest.java

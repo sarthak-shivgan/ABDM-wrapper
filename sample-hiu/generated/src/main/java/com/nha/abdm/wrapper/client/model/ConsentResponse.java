@@ -51,7 +51,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * ConsentResponse
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-05T21:22:55.033887239Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-06T16:01:17.762691067Z[Etc/UTC]")
 public class ConsentResponse {
   public static final String SERIALIZED_NAME_STATUS = "status";
   @SerializedName(SERIALIZED_NAME_STATUS)
@@ -63,7 +63,7 @@ public class ConsentResponse {
 
   public static final String SERIALIZED_NAME_HTTP_STATUS_CODE = "httpStatusCode";
   @SerializedName(SERIALIZED_NAME_HTTP_STATUS_CODE)
-  private Integer httpStatusCode;
+  private String httpStatusCode;
 
   public static final String SERIALIZED_NAME_CONSENT = "consent";
   @SerializedName(SERIALIZED_NAME_CONSENT)
@@ -114,7 +114,7 @@ public class ConsentResponse {
   }
 
 
-  public ConsentResponse httpStatusCode(Integer httpStatusCode) {
+  public ConsentResponse httpStatusCode(String httpStatusCode) {
     
     this.httpStatusCode = httpStatusCode;
     return this;
@@ -125,12 +125,12 @@ public class ConsentResponse {
    * @return httpStatusCode
   **/
   @javax.annotation.Nullable
-  public Integer getHttpStatusCode() {
+  public String getHttpStatusCode() {
     return httpStatusCode;
   }
 
 
-  public void setHttpStatusCode(Integer httpStatusCode) {
+  public void setHttpStatusCode(String httpStatusCode) {
     this.httpStatusCode = httpStatusCode;
   }
 
@@ -241,6 +241,9 @@ public class ConsentResponse {
       }
       if ((jsonObj.get("error") != null && !jsonObj.get("error").isJsonNull()) && !jsonObj.get("error").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `error` to be a primitive type in the JSON string but got `%s`", jsonObj.get("error").toString()));
+      }
+      if ((jsonObj.get("httpStatusCode") != null && !jsonObj.get("httpStatusCode").isJsonNull()) && !jsonObj.get("httpStatusCode").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `httpStatusCode` to be a primitive type in the JSON string but got `%s`", jsonObj.get("httpStatusCode").toString()));
       }
       // validate the optional field `consent`
       if (jsonObj.get("consent") != null && !jsonObj.get("consent").isJsonNull()) {

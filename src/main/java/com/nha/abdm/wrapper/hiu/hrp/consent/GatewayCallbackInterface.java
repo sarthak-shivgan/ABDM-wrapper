@@ -5,7 +5,7 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.*;
 
 public interface GatewayCallbackInterface {
-  void onInitConsent(OnInitRequest onInitRequest);
+  void onInitConsent(OnInitRequest onInitRequest) throws IllegalDataStateException;
 
   void consentOnStatus(HIUConsentOnStatusRequest HIUConsentOnStatusRequest)
       throws IllegalDataStateException;

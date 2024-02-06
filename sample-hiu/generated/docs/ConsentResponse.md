@@ -9,7 +9,7 @@
 |------------ | ------------- | ------------- | -------------|
 |**status** | **String** |  |  [optional] |
 |**error** | **String** |  |  [optional] |
-|**httpStatusCode** | **Integer** |  |  [optional] |
+|**httpStatusCode** | **String** |  |  [optional] |
 |**consent** | [**Consent**](Consent.md) |  |  [optional] |
 
 

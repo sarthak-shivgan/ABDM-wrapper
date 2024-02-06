@@ -77,14 +77,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                requestId:
-                  type: string
-                timestamp:
-                  type: string
-                consentId:
-                  type: string
+              $ref: '#/components/schemas/FetchPatientConsentRequest'
       responses:
         '200':
           description: OK
@@ -196,10 +189,8 @@ components:
           type: string
         httpStatusCode:
           type: string
-        consentStatus:
-          type: array
-          items:
-            $ref: '#/components/schemas/ConsentStatus'
+        consent:
+          $ref: '#/components/schemas/ConsentStatus'
     ConsentStatus:
       type: object
       properties:
@@ -210,7 +201,7 @@ components:
         consentArtefacts:
           type: array
           items:
-            $ref: '#/components/schemas/ConsentCareContext'
+            $ref: '#/components/schemas/IdRequest'
     ConsentResponse:
       type: object
       properties:
@@ -219,7 +210,7 @@ components:
         error:
           type: string
         httpStatusCode:
-          type: integer
+          type: string
         consent:
           $ref: '#/components/schemas/Consent'
     Consent:
@@ -277,5 +268,21 @@ components:
         from:
           type: string
         to:
+          type: string
+    FetchPatientConsentRequest:
+      type: object
+      properties:
+        patientAbhaAddress:
+          type: string
+        fetchConsentRequest:
+          $ref: '#/components/schemas/FetchConsentRequest'
+    FetchConsentRequest:
+      type: object
+      properties:
+        requestId:
+          type: string
+        timestamp:
+          type: string
+        consentId:
           type: string
 

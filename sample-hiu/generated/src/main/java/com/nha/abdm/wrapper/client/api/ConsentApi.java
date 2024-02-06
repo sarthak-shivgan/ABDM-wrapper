@@ -30,7 +30,7 @@ import java.io.IOException;
 import com.nha.abdm.wrapper.client.model.ConsentResponse;
 import com.nha.abdm.wrapper.client.model.ConsentStatusResponse;
 import com.nha.abdm.wrapper.client.model.FacadeResponse;
-import com.nha.abdm.wrapper.client.model.FetchConsentRequest;
+import com.nha.abdm.wrapper.client.model.FetchPatientConsentRequest;
 import com.nha.abdm.wrapper.client.model.InitConsentRequest;
 
 import java.lang.reflect.Type;
@@ -214,7 +214,7 @@ public class ConsentApi {
     }
     /**
      * Build call for fetchConsent
-     * @param fetchConsentRequest Request body for fetch consent request (optional)
+     * @param fetchPatientConsentRequest Request body for fetch consent request (optional)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -227,7 +227,7 @@ public class ConsentApi {
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call fetchConsentCall(FetchConsentRequest fetchConsentRequest, final ApiCallback _callback) throws ApiException {
+    public okhttp3.Call fetchConsentCall(FetchPatientConsentRequest fetchPatientConsentRequest, final ApiCallback _callback) throws ApiException {
         String basePath = null;
         // Operation Servers
         String[] localBasePaths = new String[] {  };
@@ -241,7 +241,7 @@ public class ConsentApi {
             basePath = null;
         }
 
-        Object localVarPostBody = fetchConsentRequest;
+        Object localVarPostBody = fetchPatientConsentRequest;
 
         // create path and map variables
         String localVarPath = "/fetch-consent";
@@ -273,15 +273,15 @@ public class ConsentApi {
     }
 
     @SuppressWarnings("rawtypes")
-    private okhttp3.Call fetchConsentValidateBeforeCall(FetchConsentRequest fetchConsentRequest, final ApiCallback _callback) throws ApiException {
-        return fetchConsentCall(fetchConsentRequest, _callback);
+    private okhttp3.Call fetchConsentValidateBeforeCall(FetchPatientConsentRequest fetchPatientConsentRequest, final ApiCallback _callback) throws ApiException {
+        return fetchConsentCall(fetchPatientConsentRequest, _callback);
 
     }
 
     /**
      * Fetches consent details
      * Fetches consent details
-     * @param fetchConsentRequest Request body for fetch consent request (optional)
+     * @param fetchPatientConsentRequest Request body for fetch consent request (optional)
      * @return ConsentResponse
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -293,15 +293,15 @@ public class ConsentApi {
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public ConsentResponse fetchConsent(FetchConsentRequest fetchConsentRequest) throws ApiException {
-        ApiResponse<ConsentResponse> localVarResp = fetchConsentWithHttpInfo(fetchConsentRequest);
+    public ConsentResponse fetchConsent(FetchPatientConsentRequest fetchPatientConsentRequest) throws ApiException {
+        ApiResponse<ConsentResponse> localVarResp = fetchConsentWithHttpInfo(fetchPatientConsentRequest);
         return localVarResp.getData();
     }
 
     /**
      * Fetches consent details
      * Fetches consent details
-     * @param fetchConsentRequest Request body for fetch consent request (optional)
+     * @param fetchPatientConsentRequest Request body for fetch consent request (optional)
      * @return ApiResponse&lt;ConsentResponse&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -313,8 +313,8 @@ public class ConsentApi {
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public ApiResponse<ConsentResponse> fetchConsentWithHttpInfo(FetchConsentRequest fetchConsentRequest) throws ApiException {
-        okhttp3.Call localVarCall = fetchConsentValidateBeforeCall(fetchConsentRequest, null);
+    public ApiResponse<ConsentResponse> fetchConsentWithHttpInfo(FetchPatientConsentRequest fetchPatientConsentRequest) throws ApiException {
+        okhttp3.Call localVarCall = fetchConsentValidateBeforeCall(fetchPatientConsentRequest, null);
         Type localVarReturnType = new TypeToken<ConsentResponse>(){}.getType();
         return localVarApiClient.execute(localVarCall, localVarReturnType);
     }
@@ -322,7 +322,7 @@ public class ConsentApi {
     /**
      * Fetches consent details (asynchronously)
      * Fetches consent details
-     * @param fetchConsentRequest Request body for fetch consent request (optional)
+     * @param fetchPatientConsentRequest Request body for fetch consent request (optional)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object
@@ -335,9 +335,9 @@ public class ConsentApi {
         <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
      </table>
      */
-    public okhttp3.Call fetchConsentAsync(FetchConsentRequest fetchConsentRequest, final ApiCallback<ConsentResponse> _callback) throws ApiException {
+    public okhttp3.Call fetchConsentAsync(FetchPatientConsentRequest fetchPatientConsentRequest, final ApiCallback<ConsentResponse> _callback) throws ApiException {
 
-        okhttp3.Call localVarCall = fetchConsentValidateBeforeCall(fetchConsentRequest, _callback);
+        okhttp3.Call localVarCall = fetchConsentValidateBeforeCall(fetchPatientConsentRequest, _callback);
         Type localVarReturnType = new TypeToken<ConsentResponse>(){}.getType();
         localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
         return localVarCall;

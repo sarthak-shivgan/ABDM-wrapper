@@ -18,56 +18,40 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.nha.abdm.wrapper.client.model.ConsentStatus;
+import com.nha.abdm.wrapper.client.model.FetchConsentRequest;
 import java.io.IOException;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 
 /**
- * Model tests for ConsentStatusResponse
+ * Model tests for FetchPatientConsentRequest
  */
-public class ConsentStatusResponseTest {
-    private final ConsentStatusResponse model = new ConsentStatusResponse();
+public class FetchPatientConsentRequestTest {
+    private final FetchPatientConsentRequest model = new FetchPatientConsentRequest();
 
     /**
-     * Model tests for ConsentStatusResponse
+     * Model tests for FetchPatientConsentRequest
      */
     @Test
-    public void testConsentStatusResponse() {
-        // TODO: test ConsentStatusResponse
+    public void testFetchPatientConsentRequest() {
+        // TODO: test FetchPatientConsentRequest
     }
 
     /**
-     * Test the property 'status'
+     * Test the property 'patientAbhaAddress'
      */
     @Test
-    public void statusTest() {
-        // TODO: test status
+    public void patientAbhaAddressTest() {
+        // TODO: test patientAbhaAddress
     }
 
     /**
-     * Test the property 'error'
+     * Test the property 'fetchConsentRequest'
      */
     @Test
-    public void errorTest() {
-        // TODO: test error
-    }
-
-    /**
-     * Test the property 'httpStatusCode'
-     */
-    @Test
-    public void httpStatusCodeTest() {
-        // TODO: test httpStatusCode
-    }
-
-    /**
-     * Test the property 'consent'
-     */
-    @Test
-    public void consentTest() {
-        // TODO: test consent
+    public void fetchConsentRequestTest() {
+        // TODO: test fetchConsentRequest
     }
 
 }

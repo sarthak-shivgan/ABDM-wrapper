@@ -20,16 +20,17 @@ public class HIUGatewayCallbackController {
 
   @PostMapping({"/v0.5/consent-requests/on-init"})
   public ResponseEntity<GatewayCallbackResponse> onInitConsent(
-      @RequestBody OnInitRequest onInitRequest) {
+      @RequestBody OnInitRequest onInitRequest) throws IllegalDataStateException {
     gatewayCallback.onInitConsent(onInitRequest);
     return new ResponseEntity<>(GatewayCallbackResponse.builder().build(), HttpStatus.ACCEPTED);
   }
 
   @PostMapping({"/v0.5/consent-requests/on-status"})
   public ResponseEntity<GatewayCallbackResponse> consentOnStatus(
-      @RequestBody HIUConsentOnStatusRequest HIUConsentOnStatusRequest)
+      @RequestBody HIUConsentOnStatusRequest hiuConsentOnStatusRequest)
       throws IllegalDataStateException {
-    gatewayCallback.consentOnStatus(HIUConsentOnStatusRequest);
+    System.out.println("hiuConsentOnStatusRequest: " + hiuConsentOnStatusRequest);
+    gatewayCallback.consentOnStatus(hiuConsentOnStatusRequest);
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 

@@ -17,7 +17,7 @@ import com.nha.abdm.wrapper.client.invoker.ApiException;
 import com.nha.abdm.wrapper.client.model.ConsentResponse;
 import com.nha.abdm.wrapper.client.model.ConsentStatusResponse;
 import com.nha.abdm.wrapper.client.model.FacadeResponse;
-import com.nha.abdm.wrapper.client.model.FetchConsentRequest;
+import com.nha.abdm.wrapper.client.model.FetchPatientConsentRequest;
 import com.nha.abdm.wrapper.client.model.InitConsentRequest;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -56,8 +56,8 @@ public class ConsentApiTest {
      */
     @Test
     public void fetchConsentTest() throws ApiException {
-        FetchConsentRequest fetchConsentRequest = null;
-        ConsentResponse response = api.fetchConsent(fetchConsentRequest);
+        FetchPatientConsentRequest fetchPatientConsentRequest = null;
+        ConsentResponse response = api.fetchConsent(fetchPatientConsentRequest);
         // TODO: test validations
     }
 

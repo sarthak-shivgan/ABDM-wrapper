@@ -12,11 +12,12 @@ import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/v1")
 public class HIUController {
-    private static final String requestId = "876ad129-ffb9-4c7d-b5bc-e099577e7e99";
+    private static final String requestId = "876ad158-ffb9-4c7d-b5bc-e099577e7e99";
 
     @PostMapping({"/test-wrapper/consent-init"})
     public FacadeResponse initiateConsent() throws ApiException {
@@ -37,11 +38,11 @@ public class HIUController {
 
 
         IdRequest idRequest2 = new IdRequest();
-        idRequest2.setId("Predator_HIP");
+        idRequest2.setId("Demo_Atul_HIP");
         consentRequest.setHiu(idRequest2);
 
         ConsentRequester consentRequester = new ConsentRequester();
-        consentRequester.setName("Some requesterss");
+        consentRequester.setName("Some requester-2");
         ConsentRequestIdentifier consentRequestIdentifier = new ConsentRequestIdentifier();
         consentRequestIdentifier.setSystem("https://www.mciindia.org");
         consentRequestIdentifier.setType("REG_NO");
@@ -85,4 +86,21 @@ public class HIUController {
         ConsentApi consentApi = new ConsentApi();
         return consentApi.consentStatusRequestIdGet(requestId);
     }
+
+    @PostMapping({"/test-wrapper/fetch-consent"})
+    public ConsentResponse fetchConsent() throws ApiException {
+        FetchPatientConsentRequest fetchPatientConsentRequest = new FetchPatientConsentRequest();
+        fetchPatientConsentRequest.setPatientAbhaAddress("atul_kumar13@sbx");
+
+        FetchConsentRequest fetchConsentRequest = new FetchConsentRequest();
+        fetchConsentRequest.setRequestId(requestId);
+        fetchConsentRequest.setTimestamp(DateTimeFormatter.ISO_INSTANT.format(Instant.now()));
+        fetchConsentRequest.setConsentId("f9cf03ec-9b2c-4ae6-a481-25c621d3148f");
+
+        fetchPatientConsentRequest.setFetchConsentRequest(fetchConsentRequest);
+
+        ConsentApi consentApi = new ConsentApi();
+        return consentApi.fetchConsent(fetchPatientConsentRequest);
+    }
+
 }
