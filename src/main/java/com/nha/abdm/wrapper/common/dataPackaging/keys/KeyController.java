@@ -9,24 +9,26 @@ import org.bouncycastle.jce.interfaces.ECPrivateKey;
 import org.bouncycastle.jce.interfaces.ECPublicKey;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECParameterSpec;
+import org.springframework.stereotype.Service;
 
+@Service
 public class KeyController {
   private String senderPublicKey;
   private String senderPrivateKey;
   private String senderNonce;
 
   public KeyMaterial fetchKeys() throws Exception {
-    if ((senderPrivateKey == null || senderPublicKey == null) || senderNonce == null) {
+    if ((senderPrivateKey == null && senderPublicKey == null) && senderNonce == null) {
       return generate();
     } else return new KeyMaterial(this.senderPublicKey, this.senderPrivateKey, this.senderNonce);
   }
 
   public KeyMaterial generate() throws Exception {
     KeyPair keyPair = generateKeyPair();
-    String receiverPrivateKey = getBase64String(getEncodedPrivateKey(keyPair.getPrivate()));
-    String receiverPublicKey = getBase64String(getEncodedPublicKey(keyPair.getPublic()));
-    String receiverNonce = generateRandomKey();
-    return new KeyMaterial(receiverPrivateKey, receiverPublicKey, receiverNonce);
+    String senderPrivateKey = getBase64String(getEncodedPrivateKey(keyPair.getPrivate()));
+    String senderPublicKey = getBase64String(getEncodedPublicKey(keyPair.getPublic()));
+    String senderNonce = generateRandomKey();
+    return new KeyMaterial(senderPrivateKey, senderPublicKey, senderNonce);
   }
 
   private KeyPair generateKeyPair()

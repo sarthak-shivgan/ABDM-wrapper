@@ -1,25 +1,38 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.dataTransfer;
 
+import com.nha.abdm.wrapper.common.GatewayConstants;
 import com.nha.abdm.wrapper.common.RequestManager;
 import com.nha.abdm.wrapper.common.Utils;
+import com.nha.abdm.wrapper.common.dataPackaging.encryption.EncryptionController;
+import com.nha.abdm.wrapper.common.dataPackaging.encryption.EncryptionResponse;
+import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.hip.HIPClient;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPConsentNotificationResponse;
+import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.DataPushNotification;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.DataPushRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPHealthInformationRequestAcknowledgement;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPRequestBundle;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.BundleResponseHIP;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPConsentNotification;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPHealthInformationRequest;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.ConsentAcknowledgement;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HiRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataEntries;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataHiRequest.DatakeyMaterial.DataDhPublicKey;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataHiRequest.DatakeyMaterial.DataKeyMaterial;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.*;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
-
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.ConsentCareContexts;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
@@ -35,14 +48,14 @@ import reactor.core.Exceptions;
 public class DataTransferService implements DataTransferInterface {
   private static final Logger log = LogManager.getLogger(DataTransferService.class);
 
-  @Value("${dataOnNotifyPath}")
-  public String dataOnNotifyPath;
+  @Value("${facilityUrl}")
+  public String facilityUrlPath;
 
   @Value("${dataOnRequestPath}")
   public String dataOnRequestPath;
 
-  @Value("${facilityUrl}")
-  public String facilityUrl;
+  @Value("${dataPushNotificationPath}")
+  public String dataPushNotificationPath;
 
   @Autowired PatientRepo patientRepo;
   @Autowired LogsRepo logsRepo;
@@ -50,8 +63,8 @@ public class DataTransferService implements DataTransferInterface {
   private final RequestManager requestManager;
   private final HIPClient hipClient;
   @Autowired RequestLogService requestLogService;
-  @Autowired
-  PatientService patientService;
+  @Autowired PatientService patientService;
+  @Autowired EncryptionController encryptionController;
 
   @Autowired
   public DataTransferService(HIPClient hipClient, RequestManager requestManager) {
@@ -60,78 +73,13 @@ public class DataTransferService implements DataTransferInterface {
   }
 
   /**
-   * The callback from ABDM gateway after consentGrant for dataTransfer, POST method for /on-notify
-   *
-   * @param HIPConsentNotification careContext and demographics details are provided, and implement
-   *     a logic to check the existence of the careContexts.
-   */
-  public void notifyOnReceived(HIPConsentNotification hipConsentNotification) {
-    HIPConsentNotificationResponse hipConsentNotificationResponse = null;
-
-    RespRequest responseRequestId =
-        RespRequest.builder().requestId(hipConsentNotification.getRequestId()).build();
-
-    if (patientService.isCareContextPresent(
-        hipConsentNotification.getNotification().getConsentDetail().getCareContexts())) {
-      ConsentAcknowledgement dataAcknowledgement =
-          ConsentAcknowledgement.builder()
-              .status("OK")
-              .consentId(hipConsentNotification.getNotification().getConsentId())
-              .build();
-      hipConsentNotificationResponse =
-          HIPConsentNotificationResponse.builder()
-              .requestId(UUID.randomUUID().toString())
-              .timestamp(Utils.getCurrentTimeStamp())
-              .acknowledgement(dataAcknowledgement)
-              .resp(responseRequestId)
-              .build();
-    } else {
-      errorResponse.setMessage("HIP -> Mismatch of careContext");
-      errorResponse.setCode(1000);
-      log.error("OnInit body -> making error body since careContexts are not matched");
-      hipConsentNotificationResponse =
-          HIPConsentNotificationResponse.builder()
-              .requestId(UUID.randomUUID().toString())
-              .timestamp(Utils.getCurrentTimeStamp())
-              .error(errorResponse)
-              .resp(responseRequestId)
-              .build();
-    }
-    try {
-      log.info(hipConsentNotificationResponse.toString());
-      ResponseEntity<GatewayGenericResponse> response =
-          requestManager.fetchResponseFromGateway(dataOnNotifyPath, hipConsentNotificationResponse);
-      log.debug(dataOnNotifyPath + " : dataOnNotify: " + response.getStatusCode());
-      if (response.getStatusCode() == HttpStatus.ACCEPTED) {
-        requestLogService.dataTransferNotify(
-            hipConsentNotification,
-            RequestStatus.DATA_ON_NOTIFY_SUCCESS,
-            hipConsentNotificationResponse);
-      } else if (Objects.nonNull(response.getBody())
-          && Objects.nonNull(response.getBody().getErrorResponse())) {
-        requestLogService.dataTransferNotify(
-            hipConsentNotification,
-            RequestStatus.DATA_ON_NOTIFY_ERROR,
-            hipConsentNotificationResponse);
-      }
-    } catch (Exception ex) {
-      String error =
-          "Exception while Initiating dataTransfer onNotify: "
-              + ex.getMessage()
-              + " unwrapped exception: "
-              + Exceptions.unwrap(ex);
-      log.debug(error);
-    }
-  }
-
-  /**
    * POST /on-request as an acknowledgement for agreeing to make dataTransfer to ABDM gateway.
    *
-   * @param HIPHealthInformationRequest HIU public keys and dataPush URL is provided
+   * @param hipHealthInformationRequest HIU public keys and dataPush URL is provided
    */
   @Override
-  public void
-  requestOnReceived(HIPHealthInformationRequest hipHealthInformationRequest) {
+  public void requestOnReceived(HIPHealthInformationRequest hipHealthInformationRequest)
+      throws IllegalDataStateException {
     HIPHealthInformationRequestAcknowledgement hipHealthInformationRequestAcknowledgement = null;
     RespRequest responseRequestId =
         RespRequest.builder().requestId(hipHealthInformationRequest.getRequestId()).build();
@@ -151,7 +99,7 @@ public class DataTransferService implements DataTransferInterface {
               .build();
     } else {
       errorResponse.setMessage("HIP -> ConsentId not found in cache");
-      errorResponse.setCode(1000);
+      errorResponse.setCode(GatewayConstants.ERROR_CODE);
       log.error("DataOnRequest body -> making error body, consentId not found in cache");
       hipHealthInformationRequestAcknowledgement =
           HIPHealthInformationRequestAcknowledgement.builder()
@@ -187,19 +135,43 @@ public class DataTransferService implements DataTransferInterface {
               + Exceptions.unwrap(ex);
       log.debug(error);
     }
-
-    //    initiateBundleRequest(HIPHealthInformationRequest);
   }
 
   /**
    * Requesting HIP for FHIR bundle
    *
-   * @param HIPHealthInformationRequest use the requestId to fetch the careContexts from dump to
+   * @param hipHealthInformationRequest use the requestId to fetch the careContexts from dump to
    *     request HIP.
    */
   @Override
-  public void initiateBundleRequest(HIPHealthInformationRequest HIPHealthInformationRequest) {
-    // TODO Implement bundle request to Facility workflow logic.
+  public void initiateBundleRequest(HIPHealthInformationRequest hipHealthInformationRequest)
+      throws IllegalDataStateException {
+    RequestLog existingLog =
+        logsRepo.findByConsentId(hipHealthInformationRequest.getHiRequest().getConsent().getId());
+    if (existingLog == null) {
+      throw new IllegalDataStateException("consent id not found in db");
+    }
+    HIPNotifyRequest hipNotifyRequest =
+        (HIPNotifyRequest)
+            existingLog.getRequestDetails().get(FieldIdentifiers.DATA_NOTIFY_REQUEST);
+    HIPRequestBundle hipRequestBundle =
+        HIPRequestBundle.builder()
+            .careContextsWithPatientReferences(
+                hipNotifyRequest.getNotification().getConsentDetail().getCareContexts())
+            .consentId(hipHealthInformationRequest.getHiRequest().getConsent().getId())
+            .build();
+    try {
+      ResponseEntity<GatewayGenericResponse> response =
+          requestManager.fetchResponseFromGateway(facilityUrlPath, hipRequestBundle);
+      log.debug(facilityUrlPath + " : bundleRequest: " + response.getStatusCode());
+    } catch (Exception ex) {
+      String error =
+          "Exception while requesting FHIR BUNDLE HIP : "
+              + ex.getMessage()
+              + " unwrapped exception: "
+              + Exceptions.unwrap(ex);
+      log.debug(error);
+    }
   }
 
   /**
@@ -208,7 +180,148 @@ public class DataTransferService implements DataTransferInterface {
    * @param bundleResponseHIP FHIR bundle received from HIP for the particular patients
    */
   @Override
-  public void initiateDataTransfer(BundleResponseHIP bundleResponseHIP) {
-    // TODO Implement dataPush workflow logic.
+  public FacadeResponse initiateDataTransfer(BundleResponseHIP bundleResponseHIP) throws Exception {
+    log.info(bundleResponseHIP.toString());
+    String consentId = bundleResponseHIP.getConsentId();
+    RequestLog existingRecord = logsRepo.findByConsentId(consentId);
+
+    HIPNotifyRequest hipNotifyRequest =
+        (HIPNotifyRequest)
+            existingRecord.getRequestDetails().get(FieldIdentifiers.DATA_NOTIFY_REQUEST);
+
+    HIPHealthInformationRequest hipHealthInformationRequest =
+        (HIPHealthInformationRequest)
+            existingRecord.getRequestDetails().get(FieldIdentifiers.DATA_REQUEST);
+
+    EncryptionResponse encryptedData =
+        encryptionController.encrypt(hipHealthInformationRequest, bundleResponseHIP);
+    DataDhPublicKey receiverDhPublicKey =
+        hipHealthInformationRequest.getHiRequest().getKeyMaterial().getDhPublicKey();
+
+    DataDhPublicKey dhPublicKey =
+        DataDhPublicKey.builder()
+            .expiry(receiverDhPublicKey.getExpiry())
+            .parameters(receiverDhPublicKey.getParameters())
+            .keyValue(encryptedData.getKeyToShare())
+            .build();
+
+    DataKeyMaterial keyMaterial =
+        DataKeyMaterial.builder()
+            .cryptoAlg(hipHealthInformationRequest.getHiRequest().getKeyMaterial().getCryptoAlg())
+            .curve(hipHealthInformationRequest.getHiRequest().getKeyMaterial().getCurve())
+            .dhPublicKey(dhPublicKey)
+            .nonce(encryptedData.getSenderNonce())
+            .build();
+    List<DataEntries> entries = new ArrayList<>();
+    List<String> careContextReferenceList =
+        hipNotifyRequest.getNotification().getConsentDetail().getCareContexts().stream()
+            .map(ConsentCareContexts::getCareContextReference)
+            .toList();
+    for (String careContextReference : careContextReferenceList) {
+      DataEntries dataEntries =
+          DataEntries.builder()
+              .content(encryptedData.getEncryptedData())
+              .media("application/fhir+json")
+              .checksum("string")
+              .careContextReference(careContextReference)
+              .build();
+      entries.add(dataEntries);
+    }
+    DataPushRequest dataPushRequest =
+        DataPushRequest.builder()
+            .keyMaterial(keyMaterial)
+            .entries(entries)
+            .pageCount(1)
+            .pageNumber(0)
+            .transactionId(hipHealthInformationRequest.getTransactionId())
+            .build();
+    log.info(dataPushRequest.toString());
+    log.info("initiating the dataTransfer to HIU");
+    try {
+      ResponseEntity<GatewayGenericResponse> response =
+          requestManager.postToHIU(
+              hipHealthInformationRequest.getHiRequest().getDataPushUrl(), dataPushRequest);
+      log.debug(
+          hipHealthInformationRequest.getHiRequest().getDataPushUrl()
+              + " : dataPushHIU: "
+              + response.getStatusCode());
+      initiateBundleSentNotification(hipNotifyRequest, hipHealthInformationRequest);
+      return FacadeResponse.builder()
+          .httpStatusCode(response.getStatusCode())
+          .message("Successfully made request to HIU")
+          .build();
+    } catch (Exception ex) {
+      String error =
+          "Exception while Initiating dataTransfer HIU: "
+              + ex.getMessage()
+              + " unwrapped exception: "
+              + Exceptions.unwrap(ex);
+      log.debug(error);
+      return FacadeResponse.builder()
+          .code(GatewayConstants.ERROR_CODE)
+          .error(ErrorResponse.builder().message(Exceptions.unwrap(ex).getMessage()).build())
+          .build();
+    }
+  }
+
+  /**
+   * After successful dataTransfer we need to send an acknowledgment to ABDM gateway saying
+   * "TRANSFERRED"
+   *
+   * @param hipNotifyRequest to get the careContexts of the patient
+   * @param hipHealthInformationRequest which has the transactionId used to POST acknowledgement
+   */
+  private void initiateBundleSentNotification(
+      HIPNotifyRequest hipNotifyRequest, HIPHealthInformationRequest hipHealthInformationRequest) {
+    List<ConsentCareContexts> listOfCareContexts =
+        hipNotifyRequest.getNotification().getConsentDetail().getCareContexts();
+    List<DataStatusResponses> dataStatusResponsesList = new ArrayList<>();
+    for (ConsentCareContexts item : listOfCareContexts) {
+      DataStatusResponses dataStatusResponses =
+          DataStatusResponses.builder()
+              .careContextReference(item.getCareContextReference())
+              .hiStatus("OK")
+              .description("Done")
+              .build();
+      dataStatusResponsesList.add(dataStatusResponses);
+    }
+    DataStatusNotification dataStatusNotification =
+        DataStatusNotification.builder()
+            .sessionStatus("TRANSFERRED")
+            .hipId("hipId")
+            .statusResponses(dataStatusResponsesList)
+            .build();
+    DataNotifier dataNotifier =
+        DataNotifier.builder()
+            .type("HIP")
+            .id(hipNotifyRequest.getNotification().getConsentDetail().getHip().getId())
+            .build();
+    DataNotificationStatus dataNotificationStatus =
+        DataNotificationStatus.builder()
+            .consentId(hipNotifyRequest.getNotification().getConsentId())
+            .transactionId(hipHealthInformationRequest.getTransactionId())
+            .doneAt(Utils.getCurrentTimeStamp())
+            .notifier(dataNotifier)
+            .statusNotification(dataStatusNotification)
+            .build();
+    DataPushNotification dataPushNotification =
+        DataPushNotification.builder()
+            .requestId(UUID.randomUUID().toString())
+            .timestamp(Utils.getCurrentTimeStamp())
+            .notification(dataNotificationStatus)
+            .build();
+    log.info(dataPushNotification.toString());
+    try {
+      ResponseEntity<GatewayGenericResponse> response =
+          requestManager.fetchResponseFromGateway(dataPushNotificationPath, dataPushNotification);
+      log.debug(dataPushNotificationPath + " : dataPushNotification: " + response.getStatusCode());
+    } catch (Exception ex) {
+      String error =
+          "Exception while Initiating HIP auth: "
+              + ex.getMessage()
+              + " unwrapped exception: "
+              + Exceptions.unwrap(ex);
+      log.debug(error);
+    }
   }
 }

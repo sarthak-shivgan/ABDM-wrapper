@@ -5,8 +5,10 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
+import com.nha.abdm.wrapper.hip.hrp.consent.ConsentInterface;
+import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.DataTransferInterface;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPConsentNotification;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.BundleResponseHIP;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPHealthInformationRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
@@ -34,6 +36,7 @@ public class WorkflowManager {
   @Autowired PatientService patientService;
   @Autowired LinkInterface linkInterface;
   @Autowired HipLinkInterface hipLinkInterface;
+  @Autowired ConsentInterface consentInterface;
   @Autowired DataTransferInterface dataTransferInterface;
   @Autowired RequestLogService requestLogService;
 
@@ -175,20 +178,27 @@ public class WorkflowManager {
     return hipLinkInterface.confirmAuthOtp(verifyOTP);
   }
 
-  public void initiateDataOnNotify(HIPConsentNotification hipConsentNotification) {
-    if (hipConsentNotification != null) {
-      log.info(hipConsentNotification.toString());
-      dataTransferInterface.notifyOnReceived(hipConsentNotification);
-    } else log.debug("Error in response of Data Notify");
+  public void initiateConsentOnNotify(HIPNotifyRequest hipNotifyRequest)
+      throws IllegalDataStateException {
+    if (hipNotifyRequest != null) {
+      log.info(hipNotifyRequest.toString());
+      consentInterface.notifyOnReceived(hipNotifyRequest);
+    } else log.debug("Error in response of Consent Notify");
   }
 
-  public void initiateDataTransferOnRequest(
-      HIPHealthInformationRequest hipHealthInformationRequest) {
+  public void initiateDataTransferOnRequest(HIPHealthInformationRequest hipHealthInformationRequest)
+      throws IllegalDataStateException {
     if (hipHealthInformationRequest != null) {
       log.info(hipHealthInformationRequest.toString());
       dataTransferInterface.requestOnReceived(hipHealthInformationRequest);
+      log.info("Initiating the bundle request to facility");
+      dataTransferInterface.initiateBundleRequest(hipHealthInformationRequest);
     } else {
       log.debug("initiateDataTransferOnRequest: Error in POST onRequest");
     }
+  }
+
+  public FacadeResponse initiateDataTransfer(BundleResponseHIP bundleResponseHIP) throws Exception {
+    return dataTransferInterface.initiateDataTransfer(bundleResponseHIP);
   }
 }

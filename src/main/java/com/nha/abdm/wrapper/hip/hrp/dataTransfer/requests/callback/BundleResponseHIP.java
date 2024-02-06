@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class BundleResponseHIP {
-  String careContextReference;
+  String consentId;
   String bundleContent;
 }

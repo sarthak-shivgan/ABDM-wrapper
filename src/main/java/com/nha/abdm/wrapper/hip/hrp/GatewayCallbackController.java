@@ -2,18 +2,11 @@
 package com.nha.abdm.wrapper.hip.hrp;
 
 import com.nha.abdm.wrapper.common.GatewayConstants;
-import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
-import com.nha.abdm.wrapper.common.models.Acknowledgement;
-import com.nha.abdm.wrapper.common.models.Consent;
-import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.GatewayCallbackResponse;
 import com.nha.abdm.wrapper.hip.hrp.consent.ConsentService;
-import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotification;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
-import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPOnNotifyRequest;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPConsentNotification;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPHealthInformationRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
@@ -26,7 +19,6 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmRes
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
-import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -198,50 +190,6 @@ public class GatewayCallbackController {
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
-  //  @PostMapping({"/v0.5/consents/hip/notify"})
-  public ResponseEntity<GatewayCallbackResponse> hipNotify(
-      @RequestBody HIPNotifyRequest hipNotifyRequest) throws IllegalDataStateException {
-    if (hipNotifyRequest != null
-        && hipNotifyRequest.getNotification() != null
-        && hipNotifyRequest.getNotification().getConsentDetail() != null
-        && hipNotifyRequest.getNotification().getConsentDetail().getPatient() != null) {
-
-      HIPNotification hipNotification = hipNotifyRequest.getNotification();
-      Consent consent =
-          Consent.builder()
-              .status(hipNotification.getStatus())
-              .consentDetail(hipNotification.getConsentDetail())
-              .signature(hipNotification.getSignature())
-              .build();
-      patientService.addConsent(
-          hipNotifyRequest.getNotification().getConsentDetail().getPatient().getId(), consent);
-
-      // TODO: Get confirmation on whether request id should be hipNotifyRequest.getRequestId() or
-      // hipNotifyRequest.getResp().getRequestId()
-      HIPOnNotifyRequest hipOnNotifyRequest =
-          HIPOnNotifyRequest.builder()
-              .requestId(UUID.randomUUID().toString())
-              .timestamp(Utils.getCurrentTimeStamp())
-              .acknowledgement(
-                  Acknowledgement.builder()
-                      .consentId(hipNotifyRequest.getNotification().getConsentId())
-                      .status(HttpStatus.OK.name())
-                      .build())
-              .resp(RespRequest.builder().requestId(hipNotifyRequest.getRequestId()).build())
-              .build();
-      consentService.hipOnNotify(hipOnNotifyRequest);
-    } else {
-      String error = "Got Error in consent notify callback: gateway response was null";
-      return new ResponseEntity<>(
-          GatewayCallbackResponse.builder()
-              .error(
-                  ErrorResponse.builder().code(GatewayConstants.ERROR_CODE).message(error).build())
-              .build(),
-          HttpStatus.BAD_REQUEST);
-    }
-    return new ResponseEntity<>(HttpStatus.ACCEPTED);
-  }
-
   private void updateRequestError(
       String requestId, String methodName, String errorMessage, RequestStatus requestStatus)
       throws IllegalDataStateException {
@@ -268,22 +216,26 @@ public class GatewayCallbackController {
 
   /**
    * Callback from ABDM gateway of consent to dataTransfer
-   * @param hipConsentNotification Has careContexts details for dataTransfer
+   *
+   * @param hipNotifyRequest Has careContexts details for dataTransfer
    */
   @PostMapping({"/v0.5/consents/hip/notify"})
-  public void initiateDataOnNotify(@RequestBody HIPConsentNotification hipConsentNotification) {
-    if (hipConsentNotification != null) {
-      workflowManager.initiateDataOnNotify(hipConsentNotification);
-    } else log.debug("Error in response of Data Notify");
+  public void initiateDataOnNotify(@RequestBody HIPNotifyRequest hipNotifyRequest)
+      throws IllegalDataStateException {
+    if (hipNotifyRequest != null) {
+      workflowManager.initiateConsentOnNotify(hipNotifyRequest);
+    } else log.debug("Error in response of Consent Notify");
   }
 
   /**
    * Callback from ABDM gateway for dataTransfer to HIU
+   *
    * @param hipHealthInformationRequest Has keys for encryption and dataPushURL of HIU
    */
   @PostMapping({"/v0.5/health-information/hip/request"})
   public void DataRequestResponse(
-      @RequestBody HIPHealthInformationRequest hipHealthInformationRequest) {
+      @RequestBody HIPHealthInformationRequest hipHealthInformationRequest)
+      throws IllegalDataStateException {
     if (hipHealthInformationRequest != null) {
       workflowManager.initiateDataTransferOnRequest(hipHealthInformationRequest);
     } else {

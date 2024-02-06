@@ -1,5 +1,5 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataNotification.DataConsentdetail.DataCareContexts;
+package com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class CareContextsWithPatientReference {
+public class DataStatusResponses {
   public String careContextReference;
-  public String patientReference;
+  public String hiStatus;
+  public String description;
 }

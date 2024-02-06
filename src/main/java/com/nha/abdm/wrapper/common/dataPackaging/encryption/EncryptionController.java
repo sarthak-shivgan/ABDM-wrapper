@@ -31,8 +31,10 @@ import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 import org.bouncycastle.jce.spec.ECPublicKeySpec;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+@Service
 public class EncryptionController {
   private static final Logger log = LogManager.getLogger(EncryptionController.class);
   @Autowired KeyController keyController;
@@ -41,6 +43,8 @@ public class EncryptionController {
       @RequestBody HIPHealthInformationRequest hipHealthInformationRequest,
       BundleResponseHIP bundleResponse)
       throws Exception {
+    log.info(bundleResponse.getBundleContent());
+    log.info("<---------------- Encryption started ------------------->");
     KeyMaterial senderKeys = keyController.fetchKeys();
     KeyMaterial receiverKeys =
         KeyMaterial.builder()
@@ -83,7 +87,6 @@ public class EncryptionController {
   public String encrypt(
       byte[] xorOfRandom, String senderPrivateKey, String receiverPublicKey, String stringToEncrypt)
       throws Exception {
-    System.out.println("<------------------- ENCRYPTION -------------------->");
     // Generating shared secret
     String sharedKey =
         doECDH(
@@ -108,11 +111,11 @@ public class EncryptionController {
 
       encryptedData = getBase64String(plainBytes);
     } catch (Exception e) {
-      System.out.println(e.getLocalizedMessage());
+      log.error(e.getLocalizedMessage());
     }
 
     log.info("EncryptedData: " + encryptedData);
-    log.info("<---------------- Done ------------------->");
+    log.info("<---------------- Encryption Done ------------------->");
     return encryptedData;
   }
 
@@ -167,7 +170,6 @@ public class EncryptionController {
 
   public PublicKey getKey(String key) throws Exception {
     byte[] bytesForBase64String = getBytesForBase64String(key);
-
     return loadPublicKey(bytesForBase64String);
   }
 }

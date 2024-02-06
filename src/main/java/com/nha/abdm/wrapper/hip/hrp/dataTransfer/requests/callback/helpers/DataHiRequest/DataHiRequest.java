@@ -2,8 +2,8 @@
 package com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataHiRequest;
 
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataHiRequest.DatakeyMaterial.DataKeyMaterial;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataNotification.DataConsentdetail.DataConsentManager.DataConsentManager;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataNotification.DataConsentdetail.DataPermission.DataDateRange;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.DateRange;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.OnFetchConsentManager;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @Data
 @Builder
 public class DataHiRequest {
-  public DataConsentManager consent;
+  public OnFetchConsentManager consent;
   public String dataPushUrl;
-  public DataDateRange dateRange;
+  public DateRange dateRange;
   public DataKeyMaterial keyMaterial;
 }

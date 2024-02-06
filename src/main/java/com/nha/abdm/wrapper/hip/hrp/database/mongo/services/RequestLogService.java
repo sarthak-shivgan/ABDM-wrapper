@@ -8,9 +8,9 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPConsentNotificationResponse;
+import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
+import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPOnNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPHealthInformationRequestAcknowledgement;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPConsentNotification;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPHealthInformationRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
@@ -386,18 +386,18 @@ public class RequestLogService<T> {
   }
 
   public void dataTransferNotify(
-      HIPConsentNotification hipConsentNotification,
+      HIPNotifyRequest hipNotifyRequest,
       RequestStatus requestStatus,
-      HIPConsentNotificationResponse hipConsentNotificationResponse) {
+      HIPOnNotifyRequest hipOnNotifyRequest) {
     RequestLog requestLog = new RequestLog();
-    requestLog.setGatewayRequestId(hipConsentNotificationResponse.getRequestId());
+    requestLog.setGatewayRequestId(hipOnNotifyRequest.getRequestId());
     requestLog.setStatus(requestStatus);
-    requestLog.setConsentId(hipConsentNotification.getNotification().getConsentId());
+    requestLog.setConsentId(hipNotifyRequest.getNotification().getConsentId());
     HashMap<String, Object> map = new HashMap<>();
-    map.put(FieldIdentifiers.DATA_NOTIFY_REQUEST, hipConsentNotification);
+    map.put(FieldIdentifiers.DATA_NOTIFY_REQUEST, hipNotifyRequest);
     requestLog.setRequestDetails(map);
-    if (hipConsentNotificationResponse.getError() != null) {
-      requestLog.setError(hipConsentNotificationResponse.getError().getMessage());
+    if (hipOnNotifyRequest.getError() != null) {
+      requestLog.setError(hipOnNotifyRequest.getError().getMessage());
     }
     mongoTemplate.save(requestLog);
   }
@@ -417,7 +417,7 @@ public class RequestLogService<T> {
           "Request not found for consentId: "
               + hipHealthInformationRequest.getHiRequest().getConsent().getId());
     }
-    Map<String, Object> map = new HashMap<>();
+    Map<String, Object> map = existingLog.getRequestDetails();
     map.put(FieldIdentifiers.DATA_REQUEST, hipHealthInformationRequest);
     Update update = new Update();
     update.set(FieldIdentifiers.REQUEST_DETAILS, map);

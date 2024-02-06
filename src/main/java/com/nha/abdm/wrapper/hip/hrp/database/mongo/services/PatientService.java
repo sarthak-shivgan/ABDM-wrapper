@@ -10,13 +10,13 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataNotification.DataConsentdetail.DataCareContexts.CareContextsWithPatientReference;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.ConsentCareContexts;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -172,6 +172,12 @@ public class PatientService {
       throw new IllegalDataStateException("Patient not found in database: " + abhaAddress);
     }
     List<Consent> consents = patient.getConsents();
+    if (consents == null) {
+      Query query = new Query(Criteria.where(FieldIdentifiers.ABHA_ADDRESS).is(abhaAddress));
+      Update update = new Update().addToSet(FieldIdentifiers.CONSENTS, consent);
+      mongoTemplate.updateFirst(query, update, Patient.class);
+      return;
+    }
     for (Consent storedConsent : consents) {
       if (storedConsent
           .getConsentDetail()
@@ -223,14 +229,15 @@ public class PatientService {
   }
 
   /**
-   * <B>Data Transfer</B>
-   * For a given list of careContextsReference and patientReference check whether careContexts match with patient.
+   * <B>Data Transfer</B> For a given list of careContextsReference and patientReference check
+   * whether careContexts match with patient.
+   *
    * @param careContextsWithPatientReference Has CareContextReference and patientReference.
    * @return if all the Contexts match with respective patient return true;
    */
-  public boolean isCareContextPresent(List<CareContextsWithPatientReference> careContextsWithPatientReference) {
+  public boolean isCareContextPresent(List<ConsentCareContexts> careContextsWithPatientReference) {
     if (careContextsWithPatientReference == null) return false;
-    for (CareContextsWithPatientReference careContexts : careContextsWithPatientReference) {
+    for (ConsentCareContexts careContexts : careContextsWithPatientReference) {
       Patient patient = patientRepo.findByPatientReference(careContexts.getPatientReference());
       if (patient == null) {
         return false;
@@ -238,15 +245,17 @@ public class PatientService {
       List<CareContext> existingCareContexts = patient.getCareContexts();
       if (existingCareContexts == null) return false;
       if (!existingCareContexts.stream()
-              .anyMatch(
-                      existingContext ->
-                              careContextsWithPatientReference.stream()
-                                      .anyMatch(
-                                              context ->
-                                                      context.careContextReference.equals(
-                                                              existingContext.getReferenceNumber())
-                                                              && context.patientReference.equals(
-                                                              patient.getPatientReference())))) {
+          .anyMatch(
+              existingContext ->
+                  careContextsWithPatientReference.stream()
+                      .anyMatch(
+                          context ->
+                              context
+                                      .getCareContextReference()
+                                      .equals(existingContext.getReferenceNumber())
+                                  && context
+                                      .getPatientReference()
+                                      .equals(patient.getPatientReference())))) {
         return false;
       }
     }

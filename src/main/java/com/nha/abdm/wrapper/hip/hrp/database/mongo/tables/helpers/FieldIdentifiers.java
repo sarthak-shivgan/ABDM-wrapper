@@ -10,6 +10,7 @@ public class FieldIdentifiers {
   public static final String ABHA_ADDRESS = "abhaAddress";
   public static final String CONSENTS = "consents";
   public static final String RESPONSE_DETAILS = "responseDetails";
+  public static final String CONSENT_ID = "consentId";
 
   // Nested fields.
   public static final String LINK_RECORDS_REQUEST = "LinkRecordsRequest";
