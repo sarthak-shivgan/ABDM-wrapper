@@ -129,7 +129,7 @@ public class DataTransferService implements DataTransferInterface {
       }
     } catch (Exception ex) {
       String error =
-          "Exception while Initiating HIP auth: "
+          "An unknown error occurred while calling Gateway API: "
               + ex.getMessage()
               + " unwrapped exception: "
               + Exceptions.unwrap(ex);
@@ -317,7 +317,7 @@ public class DataTransferService implements DataTransferInterface {
       log.debug(dataPushNotificationPath + " : dataPushNotification: " + response.getStatusCode());
     } catch (Exception ex) {
       String error =
-          "Exception while Initiating HIP auth: "
+          "An unknown error occurred while calling Gateway API HIP auth: "
               + ex.getMessage()
               + " unwrapped exception: "
               + Exceptions.unwrap(ex);

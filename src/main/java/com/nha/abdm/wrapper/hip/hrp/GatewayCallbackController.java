@@ -220,11 +220,12 @@ public class GatewayCallbackController {
    * @param hipNotifyRequest Has careContexts details for dataTransfer
    */
   @PostMapping({"/v0.5/consents/hip/notify"})
-  public void initiateDataOnNotify(@RequestBody HIPNotifyRequest hipNotifyRequest)
+  public ResponseEntity<GatewayCallbackResponse> initiateDataOnNotify(@RequestBody HIPNotifyRequest hipNotifyRequest)
       throws IllegalDataStateException {
     if (hipNotifyRequest != null) {
       workflowManager.initiateConsentOnNotify(hipNotifyRequest);
     } else log.debug("Error in response of Consent Notify");
+    return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
   /**
@@ -233,7 +234,7 @@ public class GatewayCallbackController {
    * @param hipHealthInformationRequest Has keys for encryption and dataPushURL of HIU
    */
   @PostMapping({"/v0.5/health-information/hip/request"})
-  public void DataRequestResponse(
+  public ResponseEntity<GatewayCallbackResponse> DataRequestResponse(
       @RequestBody HIPHealthInformationRequest hipHealthInformationRequest)
       throws IllegalDataStateException {
     if (hipHealthInformationRequest != null) {
@@ -241,5 +242,6 @@ public class GatewayCallbackController {
     } else {
       log.debug("Invalid Data request response");
     }
+    return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 }
