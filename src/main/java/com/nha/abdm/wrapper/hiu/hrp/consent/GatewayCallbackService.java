@@ -19,6 +19,7 @@ import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -44,7 +45,7 @@ public class GatewayCallbackService implements GatewayCallbackInterface {
   }
 
   @Override
-  public void onInitConsent(OnInitRequest onInitRequest) throws IllegalDataStateException {
+  public HttpStatus onInitConsent(OnInitRequest onInitRequest) throws IllegalDataStateException {
     if (Objects.nonNull(onInitRequest)
         && Objects.nonNull(onInitRequest.getResp())
         && Objects.nonNull(onInitRequest.getConsentRequest())) {
@@ -72,11 +73,13 @@ public class GatewayCallbackService implements GatewayCallbackInterface {
           onInitRequest.getResp().getRequestId(),
           "Something went wrong while executing consent on init",
           RequestStatus.CONSENT_ON_INIT_ERROR);
+      return HttpStatus.BAD_REQUEST;
     }
+    return HttpStatus.ACCEPTED;
   }
 
   @Override
-  public void consentOnStatus(HIUConsentOnStatusRequest hiuConsentOnStatusRequest)
+  public HttpStatus consentOnStatus(HIUConsentOnStatusRequest hiuConsentOnStatusRequest)
       throws IllegalDataStateException {
     if (Objects.nonNull(hiuConsentOnStatusRequest)
         && Objects.nonNull(hiuConsentOnStatusRequest.getConsentRequest())) {
@@ -93,11 +96,13 @@ public class GatewayCallbackService implements GatewayCallbackInterface {
       // will not be
       // able to update the error status in database.
       log.error("Something went wrong while executing consent on status");
+      return HttpStatus.BAD_REQUEST;
     }
+    return HttpStatus.ACCEPTED;
   }
 
   @Override
-  public void hiuNotify(NotifyHIURequest notifyHIURequest) throws IllegalDataStateException {
+  public HttpStatus hiuNotify(NotifyHIURequest notifyHIURequest) throws IllegalDataStateException {
     if (Objects.nonNull(notifyHIURequest) && Objects.nonNull(notifyHIURequest.getNotification())) {
       // Get corresponding gateway request for the given consent request id.
       String gatewayRequestId =
@@ -129,7 +134,9 @@ public class GatewayCallbackService implements GatewayCallbackInterface {
       // will not be
       // able to update the error status in database.
       log.error("Something went wrong while executing hiu notify");
+      return HttpStatus.BAD_REQUEST;
     }
+    return HttpStatus.ACCEPTED;
   }
 
   @Override

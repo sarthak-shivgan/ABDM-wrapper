@@ -198,6 +198,7 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
+| **202** | Request accepted |  -  |
 | **400** | Invalid request body supplied |  -  |
 | **404** | Address not found |  -  |
 | **422** | Validation exception |  -  |

@@ -355,16 +355,6 @@ public class RequestLogService<T> {
     mongoTemplate.save(requestLog);
   }
 
-  //  public void updateConsentResponse(String requestId, String consentRequestId) {
-  //    Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
-  //    Map<String, Object> map = new HashMap<>();
-  //    map.put(FieldIdentifiers.CONSENT_REQUEST_ID, consentRequestId);
-  //    Update update = new Update();
-  //    update.set(FieldIdentifiers.RESPONSE_DETAILS, map);
-  //    update.set(FieldIdentifiers.STATUS, RequestStatus.CONSENT_ON_INIT_RESPONSE_RECEIVED);
-  //    mongoTemplate.updateFirst(query, update, RequestLog.class);
-  //  }
-
   public <T> void updateConsentResponse(
       String requestId, String identifier, RequestStatus requestStatus, T consentDetails)
       throws IllegalDataStateException {

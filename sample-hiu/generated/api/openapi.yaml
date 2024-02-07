@@ -24,6 +24,8 @@ paths:
               schema:
                 $ref: '#/components/schemas/FacadeResponse'
           description: OK
+        "202":
+          description: Request accepted
         "400":
           description: Invalid request body supplied
         "404":
