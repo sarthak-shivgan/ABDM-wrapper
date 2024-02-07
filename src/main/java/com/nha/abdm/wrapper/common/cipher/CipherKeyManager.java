@@ -17,19 +17,18 @@ public class CipherKeyManager {
   private String senderNonce;
   public static final String ALGORITHM = "ECDH";
   public static final String CURVE = "curve25519";
+  public static final String PARAMETERS = "Curve25519/32byte random key";
   public static final String PROVIDER = BouncyCastleProvider.PROVIDER_NAME;
 
   public Key fetchKeys()
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
     if (senderPrivateKey == null && senderPublicKey == null && senderNonce == null) {
       KeyPair keyPair = generateKeyPair();
-      String senderPrivateKey = getBase64String(getEncodedPrivateKey(keyPair.getPrivate()));
-      String senderPublicKey = getBase64String(getEncodedPublicKey(keyPair.getPublic()));
-      String senderNonce = generateRandomKey();
-      return new Key(senderPrivateKey, senderPublicKey, senderNonce);
-    } else {
-      return new Key(this.senderPublicKey, this.senderPrivateKey, this.senderNonce);
+      senderPrivateKey = getBase64String(getEncodedPrivateKey(keyPair.getPrivate()));
+      senderPublicKey = getBase64String(getEncodedPublicKey(keyPair.getPublic()));
+      senderNonce = generateRandomKey();
     }
+    return new Key(senderPublicKey, senderPrivateKey, senderNonce);
   }
 
   private KeyPair generateKeyPair()

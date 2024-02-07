@@ -1,5 +1,5 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers;
+package com.nha.abdm.wrapper.common.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,7 +1,7 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests;
+package com.nha.abdm.wrapper.hip.hrp.dataTransfer.callback;
 
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.HealthInformationHiRequest.HealthInformationRequest;
+import com.nha.abdm.wrapper.common.requests.HealthInformationRequest;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,9 +16,8 @@ public class HIPHealthInformationRequest implements Serializable {
 
   private static final long serialVersionUID = 165269402517398406L;
 
-  public String requestId;
-
-  public String timestamp;
-  public String transactionId;
-  public HealthInformationRequest hiRequest;
+  private String requestId;
+  private String timestamp;
+  private String transactionId;
+  private HealthInformationRequest hiRequest;
 }

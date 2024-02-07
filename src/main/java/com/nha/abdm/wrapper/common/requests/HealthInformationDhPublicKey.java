@@ -1,5 +1,5 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.HealthInformationHiRequest.HealthInformationkeyMaterial;
+package com.nha.abdm.wrapper.common.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class HealthInformationDhPublicKey {
 
-  public String expiry;
-  public String keyValue;
-  public String parameters;
+  private String expiry;
+  private String parameters;
+  private String keyValue;
 }

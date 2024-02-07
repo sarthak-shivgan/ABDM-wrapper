@@ -6,12 +6,12 @@ import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.hrp.common.requests.CareContextRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.requests.*;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
@@ -104,7 +104,7 @@ public class LinkService implements LinkInterface {
     }
     log.info("onInit body : " + onInitRequest.toString());
     try {
-      ResponseEntity<GatewayGenericResponse> responseEntity =
+      ResponseEntity<GenericResponse> responseEntity =
           requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
       log.info(onInitLinkPath + " : onInitCall: " + responseEntity.getStatusCode());
     } catch (Exception e) {

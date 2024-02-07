@@ -10,7 +10,7 @@ import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPOnNotifyRequest;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPHealthInformationRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.callback.HIPHealthInformationRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
@@ -23,7 +23,6 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnAddCareCon
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
-import com.nha.abdm.wrapper.hiu.hrp.consent.requests.InitConsentRequest;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -346,11 +345,10 @@ public class RequestLogService<T> {
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 
-  public void persistConsentInitRequest(
-      InitConsentRequest initConsentRequest, RequestStatus status, String error) {
+  public void saveRequest(String requestId, RequestStatus status, String error) {
     RequestLog requestLog = new RequestLog();
-    requestLog.setClientRequestId(initConsentRequest.getRequestId());
-    requestLog.setGatewayRequestId(initConsentRequest.getRequestId());
+    requestLog.setClientRequestId(requestId);
+    requestLog.setGatewayRequestId(requestId);
     requestLog.setStatus(status);
     if (StringUtils.isNotBlank(error)) {
       requestLog.setError(error);
@@ -401,17 +399,35 @@ public class RequestLogService<T> {
         new Query(
             Criteria.where(FieldIdentifiers.CONSENT_ID)
                 .is(hipHealthInformationRequest.getHiRequest().getConsent().getId()));
-    RequestLog existingLog = mongoTemplate.findOne(query, RequestLog.class);
-    if (existingLog == null) {
+    RequestLog requestLog = mongoTemplate.findOne(query, RequestLog.class);
+    if (requestLog == null) {
       throw new IllegalDataStateException(
           "Request not found for consentId: "
               + hipHealthInformationRequest.getHiRequest().getConsent().getId());
     }
-    Map<String, Object> map = existingLog.getRequestDetails();
+    Map<String, Object> map = requestLog.getRequestDetails();
     map.put(FieldIdentifiers.HEALTH_INFORMATION_REQUEST, hipHealthInformationRequest);
     Update update = new Update();
     update.set(FieldIdentifiers.REQUEST_DETAILS, map);
-    update.set(FieldIdentifiers.STATUS, RequestStatus.HEALTH_INFORMATION_ON_REQUEST_SUCCESS);
+    update.set(FieldIdentifiers.STATUS, requestStatus);
     mongoTemplate.updateFirst(query, update, RequestLog.class);
+  }
+
+  public void updateTransactionId(String requestId, String transactionId)
+      throws IllegalDataStateException {
+    RequestLog requestLog = logsRepo.findByGatewayRequestId(requestId);
+    if (requestLog == null) {
+      throw new IllegalDataStateException("Request not found in database for: " + requestId);
+    }
+    Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
+    Update update = new Update();
+    update.set(FieldIdentifiers.TRANSACTION_ID, transactionId);
+    mongoTemplate.updateFirst(query, update, RequestLog.class);
+  }
+
+  public boolean findRequestLogByTransactionId(String transactionId) {
+    Query query = new Query(Criteria.where(FieldIdentifiers.TRANSACTION_ID).is(transactionId));
+    RequestLog requestLog = mongoTemplate.findOne(query, RequestLog.class);
+    return requestLog != null;
   }
 }

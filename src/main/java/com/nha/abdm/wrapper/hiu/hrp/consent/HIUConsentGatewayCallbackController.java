@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class HIUGatewayCallbackController {
+public class HIUConsentGatewayCallbackController {
 
-  @Autowired private GatewayCallbackInterface gatewayCallback;
+  @Autowired private ConsentGatewayCallbackInterface gatewayCallback;
 
   @PostMapping({"/v0.5/consent-requests/on-init"})
   public ResponseEntity<GatewayCallbackResponse> onInitConsent(

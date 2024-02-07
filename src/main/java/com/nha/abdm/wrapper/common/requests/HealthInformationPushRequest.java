@@ -1,8 +1,6 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests;
+package com.nha.abdm.wrapper.common.requests;
 
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.HealthInformationEntries;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.HealthInformationHiRequest.HealthInformationkeyMaterial.HealthInformationKeyMaterial;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

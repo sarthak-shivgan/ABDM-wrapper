@@ -8,6 +8,7 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.HIPClient;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotification;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
@@ -17,7 +18,6 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentPatientServic
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
 import java.util.Objects;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
@@ -47,7 +47,8 @@ public class ConsentService implements ConsentInterface {
   }
 
   /**
-   * The callback from ABDM gateway after consentGrant by the user , POST method for /on-notify as acknowledgement
+   * The callback from ABDM gateway after consentGrant by the user , POST method for /on-notify as
+   * acknowledgement
    *
    * @param hipNotifyRequest careContext and demographics details are provided, and implement a
    *     logic to check the existence of the careContexts.
@@ -107,7 +108,7 @@ public class ConsentService implements ConsentInterface {
       }
       try {
         log.info(hipOnNotifyRequest.toString());
-        ResponseEntity<GatewayGenericResponse> response =
+        ResponseEntity<GenericResponse> response =
             requestManager.fetchResponseFromGateway(consentOnNotifyPath, hipOnNotifyRequest);
         log.debug(consentOnNotifyPath + " : consentOnNotify: " + response.getStatusCode());
         if (response.getStatusCode() == HttpStatus.ACCEPTED) {

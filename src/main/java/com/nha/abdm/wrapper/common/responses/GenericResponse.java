@@ -1,7 +1,6 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses;
+package com.nha.abdm.wrapper.common.responses;
 
-import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +11,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 @Data
 @Builder
-public class GatewayGenericResponse {
+public class GenericResponse {
   private HttpStatus httpStatus;
   private ErrorResponse errorResponse;
 }

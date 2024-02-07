@@ -23,17 +23,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
-public class GatewayCallbackService implements GatewayCallbackInterface {
+public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInterface {
 
   private final RequestLogService requestLogService;
   private final HIUConsentInterface hiuConsentInterface;
   private final PatientService patientService;
   private final ConsentRequestService consentRequestService;
 
-  private static final Logger log = LogManager.getLogger(GatewayCallbackService.class);
+  private static final Logger log = LogManager.getLogger(ConsentGatewayCallbackService.class);
 
   @Autowired
-  public GatewayCallbackService(
+  public ConsentGatewayCallbackService(
       RequestLogService requestLogService,
       HIUConsentInterface hiuConsentInterface,
       PatientService patientService,

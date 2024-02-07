@@ -6,13 +6,13 @@ import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.hrp.common.requests.CareContextRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.discover.requests.*;
 import com.nha.abdm.wrapper.hip.hrp.discover.responses.DiscoverResponse;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
 import info.debatty.java.stringsimilarity.JaroWinkler;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -194,7 +194,7 @@ public class DiscoveryService implements DiscoveryInterface {
             .build();
     log.info("onDiscover : " + onDiscoverRequest.toString());
     try {
-      ResponseEntity<GatewayGenericResponse> responseEntity =
+      ResponseEntity<GenericResponse> responseEntity =
           requestManager.fetchResponseFromGateway(onDiscoverPath, onDiscoverRequest);
       log.info(onDiscoverPath + " : onDiscoverCall: " + responseEntity.getStatusCode());
       requestLogService.setDiscoverResponse(discoverResponse);

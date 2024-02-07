@@ -32,8 +32,11 @@ public enum RequestStatus {
 
   HIP_ON_NOTIFY_SUCCESS("Data onNotify accepted by gateway"),
   HIP_ON_NOTIFY_ERROR("Error thrown by Gateway for on Notify"),
-  HEALTH_INFORMATION_ON_REQUEST_SUCCESS("DataTransfer onRequest accepted by gateway"),
-  HEALTH_INFORMATION_ON_REQUEST_ERROR("Error thrown by Gateway for on Request");
+  HEALTH_INFORMATION_REQUEST_SUCCESS("Health Information request done by HIU accepted by gateway"),
+  HEALTH_INFORMATION_REQUEST_ERROR("Error thrown by Gateway for request done by HIU"),
+  HEALTH_INFORMATION_ON_REQUEST_SUCCESS(
+      "Health Information onRequest done by HIP accepted by gateway"),
+  HEALTH_INFORMATION_ON_REQUEST_ERROR("Error thrown by Gateway for onRequest done by HIP");
 
   private String value;
 
