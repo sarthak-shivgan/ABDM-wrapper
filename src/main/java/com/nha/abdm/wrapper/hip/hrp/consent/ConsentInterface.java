@@ -1,10 +1,9 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.consent;
 
-import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPOnNotifyRequest;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
-import org.springframework.http.ResponseEntity;
+import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
+import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
 
 public interface ConsentInterface {
-  ResponseEntity<GatewayGenericResponse> hipOnNotify(HIPOnNotifyRequest hipOnNotifyRequest);
+  void hipNotify(HIPNotifyRequest hipNotifyRequest) throws IllegalDataStateException;
 }

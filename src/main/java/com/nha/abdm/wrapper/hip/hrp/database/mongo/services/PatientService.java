@@ -16,6 +16,7 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.ConsentCareContexts;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -171,6 +172,13 @@ public class PatientService {
       throw new IllegalDataStateException("Patient not found in database: " + abhaAddress);
     }
     List<Consent> consents = patient.getConsents();
+    if (consents == null) {
+      Query query =
+          new Query(Criteria.where(FieldIdentifiers.PATIENT_ABHA_ADDRESS).is(abhaAddress));
+      Update update = new Update().addToSet(FieldIdentifiers.CONSENTS, consent);
+      mongoTemplate.updateFirst(query, update, Patient.class);
+      return;
+    }
     for (Consent storedConsent : consents) {
       if (storedConsent
           .getConsentDetail()
@@ -182,7 +190,7 @@ public class PatientService {
         return;
       }
     }
-    Query query = new Query(Criteria.where(FieldIdentifiers.ABHA_ADDRESS).is(abhaAddress));
+    Query query = new Query(Criteria.where(FieldIdentifiers.PATIENT_ABHA_ADDRESS).is(abhaAddress));
     Update update = new Update().addToSet(FieldIdentifiers.CONSENTS, consent);
     mongoTemplate.updateFirst(query, update, Patient.class);
   }
@@ -219,5 +227,39 @@ public class PatientService {
         .message(
             String.format("Successfully upserted %d patients", bulkWriteResult.getUpserts().size()))
         .build();
+  }
+
+  /**
+   * <B>Data Transfer</B> For a given list of careContextsReference and patientReference check
+   * whether careContexts match with patient.
+   *
+   * @param careContextsWithPatientReference Has CareContextReference and patientReference.
+   * @return if all the Contexts match with respective patient return true;
+   */
+  public boolean isCareContextPresent(List<ConsentCareContexts> careContextsWithPatientReference) {
+    if (careContextsWithPatientReference == null) return false;
+    for (ConsentCareContexts careContexts : careContextsWithPatientReference) {
+      Patient patient = patientRepo.findByPatientReference(careContexts.getPatientReference());
+      if (patient == null) {
+        return false;
+      }
+      List<CareContext> existingCareContexts = patient.getCareContexts();
+      if (existingCareContexts == null) return false;
+      if (!existingCareContexts.stream()
+          .anyMatch(
+              existingContext ->
+                  careContextsWithPatientReference.stream()
+                      .anyMatch(
+                          context ->
+                              context
+                                      .getCareContextReference()
+                                      .equals(existingContext.getReferenceNumber())
+                                  && context
+                                      .getPatientReference()
+                                      .equals(patient.getPatientReference())))) {
+        return false;
+      }
+    }
+    return true;
   }
 }

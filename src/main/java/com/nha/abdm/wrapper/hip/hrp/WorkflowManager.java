@@ -5,6 +5,10 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
+import com.nha.abdm.wrapper.hip.hrp.consent.ConsentInterface;
+import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.HealthInformationInterface;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPHealthInformationRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
@@ -17,6 +21,11 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitRespon
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.LinkInterface;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,6 +40,8 @@ public class WorkflowManager {
   @Autowired PatientService patientService;
   @Autowired LinkInterface linkInterface;
   @Autowired HipLinkInterface hipLinkInterface;
+  @Autowired ConsentInterface consentInterface;
+  @Autowired HealthInformationInterface healthInformationInterface;
   @Autowired RequestLogService requestLogService;
 
   /**
@@ -169,5 +180,18 @@ public class WorkflowManager {
    */
   public FacadeResponse confirmAuthOtp(VerifyOTP verifyOTP) throws IllegalDataStateException {
     return hipLinkInterface.confirmAuthOtp(verifyOTP);
+  }
+
+  public void hipNotify(HIPNotifyRequest hipNotifyRequest) throws IllegalDataStateException {
+    log.debug(hipNotifyRequest.toString());
+    consentInterface.hipNotify(hipNotifyRequest);
+  }
+
+  public void healthInformation(HIPHealthInformationRequest hipHealthInformationRequest)
+      throws IllegalDataStateException, InvalidAlgorithmParameterException,
+          NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException,
+          InvalidKeyException {
+    log.debug(hipHealthInformationRequest.toString());
+    healthInformationInterface.healthInformation(hipHealthInformationRequest);
   }
 }
