@@ -14,4 +14,6 @@ public interface LogsRepo extends MongoRepository<RequestLog, String> {
   RequestLog findByLinkRefNumber(String linkRefNumber);
 
   RequestLog findByGatewayRequestId(String clientRequestId);
+
+  RequestLog findByConsentId(String consentId);
 }

@@ -4,16 +4,27 @@ import com.nha.abdm.wrapper.client.api.LinkApi;
 import com.nha.abdm.wrapper.client.api.PatientsApi;
 import com.nha.abdm.wrapper.client.invoker.ApiException;
 import com.nha.abdm.wrapper.client.model.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "/v1")
 public class PatientController {
 
-    private static final String requestId = "263ad641-ffb9-4c7d-b5bc-e099577e7e99";
+    private static final Logger log = LogManager.getLogger(PatientController.class);
+    private static final String requestId = "263ad640-ffb9-4c7d-b5bc-e099577e7e99";
 
     @GetMapping({"/patients/{patientId}"})
     public Patient fetchPatientById(@PathVariable("patientId") String abhaAddress) {
@@ -30,6 +41,16 @@ public class PatientController {
         return patient;
     }
 
+    @PostMapping(value="/health-information")
+    public @ResponseBody ResponseEntity<HealthInformationBundle> fetchHealthInformation(@RequestBody HealthInformationBundleRequest healthInformationBundleRequest) throws IOException {
+        log.debug("healthInformationBundleRequest" + healthInformationBundleRequest);
+        String filePath = "src/main/resources/OP_Consultantion_fhir_bundle.json";
+        String bundle= new String(Files.readAllBytes(Paths.get(filePath)));
+        HealthInformationBundle healthInformationBundle=new HealthInformationBundle();
+        healthInformationBundle.setBundleContent(bundle);
+        return new ResponseEntity<>(healthInformationBundle, HttpStatus.OK);
+    }
+  
     @PostMapping({"/test-wrapper/upsert-patients"})
     public FacadeResponse upsertPatients() throws ApiException {
         PatientsApi patientsApi = new PatientsApi();

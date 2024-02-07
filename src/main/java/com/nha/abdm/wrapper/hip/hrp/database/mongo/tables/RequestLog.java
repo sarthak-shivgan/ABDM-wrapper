@@ -40,6 +40,9 @@ public class RequestLog {
   @Field("responseDetails")
   public HashMap<String, Object> responseDetails;
 
+  @Field("consentId")
+  public String consentId;
+
   public RequestLog(
       String clientRequestId,
       String gatewayRequestId,

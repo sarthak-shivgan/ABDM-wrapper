@@ -7,9 +7,10 @@ public class FieldIdentifiers {
   public static final String REQUEST_DETAILS = "requestDetails";
   public static final String STATUS = "status";
   public static final String ERROR = "error";
-  public static final String ABHA_ADDRESS = "abhaAddress";
+  public static final String PATIENT_ABHA_ADDRESS = "patientAbhaAddress";
   public static final String CONSENTS = "consents";
   public static final String RESPONSE_DETAILS = "responseDetails";
+  public static final String CONSENT_ID = "consentId";
 
   // Nested fields.
   public static final String LINK_RECORDS_REQUEST = "linkRecordsRequest";
@@ -20,4 +21,6 @@ public class FieldIdentifiers {
   public static final String CONSENT_ON_STATUS_RESPONSE = "consentOnStatusResponse";
   public static final String CONSENT_ON_NOTIFY_RESPONSE = "consentOnNotifyResponse";
   public static final String HIP_ON_CONFIRM_RESPONSE = "hipOnConfirmResponse";
+  public static final String HIP_NOTIFY_REQUEST = "HIPConsentNotification";
+  public static final String HEALTH_INFORMATION_REQUEST = "HIPHealthInformationRequest";
 }
