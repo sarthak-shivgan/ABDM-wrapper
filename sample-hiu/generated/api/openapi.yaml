@@ -1,0 +1,499 @@
+openapi: 3.0.3
+info:
+  description: This is a set of interfaces based on the OpenAPI 3.0 specification
+    for a wrapper client
+  title: Swagger HIU Facade - OpenAPI 3.0
+  version: 1.0.0
+servers:
+- url: http://localhost:8082/v1
+paths:
+  /consent-init:
+    post:
+      description: Initiates consent request
+      operationId: initConsent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/initConsent_request'
+        description: Request body for initiate consent request
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FacadeResponse'
+          description: OK
+        "202":
+          description: Request accepted
+        "400":
+          description: Invalid request body supplied
+        "404":
+          description: Address not found
+        "422":
+          description: Validation exception
+      summary: Initiates consent request
+      tags:
+      - consent
+      x-content-type: application/json
+      x-accepts: application/json
+  /consent-status/{requestId}:
+    get:
+      parameters:
+      - description: Request Id of the consent request.
+        explode: false
+        in: path
+        name: requestId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentStatusResponse'
+          description: OK
+        "400":
+          description: Invalid request body supplied
+        "404":
+          description: Address not found
+        "422":
+          description: Validation exception
+      summary: Get status of Consent request.
+      tags:
+      - consent
+      x-accepts: application/json
+  /fetch-consent:
+    post:
+      description: Fetches consent details
+      operationId: fetchConsent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FetchPatientConsentRequest'
+        description: Request body for fetch consent request
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentResponse'
+          description: OK
+        "400":
+          description: Invalid request body supplied
+        "404":
+          description: Address not found
+        "422":
+          description: Validation exception
+      summary: Fetches consent details
+      tags:
+      - consent
+      x-content-type: application/json
+      x-accepts: application/json
+components:
+  schemas:
+    ConsentRequest:
+      properties:
+        purpose:
+          $ref: '#/components/schemas/Purpose'
+        patient:
+          $ref: '#/components/schemas/IdRequest'
+        hip:
+          $ref: '#/components/schemas/IdRequest'
+        careContexts:
+          items:
+            $ref: '#/components/schemas/ConsentCareContext'
+          type: array
+        hiu:
+          $ref: '#/components/schemas/IdRequest'
+        requester:
+          $ref: '#/components/schemas/ConsentRequester'
+        hiTypes:
+          items:
+            type: string
+          type: array
+        permission:
+          $ref: '#/components/schemas/Permission'
+      type: object
+    Purpose:
+      example:
+        code: code
+        text: text
+        refUri: refUri
+      properties:
+        text:
+          type: string
+        code:
+          type: string
+        refUri:
+          type: string
+      type: object
+    IdRequest:
+      example:
+        id: id
+      properties:
+        id:
+          type: string
+      type: object
+    ConsentCareContext:
+      example:
+        patientReference: patientReference
+        careContextReference: careContextReference
+      properties:
+        patientReference:
+          type: string
+        careContextReference:
+          type: string
+      type: object
+    ConsentRequester:
+      example:
+        identifier:
+          system: system
+          type: type
+          value: value
+        name: name
+      properties:
+        name:
+          type: string
+        identifier:
+          $ref: '#/components/schemas/ConsentRequestIdentifier'
+      type: object
+    ConsentRequestIdentifier:
+      example:
+        system: system
+        type: type
+        value: value
+      properties:
+        type:
+          type: string
+        value:
+          type: string
+        system:
+          type: string
+      type: object
+    Frequency:
+      example:
+        repeats: 6
+        unit: unit
+        value: 0
+      properties:
+        unit:
+          type: string
+        value:
+          type: integer
+        repeats:
+          type: integer
+      type: object
+    FacadeResponse:
+      example:
+        code: 0
+        message: message
+        error:
+          code: 6
+          message: message
+        httpStatusCode: httpStatusCode
+      properties:
+        code:
+          type: integer
+        httpStatusCode:
+          type: string
+        message:
+          type: string
+        error:
+          $ref: '#/components/schemas/ErrorResponse'
+      type: object
+    ErrorResponse:
+      example:
+        code: 6
+        message: message
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+      type: object
+    ConsentStatusResponse:
+      example:
+        error: error
+        consent:
+          id: id
+          status: status
+          consentArtefacts:
+          - id: id
+          - id: id
+        status: status
+        httpStatusCode: httpStatusCode
+      properties:
+        status:
+          type: string
+        error:
+          type: string
+        httpStatusCode:
+          type: string
+        consent:
+          $ref: '#/components/schemas/ConsentStatus'
+      type: object
+    ConsentStatus:
+      example:
+        id: id
+        status: status
+        consentArtefacts:
+        - id: id
+        - id: id
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+        consentArtefacts:
+          items:
+            $ref: '#/components/schemas/IdRequest'
+          type: array
+      type: object
+    ConsentResponse:
+      example:
+        error: error
+        consent:
+          consentDetail:
+            requester:
+              identifier:
+                system: system
+                type: type
+                value: value
+              name: name
+            consentId: consentId
+            consentManager:
+              id: id
+            schemaVersion: schemaVersion
+            purpose:
+              code: code
+              text: text
+              refUri: refUri
+            hiu:
+              id: id
+            hiTypes:
+            - hiTypes
+            - hiTypes
+            signature: signature
+            patient:
+              id: id
+            permission:
+              dateRange:
+                from: from
+                to: to
+              accessMode: accessMode
+              dataEraseAt: dataEraseAt
+              frequency:
+                repeats: 6
+                unit: unit
+                value: 0
+            careContexts:
+            - patientReference: patientReference
+              careContextReference: careContextReference
+            - patientReference: patientReference
+              careContextReference: careContextReference
+            hip:
+              id: id
+          status: status
+        status: status
+        httpStatusCode: httpStatusCode
+      properties:
+        status:
+          type: string
+        error:
+          type: string
+        httpStatusCode:
+          type: string
+        consent:
+          $ref: '#/components/schemas/Consent'
+      type: object
+    Consent:
+      example:
+        consentDetail:
+          requester:
+            identifier:
+              system: system
+              type: type
+              value: value
+            name: name
+          consentId: consentId
+          consentManager:
+            id: id
+          schemaVersion: schemaVersion
+          purpose:
+            code: code
+            text: text
+            refUri: refUri
+          hiu:
+            id: id
+          hiTypes:
+          - hiTypes
+          - hiTypes
+          signature: signature
+          patient:
+            id: id
+          permission:
+            dateRange:
+              from: from
+              to: to
+            accessMode: accessMode
+            dataEraseAt: dataEraseAt
+            frequency:
+              repeats: 6
+              unit: unit
+              value: 0
+          careContexts:
+          - patientReference: patientReference
+            careContextReference: careContextReference
+          - patientReference: patientReference
+            careContextReference: careContextReference
+          hip:
+            id: id
+        status: status
+      properties:
+        status:
+          type: string
+        consentDetail:
+          $ref: '#/components/schemas/ConsentDetail'
+      type: object
+    ConsentDetail:
+      example:
+        requester:
+          identifier:
+            system: system
+            type: type
+            value: value
+          name: name
+        consentId: consentId
+        consentManager:
+          id: id
+        schemaVersion: schemaVersion
+        purpose:
+          code: code
+          text: text
+          refUri: refUri
+        hiu:
+          id: id
+        hiTypes:
+        - hiTypes
+        - hiTypes
+        signature: signature
+        patient:
+          id: id
+        permission:
+          dateRange:
+            from: from
+            to: to
+          accessMode: accessMode
+          dataEraseAt: dataEraseAt
+          frequency:
+            repeats: 6
+            unit: unit
+            value: 0
+        careContexts:
+        - patientReference: patientReference
+          careContextReference: careContextReference
+        - patientReference: patientReference
+          careContextReference: careContextReference
+        hip:
+          id: id
+      properties:
+        schemaVersion:
+          type: string
+        consentId:
+          type: string
+        patient:
+          $ref: '#/components/schemas/IdRequest'
+        careContexts:
+          items:
+            $ref: '#/components/schemas/ConsentCareContext'
+          type: array
+        purpose:
+          $ref: '#/components/schemas/Purpose'
+        hip:
+          $ref: '#/components/schemas/IdRequest'
+        hiu:
+          $ref: '#/components/schemas/IdRequest'
+        consentManager:
+          $ref: '#/components/schemas/IdRequest'
+        requester:
+          $ref: '#/components/schemas/ConsentRequester'
+        hiTypes:
+          items:
+            type: string
+          type: array
+        permission:
+          $ref: '#/components/schemas/Permission'
+        signature:
+          type: string
+      type: object
+    Permission:
+      example:
+        dateRange:
+          from: from
+          to: to
+        accessMode: accessMode
+        dataEraseAt: dataEraseAt
+        frequency:
+          repeats: 6
+          unit: unit
+          value: 0
+      properties:
+        accessMode:
+          type: string
+        dateRange:
+          $ref: '#/components/schemas/DateRange'
+        dataEraseAt:
+          type: string
+        frequency:
+          $ref: '#/components/schemas/Frequency'
+      type: object
+    DateRange:
+      example:
+        from: from
+        to: to
+      properties:
+        from:
+          type: string
+        to:
+          type: string
+      type: object
+    FetchPatientConsentRequest:
+      example:
+        patientAbhaAddress: patientAbhaAddress
+        fetchConsentRequest:
+          consentId: consentId
+          requestId: requestId
+          timestamp: timestamp
+      properties:
+        patientAbhaAddress:
+          type: string
+        fetchConsentRequest:
+          $ref: '#/components/schemas/FetchConsentRequest'
+      type: object
+    FetchConsentRequest:
+      example:
+        consentId: consentId
+        requestId: requestId
+        timestamp: timestamp
+      properties:
+        requestId:
+          type: string
+        timestamp:
+          type: string
+        consentId:
+          type: string
+      type: object
+    initConsent_request:
+      properties:
+        requestId:
+          type: string
+        timestamp:
+          type: string
+        consent:
+          $ref: '#/components/schemas/ConsentRequest'
+      type: object
+

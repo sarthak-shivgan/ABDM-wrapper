@@ -37,7 +37,7 @@ curl --location 'https://dev.abdm.gov.in/gateway/v0.5/sessions' \
 ```
 2. Register bridge url
 ```
-curl --location --request PATCH 'https://dev.abdm.gov.in/devservice/v1/bridges' \
+curl --location --request PATCH 'https://dev.abdm.gov.in/gateway/v1/bridges' \
 --header 'Authorization: Bearer <your accessToken>' \
 --header 'Content-Type: application/json' \
 --data '{

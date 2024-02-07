@@ -15,6 +15,8 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifie
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.*;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.ConsentStatus;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.Notification;
 import com.nha.abdm.wrapper.hiu.hrp.consent.responses.ConsentResponse;
 import com.nha.abdm.wrapper.hiu.hrp.consent.responses.ConsentStatusResponse;
 import java.util.List;
@@ -110,56 +112,35 @@ public class HIUConsentService implements HIUConsentInterface {
           "Client request not found in database: " + clientRequestId);
     }
     try {
-      // Check whether we have got consentRequestId as part of consent on init call from gateway.
-      // If not, then send the request status as is.
-      if (Objects.isNull(requestLog.getResponseDetails())
-          || Objects.isNull(
-              requestLog.getResponseDetails().get(FieldIdentifiers.RESPONSE_DETAILS))) {
-        return ConsentStatusResponse.builder()
-            .status(requestLog.getStatus())
-            .httpStatusCode(HttpStatus.OK)
-            .build();
+      // Check whether we have got consent response as part of 'consent hiu-notify'.
+      if (Objects.nonNull(requestLog.getResponseDetails())
+          && Objects.nonNull(
+              requestLog.getResponseDetails().get(FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE))) {
+        return consentOnNotifyResponse(requestLog);
       }
-      if (Objects.isNull(requestLog.getResponseDetails())
-          || Objects.isNull(
-              requestLog.getResponseDetails().get(FieldIdentifiers.CONSENT_DETAILS_RESPONSE))) {
-        return ConsentStatusResponse.builder()
-            .status(requestLog.getStatus())
-            .httpStatusCode(HttpStatus.OK)
-            .build();
+
+      // Check whether we have got consent response as part of 'consent on-status'.
+      if (Objects.nonNull(requestLog.getResponseDetails())
+          && Objects.nonNull(
+              requestLog.getResponseDetails().get(FieldIdentifiers.CONSENT_ON_STATUS_RESPONSE))) {
+        return consentOnStatusResponse(requestLog);
       }
-      String consentRequestId =
-          (String) requestLog.getResponseDetails().get(FieldIdentifiers.RESPONSE_DETAILS);
-      ConsentStatusRequest consentStatusRequest =
-          ConsentStatusRequest.builder()
-              .requestId(UUID.randomUUID().toString())
-              .timestamp(Utils.getCurrentTimeStamp())
-              .consentRequestId(consentRequestId)
-              .build();
-      ResponseEntity<GatewayGenericResponse> response =
-          requestManager.fetchResponseFromGateway(consentStatusPath, consentStatusRequest);
-      if (response.getStatusCode().is2xxSuccessful()) {
-        requestLogService.updateStatus(
-            requestLog.getGatewayRequestId(), RequestStatus.CONSENT_STATUS_ACCEPTED);
-        return ConsentStatusResponse.builder()
-            .status(RequestStatus.CONSENT_STATUS_ACCEPTED)
-            .httpStatusCode(HttpStatus.OK)
-            .build();
-      } else {
-        String error =
-            (Objects.nonNull(response.getBody())
-                    && Objects.nonNull(response.getBody().getErrorResponse()))
-                ? response.getBody().getErrorResponse().getMessage()
-                : "Error from gateway while getting consent status: "
-                    + consentStatusRequest.toString();
-        log.error(error);
-        requestLogService.updateError(
-            requestLog.getGatewayRequestId(), error, RequestStatus.CONSENT_STATUS_ERROR);
-        return ConsentStatusResponse.builder()
-            .error(error)
-            .httpStatusCode(response.getStatusCode())
-            .build();
+
+      // Issue a consent status request if it has not been issued earlier, and we have received
+      // consent request id
+      // as part of 'consent on init' response or the request is in some error state.
+      if (requestLog.getStatus() != RequestStatus.CONSENT_STATUS_ACCEPTED
+          && Objects.nonNull(requestLog.getResponseDetails())
+          && (Objects.nonNull(
+              requestLog.getResponseDetails().get(FieldIdentifiers.CONSENT_ON_INIT_RESPONSE)))) {
+        return fetchConsentStatus(requestLog);
       }
+
+      // In all other scenarios, send the status of request as is.
+      return ConsentStatusResponse.builder()
+          .status(requestLog.getStatus())
+          .httpStatusCode(HttpStatus.OK)
+          .build();
     } catch (Exception ex) {
       String error =
           "Exception while fetching consent status: "
@@ -212,7 +193,7 @@ public class HIUConsentService implements HIUConsentInterface {
           "Client request not found in database: " + fetchConsentRequest.getRequestId());
     }
     Map<String, Object> map = requestLog.getResponseDetails();
-    if (Objects.isNull(map.get(FieldIdentifiers.CONSENT_DETAILS_RESPONSE))) {
+    if (Objects.isNull(map.get(FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE))) {
       throw new IllegalDataStateException(
           "Consent Details not found in request log collection: "
               + fetchConsentRequest.getRequestId());
@@ -229,15 +210,9 @@ public class HIUConsentService implements HIUConsentInterface {
         return ConsentResponse.builder().consent(consent).build();
       }
     }
-    // If the below request was already made then upon success of on fetch request, status would be
-    // CONSENT_FETCH_ACCEPTED. In that case, we should not issue another request to gateway.
-    if (requestLog.getStatus() == RequestStatus.CONSENT_FETCH_ACCEPTED) {
-      return ConsentResponse.builder()
-          .status(RequestStatus.CONSENT_FETCH_ACCEPTED)
-          .httpStatusCode(HttpStatus.OK)
-          .build();
-    }
+
     try {
+      fetchConsentRequest.setRequestId(UUID.randomUUID().toString());
       ResponseEntity<GatewayGenericResponse> response =
           requestManager.fetchResponseFromGateway(fetchConsentPath, fetchConsentRequest);
       if (response.getStatusCode().is2xxSuccessful()) {
@@ -267,6 +242,68 @@ public class HIUConsentService implements HIUConsentInterface {
       return ConsentResponse.builder()
           .error(error)
           .httpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
+          .build();
+    }
+  }
+
+  private ConsentStatusResponse consentOnNotifyResponse(RequestLog requestLog) {
+    Notification notification =
+        (Notification)
+            requestLog.getResponseDetails().get(FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE);
+    return ConsentStatusResponse.builder()
+        .status(requestLog.getStatus())
+        .httpStatusCode(HttpStatus.OK)
+        .consent(
+            ConsentStatus.builder()
+                .id(notification.getConsentRequestId())
+                .status(notification.getStatus())
+                .consentArtefacts(notification.getConsentArtefacts())
+                .build())
+        .build();
+  }
+
+  private ConsentStatusResponse consentOnStatusResponse(RequestLog requestLog) {
+    ConsentStatus consentStatus =
+        (ConsentStatus)
+            requestLog.getResponseDetails().get(FieldIdentifiers.CONSENT_ON_STATUS_RESPONSE);
+    return ConsentStatusResponse.builder()
+        .status(requestLog.getStatus())
+        .httpStatusCode(HttpStatus.OK)
+        .consent(consentStatus)
+        .build();
+  }
+
+  private ConsentStatusResponse fetchConsentStatus(RequestLog requestLog) {
+    String consentRequestId =
+        (String) requestLog.getResponseDetails().get(FieldIdentifiers.CONSENT_ON_INIT_RESPONSE);
+    ConsentStatusRequest consentStatusRequest =
+        ConsentStatusRequest.builder()
+            .requestId(UUID.randomUUID().toString())
+            .timestamp(Utils.getCurrentTimeStamp())
+            .consentRequestId(consentRequestId)
+            .build();
+    ResponseEntity<GatewayGenericResponse> response =
+        requestManager.fetchResponseFromGateway(consentStatusPath, consentStatusRequest);
+    if (response.getStatusCode().is2xxSuccessful()) {
+      requestLogService.updateStatus(
+          requestLog.getGatewayRequestId(), RequestStatus.CONSENT_STATUS_ACCEPTED);
+      return ConsentStatusResponse.builder()
+          .status(RequestStatus.CONSENT_STATUS_ACCEPTED)
+          .httpStatusCode(HttpStatus.OK)
+          .build();
+    } else {
+      String error =
+          (Objects.nonNull(response.getBody())
+                  && Objects.nonNull(response.getBody().getErrorResponse()))
+              ? response.getBody().getErrorResponse().getMessage()
+              : "Error from gateway while getting consent status: "
+                  + consentStatusRequest.toString();
+      log.error(error);
+      requestLogService.updateError(
+          requestLog.getGatewayRequestId(), error, RequestStatus.CONSENT_STATUS_ERROR);
+      return ConsentStatusResponse.builder()
+          .error(error)
+          .httpStatusCode(response.getStatusCode())
           .build();
     }
   }

@@ -20,27 +20,28 @@ public class HIUGatewayCallbackController {
 
   @PostMapping({"/v0.5/consent-requests/on-init"})
   public ResponseEntity<GatewayCallbackResponse> onInitConsent(
-      @RequestBody OnInitRequest onInitRequest) {
-    gatewayCallback.onInitConsent(onInitRequest);
-    return new ResponseEntity<>(HttpStatus.ACCEPTED);
+      @RequestBody OnInitRequest onInitRequest) throws IllegalDataStateException {
+    HttpStatus httpStatus = gatewayCallback.onInitConsent(onInitRequest);
+    return new ResponseEntity<>(GatewayCallbackResponse.builder().build(), httpStatus);
   }
 
   @PostMapping({"/v0.5/consent-requests/on-status"})
   public ResponseEntity<GatewayCallbackResponse> consentOnStatus(
-      @RequestBody HIUConsentOnStatusRequest HIUConsentOnStatusRequest)
+      @RequestBody HIUConsentOnStatusRequest hiuConsentOnStatusRequest)
       throws IllegalDataStateException {
-    gatewayCallback.consentOnStatus(HIUConsentOnStatusRequest);
-    return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    System.out.println("hiuConsentOnStatusRequest: " + hiuConsentOnStatusRequest);
+    HttpStatus httpStatus = gatewayCallback.consentOnStatus(hiuConsentOnStatusRequest);
+    return new ResponseEntity<>(httpStatus);
   }
 
-  @PostMapping({"/v0.5/consent/hiu/notify"})
+  @PostMapping({"/v0.5/consents/hiu/notify"})
   public ResponseEntity<GatewayCallbackResponse> onInitConsent(
       @RequestBody NotifyHIURequest notifyHIURequest) throws IllegalDataStateException {
     gatewayCallback.hiuNotify(notifyHIURequest);
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
-  @PostMapping({"/v0.5/consent/on-fetch"})
+  @PostMapping({"/v0.5/consents/on-fetch"})
   public ResponseEntity<GatewayCallbackResponse> onFetchConsent(
       @RequestBody OnFetchRequest onFetchRequest) throws IllegalDataStateException {
     gatewayCallback.consentOnFetch(onFetchRequest);

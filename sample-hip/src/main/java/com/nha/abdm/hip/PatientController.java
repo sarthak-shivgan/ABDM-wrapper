@@ -22,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/v1")
 public class PatientController {
+
     private static final Logger log = LogManager.getLogger(PatientController.class);
     private static final String requestId = "263ad640-ffb9-4c7d-b5bc-e099577e7e99";
 
@@ -49,6 +50,7 @@ public class PatientController {
         healthInformationBundle.setBundleContent(bundle);
         return new ResponseEntity<>(healthInformationBundle, HttpStatus.OK);
     }
+  
     @PostMapping({"/test-wrapper/upsert-patients"})
     public FacadeResponse upsertPatients() throws ApiException {
         PatientsApi patientsApi = new PatientsApi();
@@ -107,12 +109,12 @@ public class PatientController {
         LinkApi linkApi = new LinkApi();
 
         CareContext careContext1 = new CareContext();
-        careContext1.setReferenceNumber("care-context-reference15");
-        careContext1.setDisplay("care-context-display15");
+        careContext1.setReferenceNumber("care-context-reference17");
+        careContext1.setDisplay("care-context-display17");
 
         CareContext careContext2 = new CareContext();
-        careContext2.setReferenceNumber("care-context-reference16");
-        careContext2.setDisplay("care-context-display16");
+        careContext2.setReferenceNumber("care-context-reference18");
+        careContext2.setDisplay("care-context-display18");
 
         List<CareContext> careContexts = new ArrayList<>();
         careContexts.add(careContext1);
@@ -146,7 +148,7 @@ public class PatientController {
     }
 
     @GetMapping({"/test-wrapper/link-status"})
-    public String linkStatus() throws ApiException, InterruptedException {
+    public String linkStatus() throws ApiException {
         LinkApi linkApi = new LinkApi();
 
         // To make this periodic poll, requestId can be persisted to facility's / HIP's database.

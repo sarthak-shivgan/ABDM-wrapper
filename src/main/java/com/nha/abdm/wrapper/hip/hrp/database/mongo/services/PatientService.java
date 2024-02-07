@@ -10,7 +10,6 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
-import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
@@ -31,12 +30,12 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class PatientService {
   private static final Logger log = LogManager.getLogger(PatientService.class);
   @Autowired private final PatientRepo patientRepo;
-  @Autowired private LogsRepo logsRepo;
 
   @Autowired MongoTemplate mongoTemplate;
 
@@ -172,22 +171,17 @@ public class PatientService {
       throw new IllegalDataStateException("Patient not found in database: " + abhaAddress);
     }
     List<Consent> consents = patient.getConsents();
-    if (consents == null) {
-      Query query =
-          new Query(Criteria.where(FieldIdentifiers.PATIENT_ABHA_ADDRESS).is(abhaAddress));
-      Update update = new Update().addToSet(FieldIdentifiers.CONSENTS, consent);
-      mongoTemplate.updateFirst(query, update, Patient.class);
-      return;
-    }
-    for (Consent storedConsent : consents) {
-      if (storedConsent
-          .getConsentDetail()
-          .getConsentId()
-          .equals(consent.getConsentDetail().getConsentId())) {
-        String message =
-            String.format("Consent %s already exists for patient %s: ", consent, abhaAddress);
-        log.warn(message);
-        return;
+    if (!CollectionUtils.isEmpty(consents)) {
+      for (Consent storedConsent : consents) {
+        if (storedConsent
+            .getConsentDetail()
+            .getConsentId()
+            .equals(consent.getConsentDetail().getConsentId())) {
+          String message =
+              String.format("Consent %s already exists for patient %s: ", consent, abhaAddress);
+          log.warn(message);
+          return;
+        }
       }
     }
     Query query = new Query(Criteria.where(FieldIdentifiers.PATIENT_ABHA_ADDRESS).is(abhaAddress));
@@ -215,7 +209,7 @@ public class PatientService {
               .append("display", patient.getDisplay())
               .append("patientMobile", patient.getPatientMobile());
       updates.add(
-          new UpdateOneModel<Document>(
+          new UpdateOneModel<>(
               new Document("abhaAddress", patient.getAbhaAddress()),
               new Document("$set", document),
               new UpdateOptions().upsert(true)));
