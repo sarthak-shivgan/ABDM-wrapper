@@ -13,6 +13,7 @@ import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotification;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPOnNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.ConsentAcknowledgement;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentPatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
@@ -31,14 +32,14 @@ import reactor.core.Exceptions;
 @Service
 public class ConsentService implements ConsentInterface {
   private static final Logger log = LogManager.getLogger(ConsentService.class);
-  private ErrorResponse errorResponse = new ErrorResponse();
   private final RequestManager requestManager;
   private final HIPClient hipClient;
   @Autowired RequestLogService requestLogService;
   @Autowired PatientService patientService;
+  @Autowired ConsentPatientService consentPatientService;
 
-  @Value("${consentHipOnNotifyPath}")
-  private String consentHipOnNotifyPath;
+  @Value("${consentOnNotifyPath}")
+  private String consentOnNotifyPath;
 
   public ConsentService(RequestManager requestManager, HIPClient hipClient) {
     this.requestManager = requestManager;
@@ -46,12 +47,12 @@ public class ConsentService implements ConsentInterface {
   }
 
   /**
-   * The callback from ABDM gateway after consentGrant for dataTransfer, POST method for /on-notify
+   * The callback from ABDM gateway after consentGrant by the user , POST method for /on-notify as acknowledgement
    *
    * @param hipNotifyRequest careContext and demographics details are provided, and implement a
    *     logic to check the existence of the careContexts.
    */
-  public void notifyOnReceived(HIPNotifyRequest hipNotifyRequest) throws IllegalDataStateException {
+  public void hipNotify(HIPNotifyRequest hipNotifyRequest) throws IllegalDataStateException {
     HIPOnNotifyRequest hipOnNotifyRequest = null;
     if (hipNotifyRequest != null
         && hipNotifyRequest.getNotification() != null
@@ -70,7 +71,13 @@ public class ConsentService implements ConsentInterface {
                 .consentDetail(hipNotification.getConsentDetail())
                 .signature(hipNotification.getSignature())
                 .build();
+
         patientService.addConsent(hipNotification.getConsentDetail().getPatient().getId(), consent);
+        // Save the consent patient mapping because on health information request gateway doesn't
+        // provide the patient abhaAddress
+        consentPatientService.saveConsentPatientMapping(
+            consent.getConsentDetail().getConsentId(),
+            hipNotification.getConsentDetail().getPatient().getId());
         ConsentAcknowledgement dataAcknowledgement =
             ConsentAcknowledgement.builder()
                 .status("OK")
@@ -84,9 +91,12 @@ public class ConsentService implements ConsentInterface {
                 .resp(responseRequestId)
                 .build();
       } else {
-        errorResponse.setMessage("HIP -> Mismatch of careContext");
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setMessage(
+            "care contexts provided : do not match with the care contexts present in hip wrapper database for the given patient");
         errorResponse.setCode(GatewayConstants.ERROR_CODE);
-        log.error("OnInit body -> making error body since careContexts are not matched");
+        log.error(
+            "care contexts provided : do not match with the care contexts present in hip wrapper database for the given patient");
         hipOnNotifyRequest =
             HIPOnNotifyRequest.builder()
                 .requestId(UUID.randomUUID().toString())
@@ -98,15 +108,15 @@ public class ConsentService implements ConsentInterface {
       try {
         log.info(hipOnNotifyRequest.toString());
         ResponseEntity<GatewayGenericResponse> response =
-            requestManager.fetchResponseFromGateway(consentHipOnNotifyPath, hipOnNotifyRequest);
-        log.debug(consentHipOnNotifyPath + " : consentOnNotify: " + response.getStatusCode());
+            requestManager.fetchResponseFromGateway(consentOnNotifyPath, hipOnNotifyRequest);
+        log.debug(consentOnNotifyPath + " : consentOnNotify: " + response.getStatusCode());
         if (response.getStatusCode() == HttpStatus.ACCEPTED) {
           requestLogService.dataTransferNotify(
-              hipNotifyRequest, RequestStatus.DATA_ON_NOTIFY_SUCCESS, hipOnNotifyRequest);
+              hipNotifyRequest, RequestStatus.HIP_ON_NOTIFY_SUCCESS, hipOnNotifyRequest);
         } else if (Objects.nonNull(response.getBody())
             && Objects.nonNull(response.getBody().getErrorResponse())) {
           requestLogService.dataTransferNotify(
-              hipNotifyRequest, RequestStatus.DATA_ON_NOTIFY_ERROR, hipOnNotifyRequest);
+              hipNotifyRequest, RequestStatus.HIP_ON_NOTIFY_ERROR, hipOnNotifyRequest);
         }
       } catch (Exception ex) {
         String error =

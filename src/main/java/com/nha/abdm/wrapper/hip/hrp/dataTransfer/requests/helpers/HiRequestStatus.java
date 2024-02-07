@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class HiRequest {
+public class HiRequestStatus {
   public String transactionId;
   public String sessionStatus;
 }

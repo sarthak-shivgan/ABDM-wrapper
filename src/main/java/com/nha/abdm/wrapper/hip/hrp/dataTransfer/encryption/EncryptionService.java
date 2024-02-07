@@ -1,17 +1,13 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.common.dataPackaging.encryption;
+package com.nha.abdm.wrapper.hip.hrp.dataTransfer.encryption;
 
-import static com.nha.abdm.wrapper.common.dataPackaging.Constants.*;
-
-import com.nha.abdm.wrapper.common.dataPackaging.keys.KeyController;
-import com.nha.abdm.wrapper.common.dataPackaging.keys.KeyMaterial;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.BundleResponseHIP;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPHealthInformationRequest;
+import com.nha.abdm.wrapper.common.cipher.CipherKeyManager;
+import com.nha.abdm.wrapper.common.cipher.Key;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPHealthInformationRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundle;
 import java.math.BigInteger;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Security;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
 import org.apache.logging.log4j.LogManager;
@@ -32,22 +28,26 @@ import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 import org.bouncycastle.jce.spec.ECPublicKeySpec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Service
-public class EncryptionController {
-  private static final Logger log = LogManager.getLogger(EncryptionController.class);
-  @Autowired KeyController keyController;
+public class EncryptionService {
+  private static final Logger log = LogManager.getLogger(EncryptionService.class);
+  @Autowired CipherKeyManager cipherKeyManager;
 
+  /**
+   * The encryption algorithm is replicated from "https://github.com/sukreet/fidelius"
+   * @param hipHealthInformationRequest has receiver keys used to encrypt the FHIR
+   * @param bundleResponse is the response from HIP which has FHIR bundle.
+   */
   public EncryptionResponse encrypt(
-      @RequestBody HIPHealthInformationRequest hipHealthInformationRequest,
-      BundleResponseHIP bundleResponse)
-      throws Exception {
-    log.info(bundleResponse.getBundleContent());
-    log.info("<---------------- Encryption started ------------------->");
-    KeyMaterial senderKeys = keyController.fetchKeys();
-    KeyMaterial receiverKeys =
-        KeyMaterial.builder()
+      HIPHealthInformationRequest hipHealthInformationRequest,
+      HealthInformationBundle bundleResponse)
+      throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException,
+          InvalidKeySpecException, InvalidKeyException {
+    log.debug(bundleResponse.getBundleContent());
+    Key senderKeys = cipherKeyManager.fetchKeys();
+    Key receiverKeys =
+        Key.builder()
             .publicKey(
                 hipHealthInformationRequest
                     .getHiRequest()
@@ -84,9 +84,10 @@ public class EncryptionController {
     return org.bouncycastle.util.encoders.Base64.decode(value);
   }
 
-  public String encrypt(
+  private String encrypt(
       byte[] xorOfRandom, String senderPrivateKey, String receiverPublicKey, String stringToEncrypt)
-      throws Exception {
+      throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException,
+          InvalidKeyException {
     // Generating shared secret
     String sharedKey =
         doECDH(
@@ -114,35 +115,39 @@ public class EncryptionController {
       log.error(e.getLocalizedMessage());
     }
 
-    log.info("EncryptedData: " + encryptedData);
-    log.info("<---------------- Encryption Done ------------------->");
+    log.debug("EncryptedData: " + encryptedData);
     return encryptedData;
   }
 
-  private String doECDH(byte[] dataPrv, byte[] dataPub) throws Exception {
-    KeyAgreement ka = KeyAgreement.getInstance(ALGORITHM, PROVIDER);
+  private String doECDH(byte[] dataPrv, byte[] dataPub)
+      throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException,
+          InvalidKeyException {
+    KeyAgreement ka =
+        KeyAgreement.getInstance(CipherKeyManager.ALGORITHM, CipherKeyManager.PROVIDER);
     ka.init(loadPrivateKey(dataPrv));
     ka.doPhase(loadPublicKey(dataPub), true);
     byte[] secret = ka.generateSecret();
     return getBase64String(secret);
   }
 
-  private PrivateKey loadPrivateKey(byte[] data) throws Exception {
-    X9ECParameters ecP = CustomNamedCurves.getByName(CURVE);
+  private PrivateKey loadPrivateKey(byte[] data)
+      throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException {
+    X9ECParameters ecP = CustomNamedCurves.getByName(CipherKeyManager.CURVE);
     ECParameterSpec params =
         new ECParameterSpec(ecP.getCurve(), ecP.getG(), ecP.getN(), ecP.getH(), ecP.getSeed());
     ECPrivateKeySpec privateKeySpec = new ECPrivateKeySpec(new BigInteger(data), params);
-    KeyFactory kf = KeyFactory.getInstance(ALGORITHM, PROVIDER);
+    KeyFactory kf = KeyFactory.getInstance(CipherKeyManager.ALGORITHM, CipherKeyManager.PROVIDER);
     return kf.generatePrivate(privateKeySpec);
   }
 
-  private PublicKey loadPublicKey(byte[] data) throws Exception {
+  private PublicKey loadPublicKey(byte[] data)
+      throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeySpecException {
     Security.addProvider(new BouncyCastleProvider());
-    X9ECParameters ecP = CustomNamedCurves.getByName(CURVE);
+    X9ECParameters ecP = CustomNamedCurves.getByName(CipherKeyManager.CURVE);
     ECParameterSpec ecNamedCurveParameterSpec =
         new ECParameterSpec(ecP.getCurve(), ecP.getG(), ecP.getN(), ecP.getH(), ecP.getSeed());
 
-    return KeyFactory.getInstance(ALGORITHM, PROVIDER)
+    return KeyFactory.getInstance(CipherKeyManager.ALGORITHM, CipherKeyManager.PROVIDER)
         .generatePublic(
             new ECPublicKeySpec(
                 ecNamedCurveParameterSpec.getCurve().decodePoint(data), ecNamedCurveParameterSpec));
@@ -159,16 +164,17 @@ public class EncryptionController {
     return aesKey;
   }
 
-  public String getBase64String(byte[] value) {
+  private String getBase64String(byte[] value) {
     return new String(org.bouncycastle.util.encoders.Base64.encode(value));
   }
 
-  public byte[] getEncodedHIPPublicKey(PublicKey key) {
+  private byte[] getEncodedHIPPublicKey(PublicKey key) {
     ECPublicKey ecKey = (ECPublicKey) key;
     return ecKey.getEncoded();
   }
 
-  public PublicKey getKey(String key) throws Exception {
+  private PublicKey getKey(String key)
+      throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
     byte[] bytesForBase64String = getBytesForBase64String(key);
     return loadPublicKey(bytesForBase64String);
   }

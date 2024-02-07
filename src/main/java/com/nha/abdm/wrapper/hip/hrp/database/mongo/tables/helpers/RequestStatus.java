@@ -29,10 +29,10 @@ public enum RequestStatus {
   CONSENT_ON_FETCH_SUCCESS("Response received from gateway for consent fetch"),
   CONSENT_ON_FETCH_ERROR("Error thrown by Gateway for on consent fetch"),
 
-  DATA_ON_NOTIFY_SUCCESS("Data onNotify accepted by gateway"),
-  DATA_ON_NOTIFY_ERROR("Error thrown by Gateway for on Notify"),
-  DATA_ON_REQUEST_SUCCESS("DataTransfer onRequest accepted by gateway"),
-  DATA_ON_REQUEST_ERROR("Error thrown by Gateway for on Request");
+  HIP_ON_NOTIFY_SUCCESS("Data onNotify accepted by gateway"),
+  HIP_ON_NOTIFY_ERROR("Error thrown by Gateway for on Notify"),
+  HEALTH_INFORMATION_ON_REQUEST_SUCCESS("DataTransfer onRequest accepted by gateway"),
+  HEALTH_INFORMATION_ON_REQUEST_ERROR("Error thrown by Gateway for on Request");
 
   private String value;
 

@@ -7,7 +7,7 @@ import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.GatewayCallbackResponse;
 import com.nha.abdm.wrapper.hip.hrp.consent.ConsentService;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPHealthInformationRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPHealthInformationRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
@@ -19,6 +19,11 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmRes
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.spec.InvalidKeySpecException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -220,11 +225,14 @@ public class GatewayCallbackController {
    * @param hipNotifyRequest Has careContexts details for dataTransfer
    */
   @PostMapping({"/v0.5/consents/hip/notify"})
-  public ResponseEntity<GatewayCallbackResponse> initiateDataOnNotify(@RequestBody HIPNotifyRequest hipNotifyRequest)
-      throws IllegalDataStateException {
+  public ResponseEntity<GatewayCallbackResponse> hipNotify(
+      @RequestBody HIPNotifyRequest hipNotifyRequest) throws IllegalDataStateException {
     if (hipNotifyRequest != null) {
-      workflowManager.initiateConsentOnNotify(hipNotifyRequest);
-    } else log.debug("Error in response of Consent Notify");
+      workflowManager.hipNotify(hipNotifyRequest);
+    } else {
+      log.debug("Error in response of Consent Notify");
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
@@ -234,13 +242,16 @@ public class GatewayCallbackController {
    * @param hipHealthInformationRequest Has keys for encryption and dataPushURL of HIU
    */
   @PostMapping({"/v0.5/health-information/hip/request"})
-  public ResponseEntity<GatewayCallbackResponse> DataRequestResponse(
+  public ResponseEntity<GatewayCallbackResponse> healthInformation(
       @RequestBody HIPHealthInformationRequest hipHealthInformationRequest)
-      throws IllegalDataStateException {
+      throws IllegalDataStateException, InvalidAlgorithmParameterException,
+          NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException,
+          InvalidKeyException {
     if (hipHealthInformationRequest != null) {
-      workflowManager.initiateDataTransferOnRequest(hipHealthInformationRequest);
+      workflowManager.healthInformation(hipHealthInformationRequest);
     } else {
       log.debug("Invalid Data request response");
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }

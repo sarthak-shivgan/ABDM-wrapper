@@ -10,8 +10,7 @@ import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPOnNotifyRequest;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPHealthInformationRequestAcknowledgement;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPHealthInformationRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPHealthInformationRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
@@ -394,7 +393,7 @@ public class RequestLogService<T> {
     requestLog.setStatus(requestStatus);
     requestLog.setConsentId(hipNotifyRequest.getNotification().getConsentId());
     HashMap<String, Object> map = new HashMap<>();
-    map.put(FieldIdentifiers.DATA_NOTIFY_REQUEST, hipNotifyRequest);
+    map.put(FieldIdentifiers.HIP_NOTIFY_REQUEST, hipNotifyRequest);
     requestLog.setRequestDetails(map);
     if (hipOnNotifyRequest.getError() != null) {
       requestLog.setError(hipOnNotifyRequest.getError().getMessage());
@@ -402,10 +401,8 @@ public class RequestLogService<T> {
     mongoTemplate.save(requestLog);
   }
 
-  public void dataTransferRequest(
-      HIPHealthInformationRequest hipHealthInformationRequest,
-      RequestStatus requestStatus,
-      HIPHealthInformationRequestAcknowledgement hipHealthInformationRequestAcknowledgement)
+  public void saveHealthInformationRequest(
+      HIPHealthInformationRequest hipHealthInformationRequest, RequestStatus requestStatus)
       throws IllegalDataStateException {
     Query query =
         new Query(
@@ -418,10 +415,10 @@ public class RequestLogService<T> {
               + hipHealthInformationRequest.getHiRequest().getConsent().getId());
     }
     Map<String, Object> map = existingLog.getRequestDetails();
-    map.put(FieldIdentifiers.DATA_REQUEST, hipHealthInformationRequest);
+    map.put(FieldIdentifiers.HEALTH_INFORMATION_REQUEST, hipHealthInformationRequest);
     Update update = new Update();
     update.set(FieldIdentifiers.REQUEST_DETAILS, map);
-    update.set(FieldIdentifiers.STATUS, RequestStatus.DATA_ON_REQUEST_SUCCESS);
+    update.set(FieldIdentifiers.STATUS, RequestStatus.HEALTH_INFORMATION_ON_REQUEST_SUCCESS);
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 }

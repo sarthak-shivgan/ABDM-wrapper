@@ -10,8 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class DataStatusResponses {
-  public String careContextReference;
-  public String hiStatus;
-  public String description;
+public class HealthInformationNotificationStatus {
+  public String consentId;
+  public String transactionId;
+  public String doneAt;
+  public HealthInformationNotifier notifier;
+  public HealthInformationStatusNotification statusNotification;
 }

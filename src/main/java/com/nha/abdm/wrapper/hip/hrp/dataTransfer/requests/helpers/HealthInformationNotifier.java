@@ -1,5 +1,5 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback;
+package com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class BundleResponseHIP {
-  String consentId;
-  String bundleContent;
+public class HealthInformationNotifier {
+  public String type;
+  public String id;
 }

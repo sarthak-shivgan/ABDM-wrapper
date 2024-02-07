@@ -1,5 +1,5 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.common.dataPackaging.encryption;
+package com.nha.abdm.wrapper.hip.hrp.dataTransfer.encryption;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

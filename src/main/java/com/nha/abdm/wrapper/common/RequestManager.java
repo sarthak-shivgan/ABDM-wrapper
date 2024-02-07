@@ -1,7 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.common;
 
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.DataPushRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationPushRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,19 +40,5 @@ public class RequestManager {
         .retrieve()
         .toEntity(GatewayGenericResponse.class)
         .block();
-  }
-
-  public ResponseEntity<GatewayGenericResponse> postToHIU(
-      String dataPushUrl, DataPushRequest dataPushRequest) {
-    ResponseEntity<GatewayGenericResponse> responseEntity =
-        hiuWebClient
-            .post()
-            .uri(dataPushUrl)
-            .body(BodyInserters.fromValue(dataPushRequest))
-            .retrieve()
-            .toEntity(GatewayGenericResponse.class)
-            .block();
-    log.info("correlation-id: " + responseEntity.getHeaders().getFirst("correlation-id"));
-    return responseEntity;
   }
 }

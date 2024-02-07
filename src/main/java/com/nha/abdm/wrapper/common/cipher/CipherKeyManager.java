@@ -1,7 +1,6 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.common.dataPackaging.keys;
+package com.nha.abdm.wrapper.common.cipher;
 
-import com.nha.abdm.wrapper.common.dataPackaging.Constants;
 import java.security.*;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.ec.CustomNamedCurves;
@@ -12,31 +11,32 @@ import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.springframework.stereotype.Service;
 
 @Service
-public class KeyController {
+public class CipherKeyManager {
   private String senderPublicKey;
   private String senderPrivateKey;
   private String senderNonce;
+  public static final String ALGORITHM = "ECDH";
+  public static final String CURVE = "curve25519";
+  public static final String PROVIDER = BouncyCastleProvider.PROVIDER_NAME;
 
-  public KeyMaterial fetchKeys() throws Exception {
-    if ((senderPrivateKey == null && senderPublicKey == null) && senderNonce == null) {
-      return generate();
-    } else return new KeyMaterial(this.senderPublicKey, this.senderPrivateKey, this.senderNonce);
-  }
-
-  public KeyMaterial generate() throws Exception {
-    KeyPair keyPair = generateKeyPair();
-    String senderPrivateKey = getBase64String(getEncodedPrivateKey(keyPair.getPrivate()));
-    String senderPublicKey = getBase64String(getEncodedPublicKey(keyPair.getPublic()));
-    String senderNonce = generateRandomKey();
-    return new KeyMaterial(senderPrivateKey, senderPublicKey, senderNonce);
+  public Key fetchKeys()
+      throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
+    if (senderPrivateKey == null && senderPublicKey == null && senderNonce == null) {
+      KeyPair keyPair = generateKeyPair();
+      String senderPrivateKey = getBase64String(getEncodedPrivateKey(keyPair.getPrivate()));
+      String senderPublicKey = getBase64String(getEncodedPublicKey(keyPair.getPublic()));
+      String senderNonce = generateRandomKey();
+      return new Key(senderPrivateKey, senderPublicKey, senderNonce);
+    } else {
+      return new Key(this.senderPublicKey, this.senderPrivateKey, this.senderNonce);
+    }
   }
 
   private KeyPair generateKeyPair()
       throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
     Security.addProvider(new BouncyCastleProvider());
-    KeyPairGenerator keyPairGenerator =
-        KeyPairGenerator.getInstance(Constants.ALGORITHM, Constants.PROVIDER);
-    X9ECParameters ecParameters = CustomNamedCurves.getByName(Constants.CURVE);
+    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM, PROVIDER);
+    X9ECParameters ecParameters = CustomNamedCurves.getByName(CURVE);
     ECParameterSpec ecSpec =
         new ECParameterSpec(
             ecParameters.getCurve(),
@@ -53,12 +53,12 @@ public class KeyController {
     return new String(org.bouncycastle.util.encoders.Base64.encode(value));
   }
 
-  private byte[] getEncodedPrivateKey(PrivateKey key) throws Exception {
+  private byte[] getEncodedPrivateKey(PrivateKey key) {
     ECPrivateKey ecKey = (ECPrivateKey) key;
     return ecKey.getD().toByteArray();
   }
 
-  private byte[] getEncodedPublicKey(PublicKey key) throws Exception {
+  private byte[] getEncodedPublicKey(PublicKey key) {
     ECPublicKey ecKey = (ECPublicKey) key;
     return ecKey.getQ().getEncoded(false);
   }

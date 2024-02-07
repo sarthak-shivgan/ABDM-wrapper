@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class DataStatusNotification {
+public class HealthInformationStatusNotification {
   public String sessionStatus;
   public String hipId;
-  public List<DataStatusResponses> statusResponses;
+  public List<HealthInformationStatusResponse> statusResponses;
 }

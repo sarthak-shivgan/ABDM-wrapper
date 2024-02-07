@@ -7,9 +7,8 @@ import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
 import com.nha.abdm.wrapper.hip.hrp.consent.ConsentInterface;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.DataTransferInterface;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.BundleResponseHIP;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.HIPHealthInformationRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.HealthInformationInterface;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPHealthInformationRequest;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
@@ -22,6 +21,11 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitRespon
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.LinkInterface;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,7 +41,7 @@ public class WorkflowManager {
   @Autowired LinkInterface linkInterface;
   @Autowired HipLinkInterface hipLinkInterface;
   @Autowired ConsentInterface consentInterface;
-  @Autowired DataTransferInterface dataTransferInterface;
+  @Autowired HealthInformationInterface healthInformationInterface;
   @Autowired RequestLogService requestLogService;
 
   /**
@@ -178,27 +182,16 @@ public class WorkflowManager {
     return hipLinkInterface.confirmAuthOtp(verifyOTP);
   }
 
-  public void initiateConsentOnNotify(HIPNotifyRequest hipNotifyRequest)
-      throws IllegalDataStateException {
-    if (hipNotifyRequest != null) {
-      log.info(hipNotifyRequest.toString());
-      consentInterface.notifyOnReceived(hipNotifyRequest);
-    } else log.debug("Error in response of Consent Notify");
+  public void hipNotify(HIPNotifyRequest hipNotifyRequest) throws IllegalDataStateException {
+    log.debug(hipNotifyRequest.toString());
+    consentInterface.hipNotify(hipNotifyRequest);
   }
 
-  public void initiateDataTransferOnRequest(HIPHealthInformationRequest hipHealthInformationRequest)
-      throws IllegalDataStateException {
-    if (hipHealthInformationRequest != null) {
-      log.info(hipHealthInformationRequest.toString());
-      dataTransferInterface.requestOnReceived(hipHealthInformationRequest);
-      log.info("Initiating the bundle request to facility");
-      dataTransferInterface.initiateBundleRequest(hipHealthInformationRequest);
-    } else {
-      log.debug("initiateDataTransferOnRequest: Error in POST onRequest");
-    }
-  }
-
-  public FacadeResponse initiateDataTransfer(BundleResponseHIP bundleResponseHIP) throws Exception {
-    return dataTransferInterface.initiateDataTransfer(bundleResponseHIP);
+  public void healthInformation(HIPHealthInformationRequest hipHealthInformationRequest)
+      throws IllegalDataStateException, InvalidAlgorithmParameterException,
+          NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException,
+          InvalidKeyException {
+    log.debug(hipHealthInformationRequest.toString());
+    healthInformationInterface.healthInformation(hipHealthInformationRequest);
   }
 }

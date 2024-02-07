@@ -1,7 +1,7 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback;
+package com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests;
 
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.DataHiRequest.DataHiRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.HealthInformationHiRequest.HealthInformationRequest;
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,5 +20,5 @@ public class HIPHealthInformationRequest implements Serializable {
 
   public String timestamp;
   public String transactionId;
-  public DataHiRequest hiRequest;
+  public HealthInformationRequest hiRequest;
 }

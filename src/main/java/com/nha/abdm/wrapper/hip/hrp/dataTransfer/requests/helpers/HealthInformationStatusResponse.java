@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class DataNotifier {
-  public String type;
-  public String id;
+public class HealthInformationStatusResponse {
+  public String careContextReference;
+  public String hiStatus;
+  public String description;
 }
