@@ -14,9 +14,9 @@
 package com.nha.abdm.wrapper.client.api;
 
 import com.nha.abdm.wrapper.client.invoker.ApiException;
-import com.nha.abdm.wrapper.client.model.ConsentStatusResponse;
 import com.nha.abdm.wrapper.client.model.FacadeResponse;
-import com.nha.abdm.wrapper.client.model.InitConsentRequest;
+import com.nha.abdm.wrapper.client.model.HIUClientHealthInformationRequest;
+import com.nha.abdm.wrapper.client.model.HealthInformationResponse;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -26,36 +26,36 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * API tests for ConsentApi
+ * API tests for DataTransferApi
  */
 @Disabled
-public class ConsentApiTest {
+public class DataTransferApiTest {
 
-    private final ConsentApi api = new ConsentApi();
+    private final DataTransferApi api = new DataTransferApi();
 
     /**
-     * Get status of Consent request.
+     * Submits a request to fetch health information
+     *
+     * Submits a request to fetch health information
      *
      * @throws ApiException if the Api call fails
      */
     @Test
-    public void consentStatusRequestIdGetTest() throws ApiException {
-        String requestId = null;
-        ConsentStatusResponse response = api.consentStatusRequestIdGet(requestId);
+    public void fetchHealthInformationTest() throws ApiException {
+        HIUClientHealthInformationRequest hiUClientHealthInformationRequest = null;
+        FacadeResponse response = api.fetchHealthInformation(hiUClientHealthInformationRequest);
         // TODO: test validations
     }
 
     /**
-     * Initiates consent request
-     *
-     * Initiates consent request
+     * Get status of Health Information request.
      *
      * @throws ApiException if the Api call fails
      */
     @Test
-    public void initConsentTest() throws ApiException {
-        InitConsentRequest initConsentRequest = null;
-        FacadeResponse response = api.initConsent(initConsentRequest);
+    public void healthInformationStatusRequestIdGetTest() throws ApiException {
+        String requestId = null;
+        HealthInformationResponse response = api.healthInformationStatusRequestIdGet(requestId);
         // TODO: test validations
     }
 

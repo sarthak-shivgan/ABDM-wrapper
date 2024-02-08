@@ -8,13 +8,19 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 @Data
-@Document(collection = "consent-key-mappings")
-public class ConsentCipherPrivateKeyMapping {
+@Document(collection = "consent-cipher-key-mappings")
+public class ConsentCipherMapping {
 
-  @Field(FieldIdentifiers.CONSENT_REQUEST_ID)
+  @Field(FieldIdentifiers.CONSENT_ID)
   @Indexed(unique = true)
-  public String consentRequestId;
+  public String consentId;
 
   @Field(FieldIdentifiers.PRIVATE_KEY)
   public String privateKey;
+
+  @Field(FieldIdentifiers.NONCE)
+  public String nonce;
+
+  @Field(FieldIdentifiers.TRANSACTION_ID)
+  public String transactionId;
 }

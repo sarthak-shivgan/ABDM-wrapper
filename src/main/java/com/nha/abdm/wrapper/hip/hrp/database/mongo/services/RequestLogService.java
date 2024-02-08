@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.CareContext;
+import com.nha.abdm.wrapper.common.requests.HealthInformationPushRequest;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPOnNotifyRequest;
@@ -33,6 +35,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -413,21 +416,56 @@ public class RequestLogService<T> {
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 
-  public void updateTransactionId(String requestId, String transactionId)
-      throws IllegalDataStateException {
-    RequestLog requestLog = logsRepo.findByGatewayRequestId(requestId);
-    if (requestLog == null) {
-      throw new IllegalDataStateException("Request not found in database for: " + requestId);
-    }
+  public void updateTransactionId(String requestId, String transactionId) {
     Query query = new Query(Criteria.where(FieldIdentifiers.GATEWAY_REQUEST_ID).is(requestId));
     Update update = new Update();
     update.set(FieldIdentifiers.TRANSACTION_ID, transactionId);
     mongoTemplate.updateFirst(query, update, RequestLog.class);
   }
 
-  public boolean findRequestLogByTransactionId(String transactionId) {
+  public RequestLog findRequestLogByTransactionId(String transactionId) {
     Query query = new Query(Criteria.where(FieldIdentifiers.TRANSACTION_ID).is(transactionId));
+    return mongoTemplate.findOne(query, RequestLog.class);
+  }
+
+  public GenericResponse saveEncryptedHealthInformation(
+      HealthInformationPushRequest healthInformationPushRequest, RequestStatus requestStatus) {
+    Query query =
+        new Query(
+            Criteria.where(FieldIdentifiers.TRANSACTION_ID)
+                .is(healthInformationPushRequest.getTransactionId()));
     RequestLog requestLog = mongoTemplate.findOne(query, RequestLog.class);
-    return requestLog != null;
+    if (requestLog == null) {
+      return GenericResponse.builder()
+          .httpStatus(HttpStatus.NOT_FOUND)
+          .errorResponse(
+              ErrorResponse.builder()
+                  .message(
+                      "Transaction id not found: "
+                          + healthInformationPushRequest.getTransactionId())
+                  .build())
+          .build();
+    }
+    Map<String, Object> map = requestLog.getRequestDetails();
+    map.put(FieldIdentifiers.ENCRYPTED_HEALTH_INFORMATION, healthInformationPushRequest);
+    Update update = new Update();
+    update.set(FieldIdentifiers.RESPONSE_DETAILS, map);
+    update.set(FieldIdentifiers.STATUS, requestStatus);
+    mongoTemplate.updateFirst(query, update, RequestLog.class);
+    return GenericResponse.builder().httpStatus(HttpStatus.OK).build();
+  }
+
+  public void saveHIUHealthInformationRequest(
+      String requestId, String consentId, RequestStatus requestStatus, String error)
+      throws IllegalDataStateException {
+    RequestLog requestLog = new RequestLog();
+    requestLog.setClientRequestId(requestId);
+    requestLog.setGatewayRequestId(requestId);
+    requestLog.setStatus(requestStatus);
+    requestLog.setConsentId(consentId);
+    if (StringUtils.isNotBlank(error)) {
+      requestLog.setError(error);
+    }
+    mongoTemplate.save(requestLog);
   }
 }

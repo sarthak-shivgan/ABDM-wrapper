@@ -15,4 +15,7 @@ public class ConsentPatient {
 
   @Field("patientAbhaAddress")
   public String patientAbhaAddress;
+
+  @Field("entityType")
+  public String entityType;
 }

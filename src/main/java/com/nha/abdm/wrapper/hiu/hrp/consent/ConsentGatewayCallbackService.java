@@ -5,11 +5,15 @@ import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.Acknowledgement;
 import com.nha.abdm.wrapper.common.models.RespRequest;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentPatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentRequestService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
+import com.nha.abdm.wrapper.hiu.hrp.consent.requests.FetchConsentRequest;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.OnNotifyRequest;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.*;
 import java.util.ArrayList;
@@ -29,6 +33,8 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
   private final HIUConsentInterface hiuConsentInterface;
   private final PatientService patientService;
   private final ConsentRequestService consentRequestService;
+  private final LogsRepo logsRepo;
+  private final ConsentPatientService consentPatientService;
 
   private static final Logger log = LogManager.getLogger(ConsentGatewayCallbackService.class);
 
@@ -37,11 +43,15 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
       RequestLogService requestLogService,
       HIUConsentInterface hiuConsentInterface,
       PatientService patientService,
-      ConsentRequestService consentRequestService) {
+      ConsentRequestService consentRequestService,
+      LogsRepo logsRepo,
+      ConsentPatientService consentPatientService) {
     this.requestLogService = requestLogService;
     this.hiuConsentInterface = hiuConsentInterface;
     this.patientService = patientService;
     this.consentRequestService = consentRequestService;
+    this.logsRepo = logsRepo;
+    this.consentPatientService = consentPatientService;
   }
 
   @Override
@@ -114,12 +124,21 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
           RequestStatus.CONSENT_ON_NOTIFY_RESPONSE_RECEIVED,
           notifyHIURequest.getNotification());
 
+      RequestLog requestLog = logsRepo.findByGatewayRequestId(notifyHIURequest.getRequestId());
+
       List<Acknowledgement> acknowledgements = new ArrayList<>();
       String status = notifyHIURequest.getNotification().getStatus();
       for (ConsentArtefact consentArtefact :
           notifyHIURequest.getNotification().getConsentArtefacts()) {
         acknowledgements.add(
             Acknowledgement.builder().status(status).consentId(consentArtefact.getId()).build());
+        FetchConsentRequest fetchConsentRequest =
+            FetchConsentRequest.builder()
+                .consentId(consentArtefact.getId())
+                .requestId(UUID.randomUUID().toString())
+                .timestamp(Utils.getCurrentTimeStamp())
+                .build();
+        hiuConsentInterface.fetchConsent(fetchConsentRequest, requestLog);
       }
       OnNotifyRequest onNotifyRequest =
           OnNotifyRequest.builder()
@@ -140,29 +159,17 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
   }
 
   @Override
-  public void consentOnFetch(OnFetchRequest onFetchRequest) throws IllegalDataStateException {
+  public HttpStatus consentOnFetch(OnFetchRequest onFetchRequest) throws IllegalDataStateException {
     if (Objects.nonNull(onFetchRequest)
         && Objects.nonNull(onFetchRequest.getConsent())
-        && Objects.nonNull(onFetchRequest.getConsent().getConsentDetail())
-        && Objects.nonNull(onFetchRequest.getConsent().getConsentDetail().getPatient())) {
+        && Objects.nonNull(onFetchRequest.getConsent().getConsentDetail())) {
       String patientId = onFetchRequest.getConsent().getConsentDetail().getPatient().getId();
       patientService.addConsent(patientId, onFetchRequest.getConsent());
-      if (Objects.nonNull(onFetchRequest.getResp())) {
-        requestLogService.updateStatus(
-            onFetchRequest.getResp().getRequestId(), RequestStatus.CONSENT_ON_FETCH_SUCCESS);
-      }
-    } else if (Objects.nonNull(onFetchRequest)
-        && Objects.nonNull(onFetchRequest.getResp())
-        && Objects.nonNull(onFetchRequest.getError())) {
-      requestLogService.updateError(
-          onFetchRequest.getResp().getRequestId(),
-          onFetchRequest.getError().getMessage(),
-          RequestStatus.CONSENT_ON_FETCH_ERROR);
-    } else if (Objects.nonNull(onFetchRequest) && Objects.nonNull(onFetchRequest.getResp())) {
-      requestLogService.updateError(
-          onFetchRequest.getResp().getRequestId(),
-          "Something went wrong while executing consent on status",
-          RequestStatus.CONSENT_ON_FETCH_ERROR);
+      consentPatientService.saveConsentPatientMapping(
+          onFetchRequest.getConsent().getConsentDetail().getConsentId(), patientId, "HIU");
+    } else {
+      return HttpStatus.BAD_REQUEST;
     }
+    return HttpStatus.ACCEPTED;
   }
 }

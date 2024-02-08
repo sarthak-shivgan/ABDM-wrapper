@@ -78,7 +78,8 @@ public class ConsentService implements ConsentInterface {
         // provide the patient abhaAddress
         consentPatientService.saveConsentPatientMapping(
             consent.getConsentDetail().getConsentId(),
-            hipNotification.getConsentDetail().getPatient().getId());
+            hipNotification.getConsentDetail().getPatient().getId(),
+            "HIP");
         ConsentAcknowledgement dataAcknowledgement =
             ConsentAcknowledgement.builder()
                 .status("OK")

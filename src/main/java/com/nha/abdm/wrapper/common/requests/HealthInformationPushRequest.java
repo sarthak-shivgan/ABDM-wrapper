@@ -15,6 +15,6 @@ public class HealthInformationPushRequest {
   private int pageNumber;
   private int pageCount;
   private String transactionId;
-  private List<HealthInformationEntries> entries;
+  private List<HealthInformationEntry> entries;
   private HealthInformationKeyMaterial keyMaterial;
 }

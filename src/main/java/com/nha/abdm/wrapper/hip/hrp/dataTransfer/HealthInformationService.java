@@ -6,11 +6,7 @@ import com.nha.abdm.wrapper.common.RequestManager;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.RespRequest;
-import com.nha.abdm.wrapper.common.requests.HealthInformationDhPublicKey;
-import com.nha.abdm.wrapper.common.requests.HealthInformationEntries;
-import com.nha.abdm.wrapper.common.requests.HealthInformationKeyMaterial;
-import com.nha.abdm.wrapper.common.requests.HealthInformationPushRequest;
-import com.nha.abdm.wrapper.common.requests.OnHealthInformationRequest;
+import com.nha.abdm.wrapper.common.requests.*;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.HIPClient;
@@ -22,12 +18,13 @@ import com.nha.abdm.wrapper.hip.hrp.dataTransfer.encryption.EncryptionService;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundle;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationPushNotification;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.*;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HealthInformationNotifier;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HealthInformationRequestStatus;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentPatientService;
-import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.ConsentPatient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
@@ -65,7 +62,6 @@ public class HealthInformationService implements HealthInformationInterface {
   private final HIPClient hipClient;
   private final HIUClient hiuClient;
   @Autowired RequestLogService requestLogService;
-  @Autowired PatientService patientService;
   @Autowired ConsentPatientService consentPatientService;
   @Autowired EncryptionService encryptionService;
 
@@ -98,8 +94,8 @@ public class HealthInformationService implements HealthInformationInterface {
             .build();
     // Lookup in consent patient table is good enough as we are saving mapping when we are saving
     // consent in patient table.
-    boolean requestedPatientConsent = consentPatientService.findMappingByConsentId(consentId);
-    if (requestedPatientConsent) {
+    ConsentPatient consentPatient = consentPatientService.findMappingByConsentId(consentId);
+    if (Objects.nonNull(consentPatient)) {
       onHealthInformationRequest =
           OnHealthInformationRequest.builder()
               .requestId(UUID.randomUUID().toString())
@@ -243,20 +239,20 @@ public class HealthInformationService implements HealthInformationInterface {
             .dhPublicKey(dhPublicKey)
             .nonce(encryptedData.getSenderNonce())
             .build();
-    List<HealthInformationEntries> entries = new ArrayList<>();
+    List<HealthInformationEntry> entries = new ArrayList<>();
     List<String> careContextReferenceList =
         hipNotifyRequest.getNotification().getConsentDetail().getCareContexts().stream()
             .map(ConsentCareContexts::getCareContextReference)
             .toList();
     for (String careContextReference : careContextReferenceList) {
-      HealthInformationEntries healthInformationEntries =
-          HealthInformationEntries.builder()
+      HealthInformationEntry healthInformationEntry =
+          HealthInformationEntry.builder()
               .content(encryptedData.getEncryptedData())
               .media("application/fhir+json")
               .checksum("string")
               .careContextReference(careContextReference)
               .build();
-      entries.add(healthInformationEntries);
+      entries.add(healthInformationEntry);
     }
     return HealthInformationPushRequest.builder()
         .keyMaterial(keyMaterial)
@@ -304,7 +300,7 @@ public class HealthInformationService implements HealthInformationInterface {
     HealthInformationStatusNotification healthInformationStatusNotification =
         HealthInformationStatusNotification.builder()
             .sessionStatus(sessionStatus)
-            .hipId("hipId")
+            .hipId(hipNotifyRequest.getNotification().getConsentDetail().getHip().getId())
             .statusResponses(healthInformationStatusResponseList)
             .build();
     HealthInformationNotifier healthInformationNotifier =

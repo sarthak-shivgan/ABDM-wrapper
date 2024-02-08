@@ -20,8 +20,9 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.nha.abdm.wrapper.client.model.Consent;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -49,10 +50,10 @@ import java.util.Set;
 import com.nha.abdm.wrapper.client.invoker.JSON;
 
 /**
- * ConsentResponse
+ * HealthInformationResponse
  */
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-08T13:20:50.774805979Z[Etc/UTC]")
-public class ConsentResponse {
+public class HealthInformationResponse {
   public static final String SERIALIZED_NAME_STATUS = "status";
   @SerializedName(SERIALIZED_NAME_STATUS)
   private String status;
@@ -63,16 +64,16 @@ public class ConsentResponse {
 
   public static final String SERIALIZED_NAME_HTTP_STATUS_CODE = "httpStatusCode";
   @SerializedName(SERIALIZED_NAME_HTTP_STATUS_CODE)
-  private String httpStatusCode;
+  private Integer httpStatusCode;
 
-  public static final String SERIALIZED_NAME_CONSENT = "consent";
-  @SerializedName(SERIALIZED_NAME_CONSENT)
-  private Consent consent;
+  public static final String SERIALIZED_NAME_DECRYPTED_HEALTH_INFORMATION_ENTRIES = "decryptedHealthInformationEntries";
+  @SerializedName(SERIALIZED_NAME_DECRYPTED_HEALTH_INFORMATION_ENTRIES)
+  private List<String> decryptedHealthInformationEntries;
 
-  public ConsentResponse() {
+  public HealthInformationResponse() {
   }
 
-  public ConsentResponse status(String status) {
+  public HealthInformationResponse status(String status) {
     
     this.status = status;
     return this;
@@ -93,7 +94,7 @@ public class ConsentResponse {
   }
 
 
-  public ConsentResponse error(String error) {
+  public HealthInformationResponse error(String error) {
     
     this.error = error;
     return this;
@@ -114,7 +115,7 @@ public class ConsentResponse {
   }
 
 
-  public ConsentResponse httpStatusCode(String httpStatusCode) {
+  public HealthInformationResponse httpStatusCode(Integer httpStatusCode) {
     
     this.httpStatusCode = httpStatusCode;
     return this;
@@ -125,34 +126,42 @@ public class ConsentResponse {
    * @return httpStatusCode
   **/
   @javax.annotation.Nullable
-  public String getHttpStatusCode() {
+  public Integer getHttpStatusCode() {
     return httpStatusCode;
   }
 
 
-  public void setHttpStatusCode(String httpStatusCode) {
+  public void setHttpStatusCode(Integer httpStatusCode) {
     this.httpStatusCode = httpStatusCode;
   }
 
 
-  public ConsentResponse consent(Consent consent) {
+  public HealthInformationResponse decryptedHealthInformationEntries(List<String> decryptedHealthInformationEntries) {
     
-    this.consent = consent;
+    this.decryptedHealthInformationEntries = decryptedHealthInformationEntries;
+    return this;
+  }
+
+  public HealthInformationResponse addDecryptedHealthInformationEntriesItem(String decryptedHealthInformationEntriesItem) {
+    if (this.decryptedHealthInformationEntries == null) {
+      this.decryptedHealthInformationEntries = new ArrayList<>();
+    }
+    this.decryptedHealthInformationEntries.add(decryptedHealthInformationEntriesItem);
     return this;
   }
 
    /**
-   * Get consent
-   * @return consent
+   * Get decryptedHealthInformationEntries
+   * @return decryptedHealthInformationEntries
   **/
   @javax.annotation.Nullable
-  public Consent getConsent() {
-    return consent;
+  public List<String> getDecryptedHealthInformationEntries() {
+    return decryptedHealthInformationEntries;
   }
 
 
-  public void setConsent(Consent consent) {
-    this.consent = consent;
+  public void setDecryptedHealthInformationEntries(List<String> decryptedHealthInformationEntries) {
+    this.decryptedHealthInformationEntries = decryptedHealthInformationEntries;
   }
 
 
@@ -165,26 +174,26 @@ public class ConsentResponse {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ConsentResponse consentResponse = (ConsentResponse) o;
-    return Objects.equals(this.status, consentResponse.status) &&
-        Objects.equals(this.error, consentResponse.error) &&
-        Objects.equals(this.httpStatusCode, consentResponse.httpStatusCode) &&
-        Objects.equals(this.consent, consentResponse.consent);
+    HealthInformationResponse healthInformationResponse = (HealthInformationResponse) o;
+    return Objects.equals(this.status, healthInformationResponse.status) &&
+        Objects.equals(this.error, healthInformationResponse.error) &&
+        Objects.equals(this.httpStatusCode, healthInformationResponse.httpStatusCode) &&
+        Objects.equals(this.decryptedHealthInformationEntries, healthInformationResponse.decryptedHealthInformationEntries);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(status, error, httpStatusCode, consent);
+    return Objects.hash(status, error, httpStatusCode, decryptedHealthInformationEntries);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class ConsentResponse {\n");
+    sb.append("class HealthInformationResponse {\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    error: ").append(toIndentedString(error)).append("\n");
     sb.append("    httpStatusCode: ").append(toIndentedString(httpStatusCode)).append("\n");
-    sb.append("    consent: ").append(toIndentedString(consent)).append("\n");
+    sb.append("    decryptedHealthInformationEntries: ").append(toIndentedString(decryptedHealthInformationEntries)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -210,7 +219,7 @@ public class ConsentResponse {
     openapiFields.add("status");
     openapiFields.add("error");
     openapiFields.add("httpStatusCode");
-    openapiFields.add("consent");
+    openapiFields.add("decryptedHealthInformationEntries");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
@@ -220,20 +229,20 @@ public class ConsentResponse {
   * Validates the JSON Object and throws an exception if issues found
   *
   * @param jsonObj JSON Object
-  * @throws IOException if the JSON Object is invalid with respect to ConsentResponse
+  * @throws IOException if the JSON Object is invalid with respect to HealthInformationResponse
   */
   public static void validateJsonObject(JsonObject jsonObj) throws IOException {
       if (jsonObj == null) {
-        if (!ConsentResponse.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in ConsentResponse is not found in the empty JSON string", ConsentResponse.openapiRequiredFields.toString()));
+        if (!HealthInformationResponse.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in HealthInformationResponse is not found in the empty JSON string", HealthInformationResponse.openapiRequiredFields.toString()));
         }
       }
 
       Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
       // check to see if the JSON string contains additional fields
       for (Entry<String, JsonElement> entry : entries) {
-        if (!ConsentResponse.openapiFields.contains(entry.getKey())) {
-          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `ConsentResponse` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        if (!HealthInformationResponse.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `HealthInformationResponse` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
         }
       }
       if ((jsonObj.get("status") != null && !jsonObj.get("status").isJsonNull()) && !jsonObj.get("status").isJsonPrimitive()) {
@@ -242,12 +251,9 @@ public class ConsentResponse {
       if ((jsonObj.get("error") != null && !jsonObj.get("error").isJsonNull()) && !jsonObj.get("error").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `error` to be a primitive type in the JSON string but got `%s`", jsonObj.get("error").toString()));
       }
-      if ((jsonObj.get("httpStatusCode") != null && !jsonObj.get("httpStatusCode").isJsonNull()) && !jsonObj.get("httpStatusCode").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `httpStatusCode` to be a primitive type in the JSON string but got `%s`", jsonObj.get("httpStatusCode").toString()));
-      }
-      // validate the optional field `consent`
-      if (jsonObj.get("consent") != null && !jsonObj.get("consent").isJsonNull()) {
-        Consent.validateJsonObject(jsonObj.getAsJsonObject("consent"));
+      // ensure the optional json data is an array if present
+      if (jsonObj.get("decryptedHealthInformationEntries") != null && !jsonObj.get("decryptedHealthInformationEntries").isJsonArray()) {
+        throw new IllegalArgumentException(String.format("Expected the field `decryptedHealthInformationEntries` to be an array in the JSON string but got `%s`", jsonObj.get("decryptedHealthInformationEntries").toString()));
       }
   }
 
@@ -255,22 +261,22 @@ public class ConsentResponse {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!ConsentResponse.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'ConsentResponse' and its subtypes
+       if (!HealthInformationResponse.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'HealthInformationResponse' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<ConsentResponse> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(ConsentResponse.class));
+       final TypeAdapter<HealthInformationResponse> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(HealthInformationResponse.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<ConsentResponse>() {
+       return (TypeAdapter<T>) new TypeAdapter<HealthInformationResponse>() {
            @Override
-           public void write(JsonWriter out, ConsentResponse value) throws IOException {
+           public void write(JsonWriter out, HealthInformationResponse value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              elementAdapter.write(out, obj);
            }
 
            @Override
-           public ConsentResponse read(JsonReader in) throws IOException {
+           public HealthInformationResponse read(JsonReader in) throws IOException {
              JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
              validateJsonObject(jsonObj);
              return thisAdapter.fromJsonTree(jsonObj);
@@ -281,18 +287,18 @@ public class ConsentResponse {
   }
 
  /**
-  * Create an instance of ConsentResponse given an JSON string
+  * Create an instance of HealthInformationResponse given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of ConsentResponse
-  * @throws IOException if the JSON string is invalid with respect to ConsentResponse
+  * @return An instance of HealthInformationResponse
+  * @throws IOException if the JSON string is invalid with respect to HealthInformationResponse
   */
-  public static ConsentResponse fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, ConsentResponse.class);
+  public static HealthInformationResponse fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, HealthInformationResponse.class);
   }
 
  /**
-  * Convert an instance of ConsentResponse to an JSON string
+  * Convert an instance of HealthInformationResponse to an JSON string
   *
   * @return JSON string
   */

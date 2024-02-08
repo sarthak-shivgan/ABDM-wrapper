@@ -1,6 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hiu.hrp.dataTransfer;
 
+import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.hiu.hrp.dataTransfer.requests.HIUClientHealthInformationRequest;
 import java.security.InvalidAlgorithmParameterException;
@@ -22,7 +23,8 @@ public class HIUHealthInformationController {
   @PostMapping({"/health-information"})
   public ResponseEntity<FacadeResponse> healthInformation(
       @RequestBody HIUClientHealthInformationRequest hiuClientHealthInformationRequest)
-      throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
+      throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException,
+          IllegalDataStateException {
     FacadeResponse facadeResponse =
         hiuFacadeHealthInformationInterface.healthInformation(hiuClientHealthInformationRequest);
     return new ResponseEntity<>(facadeResponse, facadeResponse.getHttpStatusCode());

@@ -42,9 +42,10 @@ public class PatientController {
     }
 
     @PostMapping(value="/health-information")
-    public @ResponseBody ResponseEntity<HealthInformationBundle> fetchHealthInformation(@RequestBody HealthInformationBundleRequest healthInformationBundleRequest) throws IOException {
+    public @ResponseBody ResponseEntity<HealthInformationBundle> fetchHealthInformation(
+            @RequestBody HealthInformationBundleRequest healthInformationBundleRequest) throws IOException {
         log.debug("healthInformationBundleRequest" + healthInformationBundleRequest);
-        String filePath = "src/main/resources/OP_Consultantion_fhir_bundle.json";
+        String filePath = "src/main/resources/OP_Consultation_fhir_bundle.json";
         String bundle= new String(Files.readAllBytes(Paths.get(filePath)));
         HealthInformationBundle healthInformationBundle=new HealthInformationBundle();
         healthInformationBundle.setBundleContent(bundle);

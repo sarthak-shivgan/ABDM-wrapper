@@ -1,9 +1,8 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.common;
+package com.nha.abdm.wrapper.common.requests;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.ApplicationConfig;
-import com.nha.abdm.wrapper.common.requests.CreateSessionRequest;
 import java.text.MessageFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

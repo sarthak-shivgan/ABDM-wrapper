@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Data
 @Builder
-public class HealthInformationEntries {
+public class HealthInformationEntry {
   private String content;
   private String media;
   private String checksum;

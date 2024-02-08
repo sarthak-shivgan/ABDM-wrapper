@@ -5,9 +5,7 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.hiu.hrp.consent.HIUConsentInterface;
-import com.nha.abdm.wrapper.hiu.hrp.consent.requests.FetchPatientConsentRequest;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.InitConsentRequest;
-import com.nha.abdm.wrapper.hiu.hrp.consent.responses.ConsentResponse;
 import com.nha.abdm.wrapper.hiu.hrp.consent.responses.ConsentStatusResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,14 +36,6 @@ public class HIUFacadeConsentController {
     ConsentStatusResponse consentStatusResponse =
         hiuConsentInterface.consentRequestStatus(clientRequestId);
     return new ResponseEntity<>(consentStatusResponse, consentStatusResponse.getHttpStatusCode());
-  }
-
-  @PostMapping({"/fetch-consent"})
-  public ResponseEntity<ConsentResponse> fetchConsent(
-      @RequestBody FetchPatientConsentRequest fetchPatientConsentRequest)
-      throws IllegalDataStateException {
-    ConsentResponse consentResponse = hiuConsentInterface.fetchConsent(fetchPatientConsentRequest);
-    return new ResponseEntity<>(consentResponse, consentResponse.getHttpStatusCode());
   }
 
   @ExceptionHandler(IllegalDataStateException.class)

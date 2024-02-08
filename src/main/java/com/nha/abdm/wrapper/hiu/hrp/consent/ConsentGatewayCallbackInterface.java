@@ -13,5 +13,5 @@ public interface ConsentGatewayCallbackInterface {
 
   HttpStatus hiuNotify(NotifyHIURequest notifyHIURequest) throws IllegalDataStateException;
 
-  void consentOnFetch(OnFetchRequest onFetchRequest) throws IllegalDataStateException;
+  HttpStatus consentOnFetch(OnFetchRequest onFetchRequest) throws IllegalDataStateException;
 }

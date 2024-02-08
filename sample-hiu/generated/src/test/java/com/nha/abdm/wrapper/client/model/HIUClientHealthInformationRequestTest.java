@@ -24,17 +24,17 @@ import org.junit.jupiter.api.Test;
 
 
 /**
- * Model tests for FetchConsentRequest
+ * Model tests for HIUClientHealthInformationRequest
  */
-public class FetchConsentRequestTest {
-    private final FetchConsentRequest model = new FetchConsentRequest();
+public class HIUClientHealthInformationRequestTest {
+    private final HIUClientHealthInformationRequest model = new HIUClientHealthInformationRequest();
 
     /**
-     * Model tests for FetchConsentRequest
+     * Model tests for HIUClientHealthInformationRequest
      */
     @Test
-    public void testFetchConsentRequest() {
-        // TODO: test FetchConsentRequest
+    public void testHIUClientHealthInformationRequest() {
+        // TODO: test HIUClientHealthInformationRequest
     }
 
     /**
@@ -46,19 +46,35 @@ public class FetchConsentRequestTest {
     }
 
     /**
-     * Test the property 'timestamp'
-     */
-    @Test
-    public void timestampTest() {
-        // TODO: test timestamp
-    }
-
-    /**
      * Test the property 'consentId'
      */
     @Test
     public void consentIdTest() {
         // TODO: test consentId
+    }
+
+    /**
+     * Test the property 'fromDate'
+     */
+    @Test
+    public void fromDateTest() {
+        // TODO: test fromDate
+    }
+
+    /**
+     * Test the property 'toDate'
+     */
+    @Test
+    public void toDateTest() {
+        // TODO: test toDate
+    }
+
+    /**
+     * Test the property 'expiry'
+     */
+    @Test
+    public void expiryTest() {
+        // TODO: test expiry
     }
 
 }

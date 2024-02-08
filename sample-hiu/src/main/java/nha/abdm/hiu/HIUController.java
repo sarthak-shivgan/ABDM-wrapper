@@ -86,21 +86,4 @@ public class HIUController {
         ConsentApi consentApi = new ConsentApi();
         return consentApi.consentStatusRequestIdGet(requestId);
     }
-
-    @PostMapping({"/test-wrapper/fetch-consent"})
-    public ConsentResponse fetchConsent() throws ApiException {
-        FetchPatientConsentRequest fetchPatientConsentRequest = new FetchPatientConsentRequest();
-        fetchPatientConsentRequest.setPatientAbhaAddress("atul_kumar13@sbx");
-
-        FetchConsentRequest fetchConsentRequest = new FetchConsentRequest();
-        fetchConsentRequest.setRequestId(requestId);
-        fetchConsentRequest.setTimestamp(DateTimeFormatter.ISO_INSTANT.format(Instant.now()));
-        fetchConsentRequest.setConsentId("f9cf03ec-9b2c-4ae6-a481-25c621d3148f");
-
-        fetchPatientConsentRequest.setFetchConsentRequest(fetchConsentRequest);
-
-        ConsentApi consentApi = new ConsentApi();
-        return consentApi.fetchConsent(fetchPatientConsentRequest);
-    }
-
 }

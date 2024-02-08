@@ -1,18 +1,20 @@
-# ConsentApi
+# DataTransferApi
 
 All URIs are relative to *http://localhost:8082/v1*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
-| [**consentStatusRequestIdGet**](ConsentApi.md#consentStatusRequestIdGet) | **GET** /consent-status/{requestId} | Get status of Consent request. |
-| [**initConsent**](ConsentApi.md#initConsent) | **POST** /consent-init | Initiates consent request |
+| [**fetchHealthInformation**](DataTransferApi.md#fetchHealthInformation) | **POST** /health-information/fetch-records | Submits a request to fetch health information |
+| [**healthInformationStatusRequestIdGet**](DataTransferApi.md#healthInformationStatusRequestIdGet) | **GET** /health-information/status/{requestId} | Get status of Health Information request. |
 
 
-<a id="consentStatusRequestIdGet"></a>
-# **consentStatusRequestIdGet**
-> ConsentStatusResponse consentStatusRequestIdGet(requestId)
+<a id="fetchHealthInformation"></a>
+# **fetchHealthInformation**
+> FacadeResponse fetchHealthInformation(hiUClientHealthInformationRequest)
 
-Get status of Consent request.
+Submits a request to fetch health information
+
+Submits a request to fetch health information
 
 ### Example
 ```java
@@ -21,20 +23,20 @@ import com.nha.abdm.wrapper.client.invoker.ApiClient;
 import com.nha.abdm.wrapper.client.invoker.ApiException;
 import com.nha.abdm.wrapper.client.invoker.Configuration;
 import com.nha.abdm.wrapper.client.invoker.models.*;
-import com.nha.abdm.wrapper.client.api.ConsentApi;
+import com.nha.abdm.wrapper.client.api.DataTransferApi;
 
 public class Example {
   public static void main(String[] args) {
     ApiClient defaultClient = Configuration.getDefaultApiClient();
     defaultClient.setBasePath("http://localhost:8082/v1");
 
-    ConsentApi apiInstance = new ConsentApi(defaultClient);
-    String requestId = "requestId_example"; // String | Request Id of the consent request.
+    DataTransferApi apiInstance = new DataTransferApi(defaultClient);
+    HIUClientHealthInformationRequest hiUClientHealthInformationRequest = new HIUClientHealthInformationRequest(); // HIUClientHealthInformationRequest | 
     try {
-      ConsentStatusResponse result = apiInstance.consentStatusRequestIdGet(requestId);
+      FacadeResponse result = apiInstance.fetchHealthInformation(hiUClientHealthInformationRequest);
       System.out.println(result);
     } catch (ApiException e) {
-      System.err.println("Exception when calling ConsentApi#consentStatusRequestIdGet");
+      System.err.println("Exception when calling DataTransferApi#fetchHealthInformation");
       System.err.println("Status code: " + e.getCode());
       System.err.println("Reason: " + e.getResponseBody());
       System.err.println("Response headers: " + e.getResponseHeaders());
@@ -48,72 +50,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **requestId** | **String**| Request Id of the consent request. | |
-
-### Return type
-
-[**ConsentStatusResponse**](ConsentStatusResponse.md)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **200** | OK |  -  |
-| **400** | Invalid request body supplied |  -  |
-| **404** | Address not found |  -  |
-| **422** | Validation exception |  -  |
-
-<a id="initConsent"></a>
-# **initConsent**
-> FacadeResponse initConsent(initConsentRequest)
-
-Initiates consent request
-
-Initiates consent request
-
-### Example
-```java
-// Import classes:
-import com.nha.abdm.wrapper.client.invoker.ApiClient;
-import com.nha.abdm.wrapper.client.invoker.ApiException;
-import com.nha.abdm.wrapper.client.invoker.Configuration;
-import com.nha.abdm.wrapper.client.invoker.models.*;
-import com.nha.abdm.wrapper.client.api.ConsentApi;
-
-public class Example {
-  public static void main(String[] args) {
-    ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://localhost:8082/v1");
-
-    ConsentApi apiInstance = new ConsentApi(defaultClient);
-    InitConsentRequest initConsentRequest = new InitConsentRequest(); // InitConsentRequest | Request body for initiate consent request
-    try {
-      FacadeResponse result = apiInstance.initConsent(initConsentRequest);
-      System.out.println(result);
-    } catch (ApiException e) {
-      System.err.println("Exception when calling ConsentApi#initConsent");
-      System.err.println("Status code: " + e.getCode());
-      System.err.println("Reason: " + e.getResponseBody());
-      System.err.println("Response headers: " + e.getResponseHeaders());
-      e.printStackTrace();
-    }
-  }
-}
-```
-
-### Parameters
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **initConsentRequest** | [**InitConsentRequest**](InitConsentRequest.md)| Request body for initiate consent request | [optional] |
+| **hiUClientHealthInformationRequest** | [**HIUClientHealthInformationRequest**](HIUClientHealthInformationRequest.md)|  | [optional] |
 
 ### Return type
 
@@ -132,7 +69,70 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | OK |  -  |
-| **202** | Request accepted |  -  |
+| **202** | Request Accepted |  -  |
+| **400** | Invalid request body supplied |  -  |
+| **404** | Address not found |  -  |
+| **422** | Validation exception |  -  |
+
+<a id="healthInformationStatusRequestIdGet"></a>
+# **healthInformationStatusRequestIdGet**
+> HealthInformationResponse healthInformationStatusRequestIdGet(requestId)
+
+Get status of Health Information request.
+
+### Example
+```java
+// Import classes:
+import com.nha.abdm.wrapper.client.invoker.ApiClient;
+import com.nha.abdm.wrapper.client.invoker.ApiException;
+import com.nha.abdm.wrapper.client.invoker.Configuration;
+import com.nha.abdm.wrapper.client.invoker.models.*;
+import com.nha.abdm.wrapper.client.api.DataTransferApi;
+
+public class Example {
+  public static void main(String[] args) {
+    ApiClient defaultClient = Configuration.getDefaultApiClient();
+    defaultClient.setBasePath("http://localhost:8082/v1");
+
+    DataTransferApi apiInstance = new DataTransferApi(defaultClient);
+    String requestId = "requestId_example"; // String | Request Id of the health information request.
+    try {
+      HealthInformationResponse result = apiInstance.healthInformationStatusRequestIdGet(requestId);
+      System.out.println(result);
+    } catch (ApiException e) {
+      System.err.println("Exception when calling DataTransferApi#healthInformationStatusRequestIdGet");
+      System.err.println("Status code: " + e.getCode());
+      System.err.println("Reason: " + e.getResponseBody());
+      System.err.println("Response headers: " + e.getResponseHeaders());
+      e.printStackTrace();
+    }
+  }
+}
+```
+
+### Parameters
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **requestId** | **String**| Request Id of the health information request. | |
+
+### Return type
+
+[**HealthInformationResponse**](HealthInformationResponse.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
 | **400** | Invalid request body supplied |  -  |
 | **404** | Address not found |  -  |
 | **422** | Validation exception |  -  |

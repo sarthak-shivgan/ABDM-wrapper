@@ -1,6 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.common;
 
+import com.nha.abdm.wrapper.common.requests.SessionManager;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
