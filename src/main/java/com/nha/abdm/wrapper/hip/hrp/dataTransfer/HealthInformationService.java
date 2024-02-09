@@ -22,8 +22,10 @@ import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HealthInformat
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HealthInformationRequestStatus;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentCareContextsService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentPatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.ConsentCareContextMapping;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.ConsentPatient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
@@ -64,6 +66,7 @@ public class HealthInformationService implements HealthInformationInterface {
   @Autowired RequestLogService requestLogService;
   @Autowired ConsentPatientService consentPatientService;
   @Autowired EncryptionService encryptionService;
+  @Autowired ConsentCareContextsService consentCareContextsService;
 
   @Autowired
   public HealthInformationService(
@@ -95,10 +98,11 @@ public class HealthInformationService implements HealthInformationInterface {
     // Lookup in consent patient table is good enough as we are saving mapping when we are saving
     // consent in patient table.
     ConsentPatient consentPatient = consentPatientService.findMappingByConsentId(consentId);
+    String gatewayRequestId = UUID.randomUUID().toString();
     if (Objects.nonNull(consentPatient)) {
       onHealthInformationRequest =
           OnHealthInformationRequest.builder()
-              .requestId(UUID.randomUUID().toString())
+              .requestId(gatewayRequestId)
               .timestamp(Utils.getCurrentTimeStamp())
               .hiRequest(hiRequestStatus)
               .resp(responseRequestId)
@@ -125,7 +129,7 @@ public class HealthInformationService implements HealthInformationInterface {
         hipHealthInformationRequest, onHealthInformationRequest);
     // Prepare health information bundle request which needs to be sent to HIP.
     HealthInformationBundle healthInformationBundle =
-        fetchHealthInformationBundle(hipHealthInformationRequest);
+        fetchHealthInformationBundle(hipHealthInformationRequest, gatewayRequestId);
     // Request for health information bundle from HIP.
     ResponseEntity<GenericResponse> pushHealthInformationResponse =
         pushHealthInformation(healthInformationBundle, consentId);
@@ -167,18 +171,17 @@ public class HealthInformationService implements HealthInformationInterface {
    *     request HIP.
    */
   private HealthInformationBundle fetchHealthInformationBundle(
-      HIPHealthInformationRequest hipHealthInformationRequest) throws IllegalDataStateException {
-    String consentId = hipHealthInformationRequest.getHiRequest().getConsent().getId();
-    RequestLog existingLog = logsRepo.findByConsentId(consentId);
+      HIPHealthInformationRequest hipHealthInformationRequest, String gatewayRequestId)
+      throws IllegalDataStateException {
+    ConsentCareContextMapping existingLog =
+        consentCareContextsService.findMappingByConsentId(
+            hipHealthInformationRequest.getHiRequest().getConsent().getId());
     if (existingLog == null) {
       throw new IllegalDataStateException("consent id not found in db");
     }
-    HIPNotifyRequest hipNotifyRequest =
-        (HIPNotifyRequest) existingLog.getRequestDetails().get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
     HealthInformationBundleRequest healthInformationBundleRequest =
         HealthInformationBundleRequest.builder()
-            .careContextsWithPatientReferences(
-                hipNotifyRequest.getNotification().getConsentDetail().getCareContexts())
+            .careContextsWithPatientReferences(existingLog.getCareContexts())
             .build();
     log.debug(
         "Health information bundle request HIP : " + healthInformationBundleRequest.toString());
@@ -194,8 +197,8 @@ public class HealthInformationService implements HealthInformationInterface {
       HealthInformationBundle healthInformationBundle, String consentId)
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeySpecException,
           NoSuchProviderException, InvalidKeyException {
-    log.info(healthInformationBundle.toString());
-    RequestLog requestLog = logsRepo.findByConsentId(consentId);
+    log.info(healthInformationBundle);
+    RequestLog requestLog = requestLogService.findByConsentId(consentId, "HIP");
 
     HIPNotifyRequest hipNotifyRequest =
         (HIPNotifyRequest) requestLog.getRequestDetails().get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
@@ -281,8 +284,8 @@ public class HealthInformationService implements HealthInformationInterface {
         pushHealthInformationResponse.getStatusCode().is2xxSuccessful() ? "TRANSFERRED" : "FAILED";
     HIPNotifyRequest hipNotifyRequest =
         (HIPNotifyRequest)
-            logsRepo
-                .findByConsentId(consentId)
+            requestLogService
+                .findByConsentId(consentId, "HIP")
                 .getRequestDetails()
                 .get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
     List<ConsentCareContexts> listOfCareContexts =

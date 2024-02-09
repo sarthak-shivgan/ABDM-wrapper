@@ -25,7 +25,10 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnAddCareCon
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -386,6 +389,7 @@ public class RequestLogService<T> {
     requestLog.setGatewayRequestId(hipOnNotifyRequest.getRequestId());
     requestLog.setStatus(requestStatus);
     requestLog.setConsentId(hipNotifyRequest.getNotification().getConsentId());
+    requestLog.setEntityType("HIP");
     HashMap<String, Object> map = new HashMap<>();
     map.put(FieldIdentifiers.HIP_NOTIFY_REQUEST, hipNotifyRequest);
     requestLog.setRequestDetails(map);
@@ -409,6 +413,9 @@ public class RequestLogService<T> {
               + hipHealthInformationRequest.getHiRequest().getConsent().getId());
     }
     Map<String, Object> map = requestLog.getRequestDetails();
+    if (Objects.isNull(map)) {
+      map = new HashMap<>();
+    }
     map.put(FieldIdentifiers.HEALTH_INFORMATION_REQUEST, hipHealthInformationRequest);
     Update update = new Update();
     update.set(FieldIdentifiers.REQUEST_DETAILS, map);
@@ -463,9 +470,28 @@ public class RequestLogService<T> {
     requestLog.setGatewayRequestId(requestId);
     requestLog.setStatus(requestStatus);
     requestLog.setConsentId(consentId);
+    requestLog.setEntityType("HIU");
     if (StringUtils.isNotBlank(error)) {
       requestLog.setError(error);
     }
     mongoTemplate.save(requestLog);
+  }
+
+  /**
+   * Since we have common database schema for HIU and HIP, we need a way to distinguish the logs for
+   * them. We are doing that by setting entity type.
+   *
+   * @param consentId
+   * @param entity
+   * @return
+   */
+  public RequestLog findByConsentId(String consentId, String entity) {
+    Criteria criteria =
+        Criteria.where(FieldIdentifiers.CONSENT_ID)
+            .is(consentId)
+            .and(FieldIdentifiers.ENTITY_TYPE)
+            .is(entity);
+    Query query = Query.query(criteria);
+    return mongoTemplate.findOne(query, RequestLog.class);
   }
 }

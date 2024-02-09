@@ -14,6 +14,7 @@ import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotification;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPOnNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.ConsentAcknowledgement;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentCareContextsService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentPatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
@@ -37,6 +38,7 @@ public class ConsentService implements ConsentInterface {
   @Autowired RequestLogService requestLogService;
   @Autowired PatientService patientService;
   @Autowired ConsentPatientService consentPatientService;
+  @Autowired ConsentCareContextsService consentCareContextsService;
 
   @Value("${consentOnNotifyPath}")
   private String consentOnNotifyPath;
@@ -74,6 +76,9 @@ public class ConsentService implements ConsentInterface {
                 .build();
 
         patientService.addConsent(hipNotification.getConsentDetail().getPatient().getId(), consent);
+        consentCareContextsService.saveConsentContextsMapping(
+            hipNotification.getConsentDetail().getConsentId(),
+            consent.getConsentDetail().getCareContexts());
         // Save the consent patient mapping because on health information request gateway doesn't
         // provide the patient abhaAddress
         consentPatientService.saveConsentPatientMapping(

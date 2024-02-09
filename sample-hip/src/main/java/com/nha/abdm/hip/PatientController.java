@@ -91,14 +91,14 @@ public class PatientController {
         careContexts.add(careContext2);
 
         PatientWithCareContext patient = new PatientWithCareContext();
-        patient.setId("atul_kumar13@sbx");
-        patient.setReferenceNumber("patient123");
+        patient.setId("venuajietsh12@sbx");
+        patient.setReferenceNumber("venu");
         patient.setCareContexts(careContexts);
 
         LinkCareContextsRequest linkCareContextsRequest = new LinkCareContextsRequest();
         linkCareContextsRequest.setRequestId(requestId);
         linkCareContextsRequest.setRequesterId("Demo_Atul_HIP");
-        linkCareContextsRequest.setAbhaAddress("atul_kumar13@sbx");
+        linkCareContextsRequest.setAbhaAddress("venuajietsh12@sbx");
         linkCareContextsRequest.setAuthMode(LinkCareContextsRequest.AuthModeEnum.DEMOGRAPHICS);
         linkCareContextsRequest.setPatient(patient);
 

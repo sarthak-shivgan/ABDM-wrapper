@@ -15,6 +15,7 @@ public class FieldIdentifiers {
   public static final String TRANSACTION_ID = "transactionId";
   public static final String NONCE = "nonce";
   public static final String ENTITY_TYPE = "entityType";
+  public static final String CARE_CONTEXTS = "careContexts";
 
   // Nested fields.
   public static final String LINK_RECORDS_REQUEST = "linkRecordsRequest";

@@ -9,7 +9,7 @@
 |------------ | ------------- | ------------- | -------------|
 |**status** | **String** |  |  [optional] |
 |**error** | **String** |  |  [optional] |
-|**httpStatusCode** | **Integer** |  |  [optional] |
+|**httpStatusCode** | **String** |  |  [optional] |
 |**decryptedHealthInformationEntries** | **List&lt;String&gt;** |  |  [optional] |
 
 

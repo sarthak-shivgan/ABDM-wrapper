@@ -124,7 +124,7 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
           RequestStatus.CONSENT_ON_NOTIFY_RESPONSE_RECEIVED,
           notifyHIURequest.getNotification());
 
-      RequestLog requestLog = logsRepo.findByGatewayRequestId(notifyHIURequest.getRequestId());
+      RequestLog requestLog = logsRepo.findByGatewayRequestId(gatewayRequestId);
 
       List<Acknowledgement> acknowledgements = new ArrayList<>();
       String status = notifyHIURequest.getNotification().getStatus();

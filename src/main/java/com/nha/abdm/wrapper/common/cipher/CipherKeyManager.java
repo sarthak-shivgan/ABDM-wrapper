@@ -28,7 +28,7 @@ public class CipherKeyManager {
       senderPublicKey = getBase64String(getEncodedPublicKey(keyPair.getPublic()));
       senderNonce = generateRandomKey();
     }
-    return new Key(senderPublicKey, senderPrivateKey, senderNonce);
+    return new Key(senderPrivateKey, senderPublicKey, senderNonce);
   }
 
   private KeyPair generateKeyPair()

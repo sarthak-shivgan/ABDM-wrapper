@@ -2,7 +2,7 @@
 
 Swagger HIU Facade - OpenAPI 3.0
 - API version: 1.0.0
-  - Build date: 2024-02-08T13:20:50.774805979Z[Etc/UTC]
+  - Build date: 2024-02-09T05:40:12.260755493Z[Etc/UTC]
 
 This is a set of interfaces based on the OpenAPI 3.0 specification for a wrapper client
 

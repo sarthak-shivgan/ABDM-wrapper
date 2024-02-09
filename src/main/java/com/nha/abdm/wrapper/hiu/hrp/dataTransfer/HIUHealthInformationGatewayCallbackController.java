@@ -17,7 +17,7 @@ public class HIUHealthInformationGatewayCallbackController {
   @Autowired
   private HealthInformationGatewayCallbackInterface healthInformationGatewayCallbackInterface;
 
-  @PostMapping({"/v0.5/health-information/cm/on-request"})
+  @PostMapping({"/v0.5/health-information/hiu/on-request"})
   public ResponseEntity<GatewayCallbackResponse> onHealthInformationRequest(
       @RequestBody OnHealthInformationRequest onHealthInformationRequest)
       throws IllegalDataStateException {

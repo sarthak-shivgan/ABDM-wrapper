@@ -6,16 +6,15 @@ import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.hiu.hrp.consent.responses.HealthInformationResponse;
 import com.nha.abdm.wrapper.hiu.hrp.dataTransfer.HIUFacadeHealthInformationInterface;
 import com.nha.abdm.wrapper.hiu.hrp.dataTransfer.requests.HIUClientHealthInformationRequest;
-import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.spec.InvalidKeySpecException;
+import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/v1/health-information")
@@ -33,7 +32,7 @@ public class HIUFacadeHealthInformationController {
     return new ResponseEntity<>(facadeResponse, facadeResponse.getHttpStatusCode());
   }
 
-  @PostMapping({"/status/{requestId}"})
+  @GetMapping({"/status/{requestId}"})
   public ResponseEntity<HealthInformationResponse> getHealthInformationRequestStatus(
       @PathVariable("requestId") String requestId)
       throws IllegalDataStateException, InvalidCipherTextException, NoSuchAlgorithmException,

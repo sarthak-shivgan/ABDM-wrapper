@@ -318,7 +318,7 @@ components:
         error:
           type: string
         httpStatusCode:
-          type: integer
+          type: string
         decryptedHealthInformationEntries:
           type: array
           items:

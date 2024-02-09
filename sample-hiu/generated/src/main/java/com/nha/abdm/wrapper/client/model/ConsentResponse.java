@@ -51,7 +51,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * ConsentResponse
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-08T13:20:50.774805979Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-09T05:40:12.260755493Z[Etc/UTC]")
 public class ConsentResponse {
   public static final String SERIALIZED_NAME_STATUS = "status";
   @SerializedName(SERIALIZED_NAME_STATUS)

@@ -52,7 +52,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * HealthInformationResponse
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-08T13:20:50.774805979Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-09T05:40:12.260755493Z[Etc/UTC]")
 public class HealthInformationResponse {
   public static final String SERIALIZED_NAME_STATUS = "status";
   @SerializedName(SERIALIZED_NAME_STATUS)
@@ -64,7 +64,7 @@ public class HealthInformationResponse {
 
   public static final String SERIALIZED_NAME_HTTP_STATUS_CODE = "httpStatusCode";
   @SerializedName(SERIALIZED_NAME_HTTP_STATUS_CODE)
-  private Integer httpStatusCode;
+  private String httpStatusCode;
 
   public static final String SERIALIZED_NAME_DECRYPTED_HEALTH_INFORMATION_ENTRIES = "decryptedHealthInformationEntries";
   @SerializedName(SERIALIZED_NAME_DECRYPTED_HEALTH_INFORMATION_ENTRIES)
@@ -115,7 +115,7 @@ public class HealthInformationResponse {
   }
 
 
-  public HealthInformationResponse httpStatusCode(Integer httpStatusCode) {
+  public HealthInformationResponse httpStatusCode(String httpStatusCode) {
     
     this.httpStatusCode = httpStatusCode;
     return this;
@@ -126,12 +126,12 @@ public class HealthInformationResponse {
    * @return httpStatusCode
   **/
   @javax.annotation.Nullable
-  public Integer getHttpStatusCode() {
+  public String getHttpStatusCode() {
     return httpStatusCode;
   }
 
 
-  public void setHttpStatusCode(Integer httpStatusCode) {
+  public void setHttpStatusCode(String httpStatusCode) {
     this.httpStatusCode = httpStatusCode;
   }
 
@@ -250,6 +250,9 @@ public class HealthInformationResponse {
       }
       if ((jsonObj.get("error") != null && !jsonObj.get("error").isJsonNull()) && !jsonObj.get("error").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `error` to be a primitive type in the JSON string but got `%s`", jsonObj.get("error").toString()));
+      }
+      if ((jsonObj.get("httpStatusCode") != null && !jsonObj.get("httpStatusCode").isJsonNull()) && !jsonObj.get("httpStatusCode").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `httpStatusCode` to be a primitive type in the JSON string but got `%s`", jsonObj.get("httpStatusCode").toString()));
       }
       // ensure the optional json data is an array if present
       if (jsonObj.get("decryptedHealthInformationEntries") != null && !jsonObj.get("decryptedHealthInformationEntries").isJsonArray()) {

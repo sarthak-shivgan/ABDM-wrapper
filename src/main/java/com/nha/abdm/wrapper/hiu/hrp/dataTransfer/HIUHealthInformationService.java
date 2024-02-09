@@ -24,6 +24,7 @@ import java.util.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +45,7 @@ public class HIUHealthInformationService implements HealthInformationInterface {
   private final ConsentPatientService consentPatientService;
   private final PatientRepo patientRepo;
 
+  @Autowired
   public HIUHealthInformationService(
       RequestLogService requestLogService,
       RequestManager requestManager,
@@ -126,7 +128,11 @@ public class HIUHealthInformationService implements HealthInformationInterface {
             .statusResponses(healthInformationStatusResponseList)
             .build();
     HealthInformationNotifier healthInformationNotifier =
-        HealthInformationNotifier.builder().type("HIU").id(consentDetail.getHiu().getId()).build();
+        HealthInformationNotifier.builder()
+            .type("HIU")
+            .id("")
+            .build(); // TODO: It should be consentDetail.getHiu().getId() but this is coming as
+    // null to hip notify, this needs to be investigated
     HealthInformationNotificationStatus healthInformationNotificationStatus =
         HealthInformationNotificationStatus.builder()
             .consentId(consentDetail.getConsentId())

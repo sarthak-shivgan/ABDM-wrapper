@@ -354,14 +354,14 @@ components:
         - decryptedHealthInformationEntries
         error: error
         status: status
-        httpStatusCode: 0
+        httpStatusCode: httpStatusCode
       properties:
         status:
           type: string
         error:
           type: string
         httpStatusCode:
-          type: integer
+          type: string
         decryptedHealthInformationEntries:
           items:
             type: string
