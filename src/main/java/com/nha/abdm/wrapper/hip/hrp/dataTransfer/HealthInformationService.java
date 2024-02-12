@@ -127,7 +127,7 @@ public class HealthInformationService implements HealthInformationInterface {
     // Acknowledge to gateway that health information request has been received.
     healthInformationAcknowledgementRequest(
         hipHealthInformationRequest, onHealthInformationRequest);
-    // Prepare health information bundle request which needs to be sent to HIP.
+    // Prepare health information bundle request which needs to be sent to HIU.
     HealthInformationBundle healthInformationBundle =
         fetchHealthInformationBundle(hipHealthInformationRequest, gatewayRequestId);
     // Request for health information bundle from HIP.
