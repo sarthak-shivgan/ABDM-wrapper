@@ -13,7 +13,7 @@
 
 package com.nha.abdm.wrapper.client.invoker;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-07T16:47:17.453937283Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-09T05:40:12.260755493Z[Etc/UTC]")
 public class Configuration {
     public static final String VERSION = "1.0.0";
 

@@ -2,7 +2,7 @@
 
 Swagger HIU Facade - OpenAPI 3.0
 - API version: 1.0.0
-  - Build date: 2024-02-07T16:47:17.453937283Z[Etc/UTC]
+  - Build date: 2024-02-09T05:40:12.260755493Z[Etc/UTC]
 
 This is a set of interfaces based on the OpenAPI 3.0 specification for a wrapper client
 
@@ -115,8 +115,9 @@ All URIs are relative to *http://localhost:8082/v1*
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
 *ConsentApi* | [**consentStatusRequestIdGet**](docs/ConsentApi.md#consentStatusRequestIdGet) | **GET** /consent-status/{requestId} | Get status of Consent request.
-*ConsentApi* | [**fetchConsent**](docs/ConsentApi.md#fetchConsent) | **POST** /fetch-consent | Fetches consent details
 *ConsentApi* | [**initConsent**](docs/ConsentApi.md#initConsent) | **POST** /consent-init | Initiates consent request
+*DataTransferApi* | [**fetchHealthInformation**](docs/DataTransferApi.md#fetchHealthInformation) | **POST** /health-information/fetch-records | Submits a request to fetch health information
+*DataTransferApi* | [**healthInformationStatusRequestIdGet**](docs/DataTransferApi.md#healthInformationStatusRequestIdGet) | **GET** /health-information/status/{requestId} | Get status of Health Information request.
 
 
 ## Documentation for Models
@@ -133,9 +134,9 @@ Class | Method | HTTP request | Description
  - [DateRange](docs/DateRange.md)
  - [ErrorResponse](docs/ErrorResponse.md)
  - [FacadeResponse](docs/FacadeResponse.md)
- - [FetchConsentRequest](docs/FetchConsentRequest.md)
- - [FetchPatientConsentRequest](docs/FetchPatientConsentRequest.md)
  - [Frequency](docs/Frequency.md)
+ - [HIUClientHealthInformationRequest](docs/HIUClientHealthInformationRequest.md)
+ - [HealthInformationResponse](docs/HealthInformationResponse.md)
  - [IdRequest](docs/IdRequest.md)
  - [InitConsentRequest](docs/InitConsentRequest.md)
  - [Permission](docs/Permission.md)

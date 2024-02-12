@@ -6,32 +6,39 @@ import com.nha.abdm.wrapper.common.RequestManager;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.RespRequest;
+import com.nha.abdm.wrapper.common.requests.*;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.HIPClient;
 import com.nha.abdm.wrapper.hip.HIUClient;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.callback.HIPHealthInformationRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.encryption.EncryptionResponse;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.encryption.EncryptionService;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPHealthInformationRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundle;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationPushNotification;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationPushRequest;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.OnHealthInformationRequest;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.HealthInformationEntries;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.HealthInformationHiRequest.HealthInformationkeyMaterial.HealthInformationDhPublicKey;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.callback.helpers.HealthInformationHiRequest.HealthInformationkeyMaterial.HealthInformationKeyMaterial;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.*;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HealthInformationNotifier;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HealthInformationRequestStatus;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentCareContextsService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentPatientService;
-import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.ConsentCareContextMapping;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.ConsentPatient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.ConsentCareContexts;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import reactor.core.Exceptions;
+
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -41,13 +48,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import reactor.core.Exceptions;
 
 @Service
 public class HealthInformationService implements HealthInformationInterface {
@@ -65,9 +65,9 @@ public class HealthInformationService implements HealthInformationInterface {
   private final HIPClient hipClient;
   private final HIUClient hiuClient;
   @Autowired RequestLogService requestLogService;
-  @Autowired PatientService patientService;
   @Autowired ConsentPatientService consentPatientService;
   @Autowired EncryptionService encryptionService;
+  @Autowired ConsentCareContextsService consentCareContextsService;
 
   @Autowired
   public HealthInformationService(
@@ -91,20 +91,21 @@ public class HealthInformationService implements HealthInformationInterface {
     RespRequest responseRequestId =
         RespRequest.builder().requestId(hipHealthInformationRequest.getRequestId()).build();
     String consentId = hipHealthInformationRequest.getHiRequest().getConsent().getId();
-    HiRequestStatus hiRequestStatus =
-        HiRequestStatus.builder()
+    HealthInformationRequestStatus hiRequestStatus =
+        HealthInformationRequestStatus.builder()
             .sessionStatus("ACKNOWLEDGED")
             .transactionId(hipHealthInformationRequest.getTransactionId())
             .build();
     // Lookup in consent patient table is good enough as we are saving mapping when we are saving
     // consent in patient table.
-    boolean requestedPatientConsent = consentPatientService.findMappingByConsentId(consentId);
-    if (requestedPatientConsent) {
+    ConsentPatient consentPatient = consentPatientService.findMappingByConsentId(consentId);
+    String gatewayRequestId = UUID.randomUUID().toString();
+    if (Objects.nonNull(consentPatient)) {
       onHealthInformationRequest =
           OnHealthInformationRequest.builder()
-              .requestId(UUID.randomUUID().toString())
+              .requestId(gatewayRequestId)
               .timestamp(Utils.getCurrentTimeStamp())
-              .hiRequestStatus(hiRequestStatus)
+              .hiRequest(hiRequestStatus)
               .resp(responseRequestId)
               .build();
     } else {
@@ -124,12 +125,44 @@ public class HealthInformationService implements HealthInformationInterface {
     log.debug(
         "health information acknowledgment request body : "
             + onHealthInformationRequest.toString());
+    // Acknowledge to gateway that health information request has been received.
     healthInformationAcknowledgementRequest(
         hipHealthInformationRequest, onHealthInformationRequest);
+    // Prepare health information bundle request which needs to be sent to HIU.
     HealthInformationBundle healthInformationBundle =
-        fetchHealthInformationBundle(hipHealthInformationRequest);
-    pushHealthInformation(healthInformationBundle, consentId);
-    healthInformationPushAcknowledge(hipHealthInformationRequest, consentId);
+        fetchHealthInformationBundle(hipHealthInformationRequest, gatewayRequestId);
+    // Push the health information to HIU.
+    ResponseEntity<GenericResponse> pushHealthInformationResponse =
+        pushHealthInformation(healthInformationBundle, consentId);
+    // Notify Gateway that health information was pushed to HIU.
+    healthInformationPushNotify(
+        hipHealthInformationRequest, consentId, pushHealthInformationResponse);
+  }
+
+  private void healthInformationAcknowledgementRequest(
+      HIPHealthInformationRequest hipHealthInformationRequest,
+      OnHealthInformationRequest onHealthInformationRequest) {
+    try {
+      ResponseEntity<GenericResponse> response =
+          requestManager.fetchResponseFromGateway(
+              healthInformationOnRequestPath, onHealthInformationRequest);
+      log.debug(healthInformationOnRequestPath + " : dataOnRequest: " + response.getStatusCode());
+      if (response.getStatusCode().is2xxSuccessful()) {
+        requestLogService.saveHealthInformationRequest(
+            hipHealthInformationRequest, RequestStatus.HEALTH_INFORMATION_ON_REQUEST_SUCCESS);
+      } else if (Objects.nonNull(response.getBody())
+          && Objects.nonNull(response.getBody().getErrorResponse())) {
+        requestLogService.saveHealthInformationRequest(
+            hipHealthInformationRequest, RequestStatus.HEALTH_INFORMATION_ON_REQUEST_ERROR);
+      }
+    } catch (Exception ex) {
+      String error =
+          "An unknown error occurred while calling Gateway API: "
+              + ex.getMessage()
+              + " unwrapped exception: "
+              + Exceptions.unwrap(ex);
+      log.debug(error);
+    }
   }
 
   /**
@@ -139,20 +172,20 @@ public class HealthInformationService implements HealthInformationInterface {
    *     request HIP.
    */
   private HealthInformationBundle fetchHealthInformationBundle(
-      HIPHealthInformationRequest hipHealthInformationRequest) throws IllegalDataStateException {
-    String consentId = hipHealthInformationRequest.getHiRequest().getConsent().getId();
-    RequestLog existingLog = logsRepo.findByConsentId(consentId);
+      HIPHealthInformationRequest hipHealthInformationRequest, String gatewayRequestId)
+      throws IllegalDataStateException {
+    ConsentCareContextMapping existingLog =
+        consentCareContextsService.findMappingByConsentId(
+            hipHealthInformationRequest.getHiRequest().getConsent().getId());
     if (existingLog == null) {
       throw new IllegalDataStateException("consent id not found in db");
     }
-    HIPNotifyRequest hipNotifyRequest =
-        (HIPNotifyRequest) existingLog.getRequestDetails().get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
     HealthInformationBundleRequest healthInformationBundleRequest =
         HealthInformationBundleRequest.builder()
-            .careContextsWithPatientReferences(
-                hipNotifyRequest.getNotification().getConsentDetail().getCareContexts())
+            .careContextsWithPatientReferences(existingLog.getCareContexts())
             .build();
-    log.debug("Health information bundle request HIP : " + healthInformationBundleRequest.toString());
+    log.debug(
+        "Health information bundle request HIP : " + healthInformationBundleRequest.toString());
     return hipClient.healthInformationBundleRequest(healthInformationBundleRequest).getBody();
   }
 
@@ -161,27 +194,26 @@ public class HealthInformationService implements HealthInformationInterface {
    *
    * @param healthInformationBundle FHIR bundle received from HIP for the particular patients
    */
-  private void pushHealthInformation(
+  private ResponseEntity<GenericResponse> pushHealthInformation(
       HealthInformationBundle healthInformationBundle, String consentId)
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeySpecException,
           NoSuchProviderException, InvalidKeyException {
-    log.info(healthInformationBundle.toString());
-    RequestLog existingRecord = logsRepo.findByConsentId(consentId);
+    log.info(healthInformationBundle);
+    RequestLog requestLog = requestLogService.findByConsentId(consentId, "HIP");
 
     HIPNotifyRequest hipNotifyRequest =
-        (HIPNotifyRequest)
-            existingRecord.getRequestDetails().get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
+        (HIPNotifyRequest) requestLog.getRequestDetails().get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
 
     HIPHealthInformationRequest hipHealthInformationRequest =
         (HIPHealthInformationRequest)
-            existingRecord.getRequestDetails().get(FieldIdentifiers.HEALTH_INFORMATION_REQUEST);
+            requestLog.getRequestDetails().get(FieldIdentifiers.HEALTH_INFORMATION_REQUEST);
     HealthInformationPushRequest healthInformationPushRequest =
         fetchHealthInformationPushRequest(
             hipNotifyRequest, hipHealthInformationRequest, healthInformationBundle);
 
     log.debug("Health Information push request: " + healthInformationPushRequest);
     log.info("initiating the dataTransfer to HIU");
-    hiuClient.pushHealthInformation(
+    return hiuClient.pushHealthInformation(
         hipHealthInformationRequest.getHiRequest().getDataPushUrl(), healthInformationPushRequest);
   }
 
@@ -211,20 +243,20 @@ public class HealthInformationService implements HealthInformationInterface {
             .dhPublicKey(dhPublicKey)
             .nonce(encryptedData.getSenderNonce())
             .build();
-    List<HealthInformationEntries> entries = new ArrayList<>();
+    List<HealthInformationEntry> entries = new ArrayList<>();
     List<String> careContextReferenceList =
         hipNotifyRequest.getNotification().getConsentDetail().getCareContexts().stream()
             .map(ConsentCareContexts::getCareContextReference)
             .toList();
     for (String careContextReference : careContextReferenceList) {
-      HealthInformationEntries healthInformationEntries =
-          HealthInformationEntries.builder()
+      HealthInformationEntry healthInformationEntry =
+          HealthInformationEntry.builder()
               .content(encryptedData.getEncryptedData())
               .media("application/fhir+json")
               .checksum("string")
               .careContextReference(careContextReference)
               .build();
-      entries.add(healthInformationEntries);
+      entries.add(healthInformationEntry);
     }
     return HealthInformationPushRequest.builder()
         .keyMaterial(keyMaterial)
@@ -239,15 +271,22 @@ public class HealthInformationService implements HealthInformationInterface {
    * After successful dataTransfer we need to send an acknowledgment to ABDM gateway saying
    * "TRANSFERRED"
    *
-   * @param consentId to get the careContexts of the patient from requestLogs
    * @param hipHealthInformationRequest which has the transactionId used to POST acknowledgement
+   * @param consentId to get the careContexts of the patient from requestLogs
+   * @param pushHealthInformationResponse
    */
-  private void healthInformationPushAcknowledge(
-      HIPHealthInformationRequest hipHealthInformationRequest, String consentId) {
+  private void healthInformationPushNotify(
+      HIPHealthInformationRequest hipHealthInformationRequest,
+      String consentId,
+      ResponseEntity<GenericResponse> pushHealthInformationResponse) {
+    String healthInformationStatus =
+        pushHealthInformationResponse.getStatusCode().is2xxSuccessful() ? "DELIVERED" : "ERRORED";
+    String sessionStatus =
+        pushHealthInformationResponse.getStatusCode().is2xxSuccessful() ? "TRANSFERRED" : "FAILED";
     HIPNotifyRequest hipNotifyRequest =
         (HIPNotifyRequest)
-            logsRepo
-                .findByConsentId(consentId)
+            requestLogService
+                .findByConsentId(consentId, "HIP")
                 .getRequestDetails()
                 .get(FieldIdentifiers.HIP_NOTIFY_REQUEST);
     List<ConsentCareContexts> listOfCareContexts =
@@ -257,15 +296,15 @@ public class HealthInformationService implements HealthInformationInterface {
       HealthInformationStatusResponse healthInformationStatusResponse =
           HealthInformationStatusResponse.builder()
               .careContextReference(item.getCareContextReference())
-              .hiStatus("OK")
+              .hiStatus(healthInformationStatus)
               .description("Done")
               .build();
       healthInformationStatusResponseList.add(healthInformationStatusResponse);
     }
     HealthInformationStatusNotification healthInformationStatusNotification =
         HealthInformationStatusNotification.builder()
-            .sessionStatus("TRANSFERRED")
-            .hipId("hipId")
+            .sessionStatus(sessionStatus)
+            .hipId(hipNotifyRequest.getNotification().getConsentDetail().getHip().getId())
             .statusResponses(healthInformationStatusResponseList)
             .build();
     HealthInformationNotifier healthInformationNotifier =
@@ -288,38 +327,12 @@ public class HealthInformationService implements HealthInformationInterface {
             .notification(healthInformationNotificationStatus)
             .build();
     log.info(healthInformationPushNotification.toString());
-    ResponseEntity<GatewayGenericResponse> response =
+    ResponseEntity<GenericResponse> response =
         requestManager.fetchResponseFromGateway(
             healthInformationPushNotificationPath, healthInformationPushNotification);
     log.debug(
         healthInformationPushNotificationPath
-            + " : healthInformationPushNotification: "
+            + " : healthInformationPushNotify: "
             + response.getStatusCode());
-  }
-
-  private void healthInformationAcknowledgementRequest(
-      HIPHealthInformationRequest hipHealthInformationRequest,
-      OnHealthInformationRequest onHealthInformationRequest) {
-    try {
-      ResponseEntity<GatewayGenericResponse> response =
-          requestManager.fetchResponseFromGateway(
-              healthInformationOnRequestPath, onHealthInformationRequest);
-      log.debug(healthInformationOnRequestPath + " : dataOnRequest: " + response.getStatusCode());
-      if (response.getStatusCode().is2xxSuccessful()) {
-        requestLogService.saveHealthInformationRequest(
-            hipHealthInformationRequest, RequestStatus.HEALTH_INFORMATION_ON_REQUEST_SUCCESS);
-      } else if (Objects.nonNull(response.getBody())
-          && Objects.nonNull(response.getBody().getErrorResponse())) {
-        requestLogService.saveHealthInformationRequest(
-            hipHealthInformationRequest, RequestStatus.HEALTH_INFORMATION_ON_REQUEST_ERROR);
-      }
-    } catch (Exception ex) {
-      String error =
-          "An unknown error occurred while calling Gateway API: "
-              + ex.getMessage()
-              + " unwrapped exception: "
-              + Exceptions.unwrap(ex);
-      log.debug(error);
-    }
   }
 }

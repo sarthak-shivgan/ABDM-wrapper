@@ -24,19 +24,20 @@ public class ConsentPatientService {
     this.mongoTemplate = mongoTemplate;
   }
 
-  public void saveConsentPatientMapping(String consentId, String patientAbhaAddress) {
+  public void saveConsentPatientMapping(
+      String consentId, String patientAbhaAddress, String entityType) {
     MongoCollection<Document> collection = mongoTemplate.getCollection("consent-patient");
     UpdateOptions updateOptions = new UpdateOptions().upsert(true);
     collection.updateOne(
         Filters.eq(FieldIdentifiers.CONSENT_ID, consentId),
-        Updates.combine(Updates.set(FieldIdentifiers.PATIENT_ABHA_ADDRESS, patientAbhaAddress)),
+        Updates.combine(
+            Updates.set(FieldIdentifiers.PATIENT_ABHA_ADDRESS, patientAbhaAddress),
+            Updates.set(FieldIdentifiers.ENTITY_TYPE, entityType)),
         updateOptions);
   }
 
-  public boolean findMappingByConsentId(String consentId) {
+  public ConsentPatient findMappingByConsentId(String consentId) {
     Query query = new Query(Criteria.where(FieldIdentifiers.CONSENT_ID).is(consentId));
-    ConsentPatient consentPatient = mongoTemplate.findOne(query, ConsentPatient.class);
-
-    return consentPatient != null;
+    return mongoTemplate.findOne(query, ConsentPatient.class);
   }
 }

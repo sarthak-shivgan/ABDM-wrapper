@@ -65,22 +65,52 @@ paths:
       tags:
       - consent
       x-accepts: application/json
-  /fetch-consent:
+  /health-information/fetch-records:
     post:
-      description: Fetches consent details
-      operationId: fetchConsent
+      description: Submits a request to fetch health information
+      operationId: fetchHealthInformation
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FetchPatientConsentRequest'
-        description: Request body for fetch consent request
+              $ref: '#/components/schemas/HIUClientHealthInformationRequest'
       responses:
         "200":
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConsentResponse'
+                $ref: '#/components/schemas/FacadeResponse'
+          description: OK
+        "202":
+          description: Request Accepted
+        "400":
+          description: Invalid request body supplied
+        "404":
+          description: Address not found
+        "422":
+          description: Validation exception
+      summary: Submits a request to fetch health information
+      tags:
+      - data-transfer
+      x-content-type: application/json
+      x-accepts: application/json
+  /health-information/status/{requestId}:
+    get:
+      parameters:
+      - description: Request Id of the health information request.
+        explode: false
+        in: path
+        name: requestId
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthInformationResponse'
           description: OK
         "400":
           description: Invalid request body supplied
@@ -88,10 +118,9 @@ paths:
           description: Address not found
         "422":
           description: Validation exception
-      summary: Fetches consent details
+      summary: Get status of Health Information request.
       tags:
-      - consent
-      x-content-type: application/json
+      - data-transfer
       x-accepts: application/json
 components:
   schemas:
@@ -119,10 +148,6 @@ components:
           $ref: '#/components/schemas/Permission'
       type: object
     Purpose:
-      example:
-        code: code
-        text: text
-        refUri: refUri
       properties:
         text:
           type: string
@@ -139,9 +164,6 @@ components:
           type: string
       type: object
     ConsentCareContext:
-      example:
-        patientReference: patientReference
-        careContextReference: careContextReference
       properties:
         patientReference:
           type: string
@@ -149,12 +171,6 @@ components:
           type: string
       type: object
     ConsentRequester:
-      example:
-        identifier:
-          system: system
-          type: type
-          value: value
-        name: name
       properties:
         name:
           type: string
@@ -162,10 +178,6 @@ components:
           $ref: '#/components/schemas/ConsentRequestIdentifier'
       type: object
     ConsentRequestIdentifier:
-      example:
-        system: system
-        type: type
-        value: value
       properties:
         type:
           type: string
@@ -175,10 +187,6 @@ components:
           type: string
       type: object
     Frequency:
-      example:
-        repeats: 6
-        unit: unit
-        value: 0
       properties:
         unit:
           type: string
@@ -254,52 +262,6 @@ components:
           type: array
       type: object
     ConsentResponse:
-      example:
-        error: error
-        consent:
-          consentDetail:
-            requester:
-              identifier:
-                system: system
-                type: type
-                value: value
-              name: name
-            consentId: consentId
-            consentManager:
-              id: id
-            schemaVersion: schemaVersion
-            purpose:
-              code: code
-              text: text
-              refUri: refUri
-            hiu:
-              id: id
-            hiTypes:
-            - hiTypes
-            - hiTypes
-            signature: signature
-            patient:
-              id: id
-            permission:
-              dateRange:
-                from: from
-                to: to
-              accessMode: accessMode
-              dataEraseAt: dataEraseAt
-              frequency:
-                repeats: 6
-                unit: unit
-                value: 0
-            careContexts:
-            - patientReference: patientReference
-              careContextReference: careContextReference
-            - patientReference: patientReference
-              careContextReference: careContextReference
-            hip:
-              id: id
-          status: status
-        status: status
-        httpStatusCode: httpStatusCode
       properties:
         status:
           type: string
@@ -311,48 +273,6 @@ components:
           $ref: '#/components/schemas/Consent'
       type: object
     Consent:
-      example:
-        consentDetail:
-          requester:
-            identifier:
-              system: system
-              type: type
-              value: value
-            name: name
-          consentId: consentId
-          consentManager:
-            id: id
-          schemaVersion: schemaVersion
-          purpose:
-            code: code
-            text: text
-            refUri: refUri
-          hiu:
-            id: id
-          hiTypes:
-          - hiTypes
-          - hiTypes
-          signature: signature
-          patient:
-            id: id
-          permission:
-            dateRange:
-              from: from
-              to: to
-            accessMode: accessMode
-            dataEraseAt: dataEraseAt
-            frequency:
-              repeats: 6
-              unit: unit
-              value: 0
-          careContexts:
-          - patientReference: patientReference
-            careContextReference: careContextReference
-          - patientReference: patientReference
-            careContextReference: careContextReference
-          hip:
-            id: id
-        status: status
       properties:
         status:
           type: string
@@ -360,46 +280,6 @@ components:
           $ref: '#/components/schemas/ConsentDetail'
       type: object
     ConsentDetail:
-      example:
-        requester:
-          identifier:
-            system: system
-            type: type
-            value: value
-          name: name
-        consentId: consentId
-        consentManager:
-          id: id
-        schemaVersion: schemaVersion
-        purpose:
-          code: code
-          text: text
-          refUri: refUri
-        hiu:
-          id: id
-        hiTypes:
-        - hiTypes
-        - hiTypes
-        signature: signature
-        patient:
-          id: id
-        permission:
-          dateRange:
-            from: from
-            to: to
-          accessMode: accessMode
-          dataEraseAt: dataEraseAt
-          frequency:
-            repeats: 6
-            unit: unit
-            value: 0
-        careContexts:
-        - patientReference: patientReference
-          careContextReference: careContextReference
-        - patientReference: patientReference
-          careContextReference: careContextReference
-        hip:
-          id: id
       properties:
         schemaVersion:
           type: string
@@ -431,16 +311,6 @@ components:
           type: string
       type: object
     Permission:
-      example:
-        dateRange:
-          from: from
-          to: to
-        accessMode: accessMode
-        dataEraseAt: dataEraseAt
-        frequency:
-          repeats: 6
-          unit: unit
-          value: 0
       properties:
         accessMode:
           type: string
@@ -452,40 +322,50 @@ components:
           $ref: '#/components/schemas/Frequency'
       type: object
     DateRange:
-      example:
-        from: from
-        to: to
       properties:
         from:
           type: string
         to:
           type: string
       type: object
-    FetchPatientConsentRequest:
+    HIUClientHealthInformationRequest:
       example:
-        patientAbhaAddress: patientAbhaAddress
-        fetchConsentRequest:
-          consentId: consentId
-          requestId: requestId
-          timestamp: timestamp
-      properties:
-        patientAbhaAddress:
-          type: string
-        fetchConsentRequest:
-          $ref: '#/components/schemas/FetchConsentRequest'
-      type: object
-    FetchConsentRequest:
-      example:
+        fromDate: fromDate
         consentId: consentId
         requestId: requestId
-        timestamp: timestamp
+        toDate: toDate
+        expiry: expiry
       properties:
         requestId:
           type: string
-        timestamp:
-          type: string
         consentId:
           type: string
+        fromDate:
+          type: string
+        toDate:
+          type: string
+        expiry:
+          type: string
+      type: object
+    HealthInformationResponse:
+      example:
+        decryptedHealthInformationEntries:
+        - decryptedHealthInformationEntries
+        - decryptedHealthInformationEntries
+        error: error
+        status: status
+        httpStatusCode: httpStatusCode
+      properties:
+        status:
+          type: string
+        error:
+          type: string
+        httpStatusCode:
+          type: string
+        decryptedHealthInformationEntries:
+          items:
+            type: string
+          type: array
       type: object
     initConsent_request:
       properties:

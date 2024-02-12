@@ -1,8 +1,8 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.common;
 
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationPushRequest;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
+import com.nha.abdm.wrapper.common.requests.SessionManager;
+import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +31,13 @@ public class RequestManager {
     hiuWebClient = WebClient.builder().build();
   }
 
-  public <T> ResponseEntity<GatewayGenericResponse> fetchResponseFromGateway(
-      String uri, T request) {
+  public <T> ResponseEntity<GenericResponse> fetchResponseFromGateway(String uri, T request) {
     return webClient
         .post()
         .uri(uri)
         .body(BodyInserters.fromValue(request))
         .retrieve()
-        .toEntity(GatewayGenericResponse.class)
+        .toEntity(GenericResponse.class)
         .block();
   }
 }

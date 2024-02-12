@@ -67,26 +67,52 @@ paths:
           description: Address not found
         '422':
           description: Validation exception
-  /fetch-consent:
+  /health-information/fetch-records:
     post:
       tags:
-        - consent
-      summary: Fetches consent details
-      description: Fetches consent details
-      operationId: fetchConsent
+        - data-transfer
+      summary: Submits a request to fetch health information
+      description: Submits a request to fetch health information
+      operationId: fetchHealthInformation
       requestBody:
-        description: Request body for fetch consent request
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/FetchPatientConsentRequest'
+              $ref: '#/components/schemas/HIUClientHealthInformationRequest'
       responses:
         '200':
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ConsentResponse'
+                $ref: '#/components/schemas/FacadeResponse'
+        '202':
+          description: Request Accepted
+        '400':
+          description: Invalid request body supplied
+        '404':
+          description: Address not found
+        '422':
+          description: Validation exception
+  /health-information/status/{requestId}:
+    get:
+      tags:
+        - data-transfer
+      summary: Get status of Health Information request.
+      parameters:
+        - in: path
+          name: requestId
+          schema:
+            type: string
+          required: true
+          description: Request Id of the health information request.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthInformationResponse'
         '400':
           description: Invalid request body supplied
         '404':
@@ -271,20 +297,30 @@ components:
           type: string
         to:
           type: string
-    FetchPatientConsentRequest:
-      type: object
-      properties:
-        patientAbhaAddress:
-          type: string
-        fetchConsentRequest:
-          $ref: '#/components/schemas/FetchConsentRequest'
-    FetchConsentRequest:
+    HIUClientHealthInformationRequest:
       type: object
       properties:
         requestId:
           type: string
-        timestamp:
-          type: string
         consentId:
           type: string
+        fromDate:
+          type: string
+        toDate:
+          type: string
+        expiry:
+          type: string
+    HealthInformationResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        error:
+          type: string
+        httpStatusCode:
+          type: string
+        decryptedHealthInformationEntries:
+          type: array
+          items:
+            type: string
 

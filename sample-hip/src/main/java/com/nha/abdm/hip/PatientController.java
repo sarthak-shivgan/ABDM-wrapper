@@ -42,9 +42,10 @@ public class PatientController {
     }
 
     @PostMapping(value="/health-information")
-    public @ResponseBody ResponseEntity<HealthInformationBundle> fetchHealthInformation(@RequestBody HealthInformationBundleRequest healthInformationBundleRequest) throws IOException {
+    public @ResponseBody ResponseEntity<HealthInformationBundle> fetchHealthInformation(
+            @RequestBody HealthInformationBundleRequest healthInformationBundleRequest) throws IOException {
         log.debug("healthInformationBundleRequest" + healthInformationBundleRequest);
-        String filePath = "src/main/resources/OP_Consultantion_fhir_bundle.json";
+        String filePath = "src/main/resources/OP_Consultation_fhir_bundle.json";
         String bundle= new String(Files.readAllBytes(Paths.get(filePath)));
         HealthInformationBundle healthInformationBundle=new HealthInformationBundle();
         healthInformationBundle.setBundleContent(bundle);
@@ -90,14 +91,14 @@ public class PatientController {
         careContexts.add(careContext2);
 
         PatientWithCareContext patient = new PatientWithCareContext();
-        patient.setId("atul_kumar13@sbx");
-        patient.setReferenceNumber("patient123");
+        patient.setId("venuajietsh12@sbx");
+        patient.setReferenceNumber("venu");
         patient.setCareContexts(careContexts);
 
         LinkCareContextsRequest linkCareContextsRequest = new LinkCareContextsRequest();
         linkCareContextsRequest.setRequestId(requestId);
         linkCareContextsRequest.setRequesterId("Demo_Atul_HIP");
-        linkCareContextsRequest.setAbhaAddress("atul_kumar13@sbx");
+        linkCareContextsRequest.setAbhaAddress("venuajietsh12@sbx");
         linkCareContextsRequest.setAuthMode(LinkCareContextsRequest.AuthModeEnum.DEMOGRAPHICS);
         linkCareContextsRequest.setPatient(patient);
 

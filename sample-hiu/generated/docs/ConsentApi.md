@@ -5,7 +5,6 @@ All URIs are relative to *http://localhost:8082/v1*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**consentStatusRequestIdGet**](ConsentApi.md#consentStatusRequestIdGet) | **GET** /consent-status/{requestId} | Get status of Consent request. |
-| [**fetchConsent**](ConsentApi.md#fetchConsent) | **POST** /fetch-consent | Fetches consent details |
 | [**initConsent**](ConsentApi.md#initConsent) | **POST** /consent-init | Initiates consent request |
 
 
@@ -62,71 +61,6 @@ No authorization required
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **200** | OK |  -  |
-| **400** | Invalid request body supplied |  -  |
-| **404** | Address not found |  -  |
-| **422** | Validation exception |  -  |
-
-<a id="fetchConsent"></a>
-# **fetchConsent**
-> ConsentResponse fetchConsent(fetchPatientConsentRequest)
-
-Fetches consent details
-
-Fetches consent details
-
-### Example
-```java
-// Import classes:
-import com.nha.abdm.wrapper.client.invoker.ApiClient;
-import com.nha.abdm.wrapper.client.invoker.ApiException;
-import com.nha.abdm.wrapper.client.invoker.Configuration;
-import com.nha.abdm.wrapper.client.invoker.models.*;
-import com.nha.abdm.wrapper.client.api.ConsentApi;
-
-public class Example {
-  public static void main(String[] args) {
-    ApiClient defaultClient = Configuration.getDefaultApiClient();
-    defaultClient.setBasePath("http://localhost:8082/v1");
-
-    ConsentApi apiInstance = new ConsentApi(defaultClient);
-    FetchPatientConsentRequest fetchPatientConsentRequest = new FetchPatientConsentRequest(); // FetchPatientConsentRequest | Request body for fetch consent request
-    try {
-      ConsentResponse result = apiInstance.fetchConsent(fetchPatientConsentRequest);
-      System.out.println(result);
-    } catch (ApiException e) {
-      System.err.println("Exception when calling ConsentApi#fetchConsent");
-      System.err.println("Status code: " + e.getCode());
-      System.err.println("Reason: " + e.getResponseBody());
-      System.err.println("Response headers: " + e.getResponseHeaders());
-      e.printStackTrace();
-    }
-  }
-}
-```
-
-### Parameters
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **fetchPatientConsentRequest** | [**FetchPatientConsentRequest**](FetchPatientConsentRequest.md)| Request body for fetch consent request | [optional] |
-
-### Return type
-
-[**ConsentResponse**](ConsentResponse.md)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: application/json
  - **Accept**: application/json
 
 ### HTTP response details

@@ -14,10 +14,8 @@
 package com.nha.abdm.wrapper.client.api;
 
 import com.nha.abdm.wrapper.client.invoker.ApiException;
-import com.nha.abdm.wrapper.client.model.ConsentResponse;
 import com.nha.abdm.wrapper.client.model.ConsentStatusResponse;
 import com.nha.abdm.wrapper.client.model.FacadeResponse;
-import com.nha.abdm.wrapper.client.model.FetchPatientConsentRequest;
 import com.nha.abdm.wrapper.client.model.InitConsentRequest;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -44,20 +42,6 @@ public class ConsentApiTest {
     public void consentStatusRequestIdGetTest() throws ApiException {
         String requestId = null;
         ConsentStatusResponse response = api.consentStatusRequestIdGet(requestId);
-        // TODO: test validations
-    }
-
-    /**
-     * Fetches consent details
-     *
-     * Fetches consent details
-     *
-     * @throws ApiException if the Api call fails
-     */
-    @Test
-    public void fetchConsentTest() throws ApiException {
-        FetchPatientConsentRequest fetchPatientConsentRequest = null;
-        ConsentResponse response = api.fetchConsent(fetchPatientConsentRequest);
         // TODO: test validations
     }
 

@@ -11,6 +11,11 @@ public class FieldIdentifiers {
   public static final String CONSENTS = "consents";
   public static final String RESPONSE_DETAILS = "responseDetails";
   public static final String CONSENT_ID = "consentId";
+  public static final String PRIVATE_KEY = "privateKey";
+  public static final String TRANSACTION_ID = "transactionId";
+  public static final String NONCE = "nonce";
+  public static final String ENTITY_TYPE = "entityType";
+  public static final String CARE_CONTEXTS = "careContexts";
 
   // Nested fields.
   public static final String LINK_RECORDS_REQUEST = "linkRecordsRequest";
@@ -23,4 +28,5 @@ public class FieldIdentifiers {
   public static final String HIP_ON_CONFIRM_RESPONSE = "hipOnConfirmResponse";
   public static final String HIP_NOTIFY_REQUEST = "HIPConsentNotification";
   public static final String HEALTH_INFORMATION_REQUEST = "HIPHealthInformationRequest";
+  public static final String ENCRYPTED_HEALTH_INFORMATION = "encryptedHealthInformation";
 }

@@ -3,7 +3,7 @@ package com.nha.abdm.wrapper.hip.hrp.dataTransfer.encryption;
 
 import com.nha.abdm.wrapper.common.cipher.CipherKeyManager;
 import com.nha.abdm.wrapper.common.cipher.Key;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPHealthInformationRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.callback.HIPHealthInformationRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundle;
 import java.math.BigInteger;
 import java.security.*;
@@ -36,6 +36,7 @@ public class EncryptionService {
 
   /**
    * The encryption algorithm is replicated from "https://github.com/sukreet/fidelius"
+   *
    * @param hipHealthInformationRequest has receiver keys used to encrypt the FHIR
    * @param bundleResponse is the response from HIP which has FHIR bundle.
    */

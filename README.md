@@ -55,6 +55,9 @@ docker-compose up
 ## Sample HIP
 Click [here](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Sample-HIP) for more details on this.
 
+## Sample HIU
+Click [here](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Sample-HIU) for more details on this.
+
 ## Test Discovery and User-Initiated Linking
 Click [here](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Test-Discovery-and-User-Initiated-Linking) to get more details on this.
 

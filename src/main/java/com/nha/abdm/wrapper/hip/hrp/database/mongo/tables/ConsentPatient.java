@@ -13,6 +13,9 @@ public class ConsentPatient {
   @Indexed(unique = true)
   public String consentId;
 
-  @Field("patientAbhaAddress")
+  @Field("abhaAddress")
   public String patientAbhaAddress;
+
+  @Field("entityType")
+  public String entityType;
 }

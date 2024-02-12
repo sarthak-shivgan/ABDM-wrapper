@@ -43,6 +43,9 @@ public class RequestLog {
   @Field("consentId")
   public String consentId;
 
+  @Field("entityType")
+  public String entityType;
+
   public RequestLog(
       String clientRequestId,
       String gatewayRequestId,

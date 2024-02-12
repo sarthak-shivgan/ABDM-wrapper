@@ -2,7 +2,7 @@
 package com.nha.abdm.wrapper.hip.hrp.dataTransfer;
 
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HIPHealthInformationRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.callback.HIPHealthInformationRequest;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;

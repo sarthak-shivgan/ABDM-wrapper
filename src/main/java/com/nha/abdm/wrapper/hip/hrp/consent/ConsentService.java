@@ -8,16 +8,17 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
+import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.HIPClient;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotification;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPOnNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.ConsentAcknowledgement;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentCareContextsService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentPatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
 import java.util.Objects;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
@@ -37,6 +38,7 @@ public class ConsentService implements ConsentInterface {
   @Autowired RequestLogService requestLogService;
   @Autowired PatientService patientService;
   @Autowired ConsentPatientService consentPatientService;
+  @Autowired ConsentCareContextsService consentCareContextsService;
 
   @Value("${consentOnNotifyPath}")
   private String consentOnNotifyPath;
@@ -47,7 +49,8 @@ public class ConsentService implements ConsentInterface {
   }
 
   /**
-   * The callback from ABDM gateway after consentGrant by the user , POST method for /on-notify as acknowledgement
+   * The callback from ABDM gateway after consentGrant by the user , POST method for /on-notify as
+   * acknowledgement
    *
    * @param hipNotifyRequest careContext and demographics details are provided, and implement a
    *     logic to check the existence of the careContexts.
@@ -73,11 +76,15 @@ public class ConsentService implements ConsentInterface {
                 .build();
 
         patientService.addConsent(hipNotification.getConsentDetail().getPatient().getId(), consent);
+        consentCareContextsService.saveConsentContextsMapping(
+            hipNotification.getConsentDetail().getConsentId(),
+            consent.getConsentDetail().getCareContexts());
         // Save the consent patient mapping because on health information request gateway doesn't
         // provide the patient abhaAddress
         consentPatientService.saveConsentPatientMapping(
             consent.getConsentDetail().getConsentId(),
-            hipNotification.getConsentDetail().getPatient().getId());
+            hipNotification.getConsentDetail().getPatient().getId(),
+            "HIP");
         ConsentAcknowledgement dataAcknowledgement =
             ConsentAcknowledgement.builder()
                 .status("OK")
@@ -107,7 +114,7 @@ public class ConsentService implements ConsentInterface {
       }
       try {
         log.info(hipOnNotifyRequest.toString());
-        ResponseEntity<GatewayGenericResponse> response =
+        ResponseEntity<GenericResponse> response =
             requestManager.fetchResponseFromGateway(consentOnNotifyPath, hipOnNotifyRequest);
         log.debug(consentOnNotifyPath + " : consentOnNotify: " + response.getStatusCode());
         if (response.getStatusCode() == HttpStatus.ACCEPTED) {

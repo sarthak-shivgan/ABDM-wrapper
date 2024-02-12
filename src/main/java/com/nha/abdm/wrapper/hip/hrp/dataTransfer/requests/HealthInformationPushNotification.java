@@ -1,7 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests;
 
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HealthInformationNotificationStatus;
+import com.nha.abdm.wrapper.common.requests.HealthInformationNotificationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

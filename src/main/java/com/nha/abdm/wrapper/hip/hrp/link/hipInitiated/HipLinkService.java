@@ -7,6 +7,7 @@ import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
+import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.HIPClient;
 import com.nha.abdm.wrapper.hip.HIPPatient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
@@ -22,7 +23,6 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkAuthInit;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkConfirmRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.helpers.*;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
 import java.util.Objects;
@@ -100,7 +100,7 @@ public class HipLinkService implements HipLinkInterface {
     log.debug("LinkAuthInit : " + linkAuthInit.toString());
 
     try {
-      ResponseEntity<GatewayGenericResponse> response =
+      ResponseEntity<GenericResponse> response =
           requestManager.fetchResponseFromGateway(linkAuthInitPath, linkAuthInit);
       log.debug(linkAuthInitPath + " : linkAuthInit: " + response.getStatusCode());
       if (response.getStatusCode() == HttpStatus.ACCEPTED) {
@@ -177,7 +177,7 @@ public class HipLinkService implements HipLinkInterface {
     log.debug("confirmAuthDemographics linkConfirmRequest: " + linkConfirmRequest.toString());
     requestLogService.updateHipOnInitResponse(linkOnInitResponse, linkConfirmRequest);
     try {
-      ResponseEntity<GatewayGenericResponse> response =
+      ResponseEntity<GenericResponse> response =
           requestManager.fetchResponseFromGateway(linkConfirmAuthPath, linkConfirmRequest);
       log.info(linkConfirmAuthPath + " : confirmAuthDemographics: " + response.getStatusCode());
       if (response.getStatusCode() == HttpStatus.ACCEPTED) {
@@ -257,7 +257,7 @@ public class HipLinkService implements HipLinkInterface {
     requestLogService.updateOnInitResponseOTP(
         verifyOTP.getRequestId(), linkConfirmRequest.getRequestId());
     try {
-      ResponseEntity<GatewayGenericResponse> response =
+      ResponseEntity<GenericResponse> response =
           requestManager.fetchResponseFromGateway(linkConfirmAuthPath, linkConfirmRequest);
       log.debug(linkConfirmAuthPath + " : confirmAuthOtp: " + response.getStatusCode());
       if (response.getStatusCode() == HttpStatus.ACCEPTED) {
@@ -338,7 +338,7 @@ public class HipLinkService implements HipLinkInterface {
     log.debug("Link AddCareContext : " + linkAddCareContext.toString());
     requestLogService.setHipOnConfirmResponse(linkOnConfirmResponse, linkAddCareContext);
     try {
-      ResponseEntity<GatewayGenericResponse> response =
+      ResponseEntity<GenericResponse> response =
           requestManager.fetchResponseFromGateway(linkAddContextsPath, linkAddCareContext);
       log.debug(linkAddContextsPath + " : linkAddContexts: " + response.getStatusCode());
       if (response.getStatusCode() == HttpStatus.ACCEPTED) {

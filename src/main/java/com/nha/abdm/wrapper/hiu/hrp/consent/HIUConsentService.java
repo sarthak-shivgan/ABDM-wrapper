@@ -4,23 +4,19 @@ package com.nha.abdm.wrapper.hiu.hrp.consent;
 import com.nha.abdm.wrapper.common.RequestManager;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
-import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
+import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
-import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
-import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.GatewayGenericResponse;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.*;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.ConsentStatus;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.Notification;
 import com.nha.abdm.wrapper.hiu.hrp.consent.responses.ConsentResponse;
 import com.nha.abdm.wrapper.hiu.hrp.consent.responses.ConsentStatusResponse;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
@@ -69,11 +65,11 @@ public class HIUConsentService implements HIUConsentInterface {
   @Override
   public FacadeResponse initiateConsentRequest(InitConsentRequest initConsentRequest) {
     try {
-      ResponseEntity<GatewayGenericResponse> response =
+      ResponseEntity<GenericResponse> response =
           requestManager.fetchResponseFromGateway(consentInitPath, initConsentRequest);
       if (response.getStatusCode().is2xxSuccessful()) {
-        requestLogService.persistConsentInitRequest(
-            initConsentRequest, RequestStatus.CONSENT_INIT_ACCEPTED, null);
+        requestLogService.saveRequest(
+            initConsentRequest.getRequestId(), RequestStatus.CONSENT_INIT_ACCEPTED, null);
       } else {
         String error =
             (Objects.nonNull(response.getBody())
@@ -82,8 +78,8 @@ public class HIUConsentService implements HIUConsentInterface {
                 : "Error from gateway while initiating consent request: "
                     + initConsentRequest.toString();
         log.error(error);
-        requestLogService.persistConsentInitRequest(
-            initConsentRequest, RequestStatus.CONSENT_INIT_ERROR, error);
+        requestLogService.saveRequest(
+            initConsentRequest.getRequestId(), RequestStatus.CONSENT_INIT_ERROR, error);
       }
       return FacadeResponse.builder().httpStatusCode(response.getStatusCode()).build();
     } catch (Exception ex) {
@@ -93,8 +89,8 @@ public class HIUConsentService implements HIUConsentInterface {
               + " unwrapped exception: "
               + Exceptions.unwrap(ex);
       log.error(error);
-      requestLogService.persistConsentInitRequest(
-          initConsentRequest, RequestStatus.CONSENT_INIT_ERROR, error);
+      requestLogService.saveRequest(
+          initConsentRequest.getRequestId(), RequestStatus.CONSENT_INIT_ERROR, error);
       return FacadeResponse.builder()
           .message(error)
           .httpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -160,7 +156,7 @@ public class HIUConsentService implements HIUConsentInterface {
   @Override
   public void hiuOnNotify(OnNotifyRequest onNotifyRequest) {
     try {
-      ResponseEntity<GatewayGenericResponse> response =
+      ResponseEntity<GenericResponse> response =
           requestManager.fetchResponseFromGateway(consentHiuOnNotifyPath, onNotifyRequest);
       // If something goes wrong while acknowledging notification from gateway, then we can just log
       // it,
@@ -184,36 +180,11 @@ public class HIUConsentService implements HIUConsentInterface {
   }
 
   @Override
-  public ConsentResponse fetchConsent(FetchPatientConsentRequest fetchPatientConsentRequest)
-      throws IllegalDataStateException {
-    FetchConsentRequest fetchConsentRequest = fetchPatientConsentRequest.getFetchConsentRequest();
-    RequestLog requestLog = logsRepo.findByClientRequestId(fetchConsentRequest.getRequestId());
-    if (requestLog == null) {
-      throw new IllegalDataStateException(
-          "Client request not found in database: " + fetchConsentRequest.getRequestId());
-    }
-    Map<String, Object> map = requestLog.getResponseDetails();
-    if (Objects.isNull(map.get(FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE))) {
-      throw new IllegalDataStateException(
-          "Consent Details not found in request log collection: "
-              + fetchConsentRequest.getRequestId());
-    }
-    Patient patient =
-        patientRepo.findByAbhaAddress(fetchPatientConsentRequest.getPatientAbhaAddress());
-    if (patient == null) {
-      throw new IllegalDataStateException(
-          "Patient not found in database: " + fetchPatientConsentRequest.getPatientAbhaAddress());
-    }
-    List<Consent> consents = patient.getConsents();
-    for (Consent consent : consents) {
-      if (consent.getConsentDetail().getConsentId().equals(fetchConsentRequest.getConsentId())) {
-        return ConsentResponse.builder().consent(consent).build();
-      }
-    }
-
+  public ConsentResponse fetchConsent(
+      FetchConsentRequest fetchConsentRequest, RequestLog requestLog) {
     try {
       fetchConsentRequest.setRequestId(UUID.randomUUID().toString());
-      ResponseEntity<GatewayGenericResponse> response =
+      ResponseEntity<GenericResponse> response =
           requestManager.fetchResponseFromGateway(fetchConsentPath, fetchConsentRequest);
       if (response.getStatusCode().is2xxSuccessful()) {
         requestLogService.updateStatus(
@@ -282,7 +253,7 @@ public class HIUConsentService implements HIUConsentInterface {
             .timestamp(Utils.getCurrentTimeStamp())
             .consentRequestId(consentRequestId)
             .build();
-    ResponseEntity<GatewayGenericResponse> response =
+    ResponseEntity<GenericResponse> response =
         requestManager.fetchResponseFromGateway(consentStatusPath, consentStatusRequest);
     if (response.getStatusCode().is2xxSuccessful()) {
       requestLogService.updateStatus(
