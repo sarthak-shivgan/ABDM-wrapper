@@ -18,11 +18,6 @@ public class HIUController {
     private static final String healthInformationRequestId = UUID.randomUUID().toString();
     private static final String consentRequestId = UUID.randomUUID().toString();
 
-    @PostMapping({"/records"})
-    public void hipSentRecords(@RequestBody String fhirBundle){
-        System.out.println(fhirBundle);
-    }
-
     @PostMapping({"/test-wrapper/consent-init"})
     public FacadeResponse initiateConsent() throws ApiException {
         InitConsentRequest initConsentRequest = new InitConsentRequest();
