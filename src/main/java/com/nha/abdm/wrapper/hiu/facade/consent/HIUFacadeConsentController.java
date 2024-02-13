@@ -50,12 +50,11 @@ public class HIUFacadeConsentController {
   }
 
   @ExceptionHandler(HttpClientErrorException.class)
-  private ResponseEntity<FacadeResponse> handleHttpClientException(
-          HttpClientErrorException ex) {
+  private ResponseEntity<FacadeResponse> handleHttpClientException(HttpClientErrorException ex) {
     return new ResponseEntity<>(
-            FacadeResponse.builder()
-                    .error(ErrorResponse.builder().message(ex.getMessage()).build())
-                    .build(),
-            ex.getStatusCode());
+        FacadeResponse.builder()
+            .error(ErrorResponse.builder().message(ex.getMessage()).build())
+            .build(),
+        ex.getStatusCode());
   }
 }
