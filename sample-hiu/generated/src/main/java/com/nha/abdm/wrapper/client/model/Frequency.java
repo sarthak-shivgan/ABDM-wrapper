@@ -50,11 +50,64 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * Frequency
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-09T05:40:12.260755493Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-13T21:01:05.570301947Z[Etc/UTC]")
 public class Frequency {
+  /**
+   * Gets or Sets unit
+   */
+  @JsonAdapter(UnitEnum.Adapter.class)
+  public enum UnitEnum {
+    HOUR("HOUR"),
+    
+    WEEK("WEEK"),
+    
+    DAY("DAY"),
+    
+    MONTH("MONTH"),
+    
+    YEAR("YEAR");
+
+    private String value;
+
+    UnitEnum(String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    public static UnitEnum fromValue(String value) {
+      for (UnitEnum b : UnitEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+
+    public static class Adapter extends TypeAdapter<UnitEnum> {
+      @Override
+      public void write(final JsonWriter jsonWriter, final UnitEnum enumeration) throws IOException {
+        jsonWriter.value(enumeration.getValue());
+      }
+
+      @Override
+      public UnitEnum read(final JsonReader jsonReader) throws IOException {
+        String value =  jsonReader.nextString();
+        return UnitEnum.fromValue(value);
+      }
+    }
+  }
+
   public static final String SERIALIZED_NAME_UNIT = "unit";
   @SerializedName(SERIALIZED_NAME_UNIT)
-  private String unit;
+  private UnitEnum unit;
 
   public static final String SERIALIZED_NAME_VALUE = "value";
   @SerializedName(SERIALIZED_NAME_VALUE)
@@ -67,7 +120,7 @@ public class Frequency {
   public Frequency() {
   }
 
-  public Frequency unit(String unit) {
+  public Frequency unit(UnitEnum unit) {
     
     this.unit = unit;
     return this;
@@ -78,12 +131,12 @@ public class Frequency {
    * @return unit
   **/
   @javax.annotation.Nullable
-  public String getUnit() {
+  public UnitEnum getUnit() {
     return unit;
   }
 
 
-  public void setUnit(String unit) {
+  public void setUnit(UnitEnum unit) {
     this.unit = unit;
   }
 

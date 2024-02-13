@@ -52,11 +52,62 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * Permission
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-09T05:40:12.260755493Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-13T21:01:05.570301947Z[Etc/UTC]")
 public class Permission {
+  /**
+   * Gets or Sets accessMode
+   */
+  @JsonAdapter(AccessModeEnum.Adapter.class)
+  public enum AccessModeEnum {
+    VIEW("VIEW"),
+    
+    STORE("STORE"),
+    
+    QUERY("QUERY"),
+    
+    STREAM("STREAM");
+
+    private String value;
+
+    AccessModeEnum(String value) {
+      this.value = value;
+    }
+
+    public String getValue() {
+      return value;
+    }
+
+    @Override
+    public String toString() {
+      return String.valueOf(value);
+    }
+
+    public static AccessModeEnum fromValue(String value) {
+      for (AccessModeEnum b : AccessModeEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      throw new IllegalArgumentException("Unexpected value '" + value + "'");
+    }
+
+    public static class Adapter extends TypeAdapter<AccessModeEnum> {
+      @Override
+      public void write(final JsonWriter jsonWriter, final AccessModeEnum enumeration) throws IOException {
+        jsonWriter.value(enumeration.getValue());
+      }
+
+      @Override
+      public AccessModeEnum read(final JsonReader jsonReader) throws IOException {
+        String value =  jsonReader.nextString();
+        return AccessModeEnum.fromValue(value);
+      }
+    }
+  }
+
   public static final String SERIALIZED_NAME_ACCESS_MODE = "accessMode";
   @SerializedName(SERIALIZED_NAME_ACCESS_MODE)
-  private String accessMode;
+  private AccessModeEnum accessMode;
 
   public static final String SERIALIZED_NAME_DATE_RANGE = "dateRange";
   @SerializedName(SERIALIZED_NAME_DATE_RANGE)
@@ -73,7 +124,7 @@ public class Permission {
   public Permission() {
   }
 
-  public Permission accessMode(String accessMode) {
+  public Permission accessMode(AccessModeEnum accessMode) {
     
     this.accessMode = accessMode;
     return this;
@@ -84,12 +135,12 @@ public class Permission {
    * @return accessMode
   **/
   @javax.annotation.Nullable
-  public String getAccessMode() {
+  public AccessModeEnum getAccessMode() {
     return accessMode;
   }
 
 
-  public void setAccessMode(String accessMode) {
+  public void setAccessMode(AccessModeEnum accessMode) {
     this.accessMode = accessMode;
   }
 
@@ -122,7 +173,7 @@ public class Permission {
   }
 
    /**
-   * Get dataEraseAt
+   * Data related to this consent to be deleted on this date
    * @return dataEraseAt
   **/
   @javax.annotation.Nullable

@@ -77,7 +77,7 @@ public class DataTransferApi {
 
     /**
      * Build call for fetchHealthInformation
-     * @param hiUClientHealthInformationRequest  (optional)
+     * @param hiUClientHealthInformationRequest  (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -138,6 +138,11 @@ public class DataTransferApi {
 
     @SuppressWarnings("rawtypes")
     private okhttp3.Call fetchHealthInformationValidateBeforeCall(HIUClientHealthInformationRequest hiUClientHealthInformationRequest, final ApiCallback _callback) throws ApiException {
+        // verify the required parameter 'hiUClientHealthInformationRequest' is set
+        if (hiUClientHealthInformationRequest == null) {
+            throw new ApiException("Missing the required parameter 'hiUClientHealthInformationRequest' when calling fetchHealthInformation(Async)");
+        }
+
         return fetchHealthInformationCall(hiUClientHealthInformationRequest, _callback);
 
     }
@@ -145,7 +150,7 @@ public class DataTransferApi {
     /**
      * Submits a request to fetch health information
      * Submits a request to fetch health information
-     * @param hiUClientHealthInformationRequest  (optional)
+     * @param hiUClientHealthInformationRequest  (required)
      * @return FacadeResponse
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -166,7 +171,7 @@ public class DataTransferApi {
     /**
      * Submits a request to fetch health information
      * Submits a request to fetch health information
-     * @param hiUClientHealthInformationRequest  (optional)
+     * @param hiUClientHealthInformationRequest  (required)
      * @return ApiResponse&lt;FacadeResponse&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -188,7 +193,7 @@ public class DataTransferApi {
     /**
      * Submits a request to fetch health information (asynchronously)
      * Submits a request to fetch health information
-     * @param hiUClientHealthInformationRequest  (optional)
+     * @param hiUClientHealthInformationRequest  (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object

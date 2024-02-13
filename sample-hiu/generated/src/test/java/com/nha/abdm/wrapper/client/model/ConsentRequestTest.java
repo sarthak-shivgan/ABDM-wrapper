@@ -20,6 +20,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.nha.abdm.wrapper.client.model.ConsentCareContext;
 import com.nha.abdm.wrapper.client.model.ConsentRequester;
+import com.nha.abdm.wrapper.client.model.HiTypeEnum;
 import com.nha.abdm.wrapper.client.model.IdRequest;
 import com.nha.abdm.wrapper.client.model.Permission;
 import com.nha.abdm.wrapper.client.model.Purpose;

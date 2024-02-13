@@ -50,7 +50,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **hiUClientHealthInformationRequest** | [**HIUClientHealthInformationRequest**](HIUClientHealthInformationRequest.md)|  | [optional] |
+| **hiUClientHealthInformationRequest** | [**HIUClientHealthInformationRequest**](HIUClientHealthInformationRequest.md)|  | |
 
 ### Return type
 

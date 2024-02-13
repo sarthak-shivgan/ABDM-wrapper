@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 
 @RestController
 @RequestMapping(path = "/v1")
@@ -46,5 +47,15 @@ public class HIUFacadeConsentController {
             .error(ErrorResponse.builder().message(ex.getMessage()).build())
             .build(),
         HttpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  @ExceptionHandler(HttpClientErrorException.class)
+  private ResponseEntity<FacadeResponse> handleHttpClientException(
+          HttpClientErrorException ex) {
+    return new ResponseEntity<>(
+            FacadeResponse.builder()
+                    .error(ErrorResponse.builder().message(ex.getMessage()).build())
+                    .build(),
+            ex.getStatusCode());
   }
 }

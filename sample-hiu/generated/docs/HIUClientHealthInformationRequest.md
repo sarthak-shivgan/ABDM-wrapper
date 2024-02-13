@@ -7,11 +7,11 @@
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**requestId** | **String** |  |  [optional] |
-|**consentId** | **String** |  |  [optional] |
-|**fromDate** | **String** |  |  [optional] |
-|**toDate** | **String** |  |  [optional] |
-|**expiry** | **String** |  |  [optional] |
+|**requestId** | **String** |  |  |
+|**consentId** | **String** | The id of the consent which has been granted |  |
+|**fromDate** | **String** |  |  |
+|**toDate** | **String** |  |  |
+|**expiry** | **String** |  |  |
 
 
 

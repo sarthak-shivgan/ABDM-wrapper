@@ -50,13 +50,13 @@ public class HIUController {
 
         consentRequest.setRequester(consentRequester);
 
-        List<String> hiTypes = new ArrayList<>();
-        hiTypes.add("OPConsultation");
+        List<HiTypeEnum> hiTypes = new ArrayList<>();
+        hiTypes.add(HiTypeEnum.OPCONSULTATION);
 
         consentRequest.setHiTypes(hiTypes);
 
         Permission permission = new Permission();
-        permission.setAccessMode("VIEW");
+        permission.setAccessMode(Permission.AccessModeEnum.VIEW);
 
         DateRange dateRange = new DateRange();
         dateRange.setFrom("2021-09-25T12:52:34.925Z");
@@ -66,7 +66,7 @@ public class HIUController {
         permission.setDataEraseAt("2024-11-25T12:52:34.925Z");
 
         Frequency frequency = new Frequency();
-        frequency.setUnit("HOUR");
+        frequency.setUnit(Frequency.UnitEnum.HOUR);
         frequency.setValue(1);
         frequency.setRepeats(0);
         permission.setFrequency(frequency);
@@ -101,6 +101,4 @@ public class HIUController {
         DataTransferApi dataTransferApi = new DataTransferApi();
         return dataTransferApi.healthInformationStatusRequestIdGet(healthInformationRequestId);
     }
-
-
 }
