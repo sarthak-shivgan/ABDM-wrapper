@@ -212,7 +212,7 @@ public class ConsentApi {
     }
     /**
      * Build call for initConsent
-     * @param initConsentRequest Request body for initiate consent request (optional)
+     * @param initConsentRequest Request body for initiate consent request (required)
      * @param _callback Callback for upload/download progress
      * @return Call to execute
      * @throws ApiException If fail to serialize the request body object
@@ -273,6 +273,11 @@ public class ConsentApi {
 
     @SuppressWarnings("rawtypes")
     private okhttp3.Call initConsentValidateBeforeCall(InitConsentRequest initConsentRequest, final ApiCallback _callback) throws ApiException {
+        // verify the required parameter 'initConsentRequest' is set
+        if (initConsentRequest == null) {
+            throw new ApiException("Missing the required parameter 'initConsentRequest' when calling initConsent(Async)");
+        }
+
         return initConsentCall(initConsentRequest, _callback);
 
     }
@@ -280,7 +285,7 @@ public class ConsentApi {
     /**
      * Initiates consent request
      * Initiates consent request
-     * @param initConsentRequest Request body for initiate consent request (optional)
+     * @param initConsentRequest Request body for initiate consent request (required)
      * @return FacadeResponse
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -301,7 +306,7 @@ public class ConsentApi {
     /**
      * Initiates consent request
      * Initiates consent request
-     * @param initConsentRequest Request body for initiate consent request (optional)
+     * @param initConsentRequest Request body for initiate consent request (required)
      * @return ApiResponse&lt;FacadeResponse&gt;
      * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
      * @http.response.details
@@ -323,7 +328,7 @@ public class ConsentApi {
     /**
      * Initiates consent request (asynchronously)
      * Initiates consent request
-     * @param initConsentRequest Request body for initiate consent request (optional)
+     * @param initConsentRequest Request body for initiate consent request (required)
      * @param _callback The callback to be executed when the API call finishes
      * @return The request call
      * @throws ApiException If fail to process the API call, e.g. serializing the request body object

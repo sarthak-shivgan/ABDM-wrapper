@@ -50,7 +50,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * HIUClientHealthInformationRequest
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-09T05:40:12.260755493Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-13T21:01:05.570301947Z[Etc/UTC]")
 public class HIUClientHealthInformationRequest {
   public static final String SERIALIZED_NAME_REQUEST_ID = "requestId";
   @SerializedName(SERIALIZED_NAME_REQUEST_ID)
@@ -85,7 +85,7 @@ public class HIUClientHealthInformationRequest {
    * Get requestId
    * @return requestId
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public String getRequestId() {
     return requestId;
   }
@@ -103,10 +103,10 @@ public class HIUClientHealthInformationRequest {
   }
 
    /**
-   * Get consentId
+   * The id of the consent which has been granted
    * @return consentId
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public String getConsentId() {
     return consentId;
   }
@@ -127,7 +127,7 @@ public class HIUClientHealthInformationRequest {
    * Get fromDate
    * @return fromDate
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public String getFromDate() {
     return fromDate;
   }
@@ -148,7 +148,7 @@ public class HIUClientHealthInformationRequest {
    * Get toDate
    * @return toDate
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public String getToDate() {
     return toDate;
   }
@@ -169,7 +169,7 @@ public class HIUClientHealthInformationRequest {
    * Get expiry
    * @return expiry
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public String getExpiry() {
     return expiry;
   }
@@ -241,6 +241,11 @@ public class HIUClientHealthInformationRequest {
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
+    openapiRequiredFields.add("requestId");
+    openapiRequiredFields.add("consentId");
+    openapiRequiredFields.add("fromDate");
+    openapiRequiredFields.add("toDate");
+    openapiRequiredFields.add("expiry");
   }
 
  /**
@@ -263,19 +268,26 @@ public class HIUClientHealthInformationRequest {
           throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `HIUClientHealthInformationRequest` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
         }
       }
-      if ((jsonObj.get("requestId") != null && !jsonObj.get("requestId").isJsonNull()) && !jsonObj.get("requestId").isJsonPrimitive()) {
+
+      // check to make sure all required properties/fields are present in the JSON string
+      for (String requiredField : HIUClientHealthInformationRequest.openapiRequiredFields) {
+        if (jsonObj.get(requiredField) == null) {
+          throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonObj.toString()));
+        }
+      }
+      if (!jsonObj.get("requestId").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `requestId` to be a primitive type in the JSON string but got `%s`", jsonObj.get("requestId").toString()));
       }
-      if ((jsonObj.get("consentId") != null && !jsonObj.get("consentId").isJsonNull()) && !jsonObj.get("consentId").isJsonPrimitive()) {
+      if (!jsonObj.get("consentId").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `consentId` to be a primitive type in the JSON string but got `%s`", jsonObj.get("consentId").toString()));
       }
-      if ((jsonObj.get("fromDate") != null && !jsonObj.get("fromDate").isJsonNull()) && !jsonObj.get("fromDate").isJsonPrimitive()) {
+      if (!jsonObj.get("fromDate").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `fromDate` to be a primitive type in the JSON string but got `%s`", jsonObj.get("fromDate").toString()));
       }
-      if ((jsonObj.get("toDate") != null && !jsonObj.get("toDate").isJsonNull()) && !jsonObj.get("toDate").isJsonPrimitive()) {
+      if (!jsonObj.get("toDate").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `toDate` to be a primitive type in the JSON string but got `%s`", jsonObj.get("toDate").toString()));
       }
-      if ((jsonObj.get("expiry") != null && !jsonObj.get("expiry").isJsonNull()) && !jsonObj.get("expiry").isJsonPrimitive()) {
+      if (!jsonObj.get("expiry").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `expiry` to be a primitive type in the JSON string but got `%s`", jsonObj.get("expiry").toString()));
       }
   }

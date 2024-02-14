@@ -16,6 +16,7 @@ paths:
       operationId: initConsent
       requestBody:
         description: Request body for initiate consent request
+        required: true
         content:
           application/json:
             schema:
@@ -23,10 +24,16 @@ paths:
               properties:
                 requestId:
                   type: string
+                  example: 499a5a4a-7dda-4f20-9b67-e24589627061
+                  description: a nonce, unique for each HTTP request.
                 timestamp:
                   type: string
+                  example: 2024-02-13T20:18:35.094329Z
                 consent:
                   $ref: '#/components/schemas/ConsentRequest'
+              required:
+                - requestId
+                - timestamp
       responses:
         '200':
           description: OK
@@ -75,6 +82,7 @@ paths:
       description: Submits a request to fetch health information
       operationId: fetchHealthInformation
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -141,9 +149,17 @@ components:
         hiTypes:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/HiTypeEnum'
+          example: [OPConsultation, Prescription]
         permission:
           $ref: '#/components/schemas/Permission'
+      required:
+        - purpose
+        - patient
+        - hiu
+        - requester
+        - hiTypes
+        - permission
     Purpose:
       type: object
       properties:
@@ -177,15 +193,19 @@ components:
       properties:
         type:
           type: string
+          example: REGNO
         value:
           type: string
+          example: MH1001
         system:
           type: string
+          example: https://www.mciindia.org
     Frequency:
       type: object
       properties:
         unit:
           type: string
+          enum: [HOUR, WEEK, DAY, MONTH, YEAR]
         value:
           type: integer
         repeats:
@@ -230,64 +250,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/IdRequest'
-    ConsentResponse:
-      type: object
-      properties:
-        status:
-          type: string
-        error:
-          type: string
-        httpStatusCode:
-          type: string
-        consent:
-          $ref: '#/components/schemas/Consent'
-    Consent:
-      type: object
-      properties:
-        status:
-          type: string
-        consentDetail:
-          $ref: '#/components/schemas/ConsentDetail'
-    ConsentDetail:
-      type: object
-      properties:
-        schemaVersion:
-          type: string
-        consentId:
-          type: string
-        patient:
-          $ref: '#/components/schemas/IdRequest'
-        careContexts:
-          type: array
-          items:
-            $ref: '#/components/schemas/ConsentCareContext'
-        purpose:
-          $ref: '#/components/schemas/Purpose'
-        hip:
-          $ref: '#/components/schemas/IdRequest'
-        hiu:
-          $ref: '#/components/schemas/IdRequest'
-        consentManager:
-          $ref: '#/components/schemas/IdRequest'
-        requester:
-          $ref: '#/components/schemas/ConsentRequester'
-        hiTypes:
-          type: array
-          items:
-            type: string
-        permission:
-          $ref: '#/components/schemas/Permission'
-        signature:
-          type: string
     Permission:
       type: object
       properties:
         accessMode:
           type: string
+          enum: [VIEW, STORE, QUERY, STREAM]
         dateRange:
           $ref: '#/components/schemas/DateRange'
         dataEraseAt:
           type: string
+          description: Data related to this consent to be deleted on this date
+          example: 2024-03-26T10:25:26.274Z
         frequency:
           $ref: '#/components/schemas/Frequency'
     DateRange:
@@ -295,21 +269,35 @@ components:
       properties:
         from:
           type: string
+          example: 2021-09-25T12:52:34.925
         to:
           type: string
+          example: 2023-11-15T12:52:34.925
     HIUClientHealthInformationRequest:
       type: object
       properties:
         requestId:
           type: string
+          example: a1s2c932-2f70-3ds3-a3b5-2sfd46b12a18d
         consentId:
           type: string
+          example: ff219ebf-1959-4514-9d28-839b677d6fc6
+          description: The id of the consent which has been granted
         fromDate:
           type: string
+          example: 2024-03-26T10:25:26.274Z
         toDate:
           type: string
+          example: 2023-11-15T12:52:34.925
         expiry:
           type: string
+          example: 2024-03-26T10:25:26.274Z
+      required:
+        - requestId
+        - consentId
+        - fromDate
+        - toDate
+        - expiry
     HealthInformationResponse:
       type: object
       properties:
@@ -323,4 +311,6 @@ components:
           type: array
           items:
             type: string
-
+    HiTypeEnum:
+      type: string
+      enum: [OPConsultation, Prescription, DischargeSummary, DiagnosticReport, ImmunizationRecord, HealthDocumentRecord, WellnessRecord]

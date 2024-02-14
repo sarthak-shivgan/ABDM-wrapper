@@ -51,7 +51,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * InitConsentRequest
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-09T05:40:12.260755493Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-13T21:01:05.570301947Z[Etc/UTC]")
 public class InitConsentRequest {
   public static final String SERIALIZED_NAME_REQUEST_ID = "requestId";
   @SerializedName(SERIALIZED_NAME_REQUEST_ID)
@@ -75,10 +75,10 @@ public class InitConsentRequest {
   }
 
    /**
-   * Get requestId
+   * a nonce, unique for each HTTP request.
    * @return requestId
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public String getRequestId() {
     return requestId;
   }
@@ -99,7 +99,7 @@ public class InitConsentRequest {
    * Get timestamp
    * @return timestamp
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public String getTimestamp() {
     return timestamp;
   }
@@ -186,6 +186,8 @@ public class InitConsentRequest {
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
+    openapiRequiredFields.add("requestId");
+    openapiRequiredFields.add("timestamp");
   }
 
  /**
@@ -208,10 +210,17 @@ public class InitConsentRequest {
           throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `InitConsentRequest` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
         }
       }
-      if ((jsonObj.get("requestId") != null && !jsonObj.get("requestId").isJsonNull()) && !jsonObj.get("requestId").isJsonPrimitive()) {
+
+      // check to make sure all required properties/fields are present in the JSON string
+      for (String requiredField : InitConsentRequest.openapiRequiredFields) {
+        if (jsonObj.get(requiredField) == null) {
+          throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonObj.toString()));
+        }
+      }
+      if (!jsonObj.get("requestId").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `requestId` to be a primitive type in the JSON string but got `%s`", jsonObj.get("requestId").toString()));
       }
-      if ((jsonObj.get("timestamp") != null && !jsonObj.get("timestamp").isJsonNull()) && !jsonObj.get("timestamp").isJsonPrimitive()) {
+      if (!jsonObj.get("timestamp").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `timestamp` to be a primitive type in the JSON string but got `%s`", jsonObj.get("timestamp").toString()));
       }
       // validate the optional field `consent`

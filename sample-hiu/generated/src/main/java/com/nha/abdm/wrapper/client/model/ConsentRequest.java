@@ -22,6 +22,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.nha.abdm.wrapper.client.model.ConsentCareContext;
 import com.nha.abdm.wrapper.client.model.ConsentRequester;
+import com.nha.abdm.wrapper.client.model.HiTypeEnum;
 import com.nha.abdm.wrapper.client.model.IdRequest;
 import com.nha.abdm.wrapper.client.model.Permission;
 import com.nha.abdm.wrapper.client.model.Purpose;
@@ -57,7 +58,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * ConsentRequest
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-09T05:40:12.260755493Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-13T21:01:05.570301947Z[Etc/UTC]")
 public class ConsentRequest {
   public static final String SERIALIZED_NAME_PURPOSE = "purpose";
   @SerializedName(SERIALIZED_NAME_PURPOSE)
@@ -85,7 +86,7 @@ public class ConsentRequest {
 
   public static final String SERIALIZED_NAME_HI_TYPES = "hiTypes";
   @SerializedName(SERIALIZED_NAME_HI_TYPES)
-  private List<String> hiTypes;
+  private List<HiTypeEnum> hiTypes = new ArrayList<>();
 
   public static final String SERIALIZED_NAME_PERMISSION = "permission";
   @SerializedName(SERIALIZED_NAME_PERMISSION)
@@ -104,7 +105,7 @@ public class ConsentRequest {
    * Get purpose
    * @return purpose
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public Purpose getPurpose() {
     return purpose;
   }
@@ -125,7 +126,7 @@ public class ConsentRequest {
    * Get patient
    * @return patient
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public IdRequest getPatient() {
     return patient;
   }
@@ -196,7 +197,7 @@ public class ConsentRequest {
    * Get hiu
    * @return hiu
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public IdRequest getHiu() {
     return hiu;
   }
@@ -217,7 +218,7 @@ public class ConsentRequest {
    * Get requester
    * @return requester
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public ConsentRequester getRequester() {
     return requester;
   }
@@ -228,13 +229,13 @@ public class ConsentRequest {
   }
 
 
-  public ConsentRequest hiTypes(List<String> hiTypes) {
+  public ConsentRequest hiTypes(List<HiTypeEnum> hiTypes) {
     
     this.hiTypes = hiTypes;
     return this;
   }
 
-  public ConsentRequest addHiTypesItem(String hiTypesItem) {
+  public ConsentRequest addHiTypesItem(HiTypeEnum hiTypesItem) {
     if (this.hiTypes == null) {
       this.hiTypes = new ArrayList<>();
     }
@@ -246,13 +247,13 @@ public class ConsentRequest {
    * Get hiTypes
    * @return hiTypes
   **/
-  @javax.annotation.Nullable
-  public List<String> getHiTypes() {
+  @javax.annotation.Nonnull
+  public List<HiTypeEnum> getHiTypes() {
     return hiTypes;
   }
 
 
-  public void setHiTypes(List<String> hiTypes) {
+  public void setHiTypes(List<HiTypeEnum> hiTypes) {
     this.hiTypes = hiTypes;
   }
 
@@ -267,7 +268,7 @@ public class ConsentRequest {
    * Get permission
    * @return permission
   **/
-  @javax.annotation.Nullable
+  @javax.annotation.Nonnull
   public Permission getPermission() {
     return permission;
   }
@@ -348,6 +349,12 @@ public class ConsentRequest {
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
+    openapiRequiredFields.add("purpose");
+    openapiRequiredFields.add("patient");
+    openapiRequiredFields.add("hiu");
+    openapiRequiredFields.add("requester");
+    openapiRequiredFields.add("hiTypes");
+    openapiRequiredFields.add("permission");
   }
 
  /**
@@ -370,14 +377,17 @@ public class ConsentRequest {
           throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `ConsentRequest` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
         }
       }
-      // validate the optional field `purpose`
-      if (jsonObj.get("purpose") != null && !jsonObj.get("purpose").isJsonNull()) {
-        Purpose.validateJsonObject(jsonObj.getAsJsonObject("purpose"));
+
+      // check to make sure all required properties/fields are present in the JSON string
+      for (String requiredField : ConsentRequest.openapiRequiredFields) {
+        if (jsonObj.get(requiredField) == null) {
+          throw new IllegalArgumentException(String.format("The required field `%s` is not found in the JSON string: %s", requiredField, jsonObj.toString()));
+        }
       }
-      // validate the optional field `patient`
-      if (jsonObj.get("patient") != null && !jsonObj.get("patient").isJsonNull()) {
-        IdRequest.validateJsonObject(jsonObj.getAsJsonObject("patient"));
-      }
+      // validate the required field `purpose`
+      Purpose.validateJsonObject(jsonObj.getAsJsonObject("purpose"));
+      // validate the required field `patient`
+      IdRequest.validateJsonObject(jsonObj.getAsJsonObject("patient"));
       // validate the optional field `hip`
       if (jsonObj.get("hip") != null && !jsonObj.get("hip").isJsonNull()) {
         IdRequest.validateJsonObject(jsonObj.getAsJsonObject("hip"));
@@ -396,22 +406,18 @@ public class ConsentRequest {
           };
         }
       }
-      // validate the optional field `hiu`
-      if (jsonObj.get("hiu") != null && !jsonObj.get("hiu").isJsonNull()) {
-        IdRequest.validateJsonObject(jsonObj.getAsJsonObject("hiu"));
-      }
-      // validate the optional field `requester`
-      if (jsonObj.get("requester") != null && !jsonObj.get("requester").isJsonNull()) {
-        ConsentRequester.validateJsonObject(jsonObj.getAsJsonObject("requester"));
-      }
-      // ensure the optional json data is an array if present
-      if (jsonObj.get("hiTypes") != null && !jsonObj.get("hiTypes").isJsonArray()) {
+      // validate the required field `hiu`
+      IdRequest.validateJsonObject(jsonObj.getAsJsonObject("hiu"));
+      // validate the required field `requester`
+      ConsentRequester.validateJsonObject(jsonObj.getAsJsonObject("requester"));
+      // ensure the required json array is present
+      if (jsonObj.get("hiTypes") == null) {
+        throw new IllegalArgumentException("Expected the field `linkedContent` to be an array in the JSON string but got `null`");
+      } else if (!jsonObj.get("hiTypes").isJsonArray()) {
         throw new IllegalArgumentException(String.format("Expected the field `hiTypes` to be an array in the JSON string but got `%s`", jsonObj.get("hiTypes").toString()));
       }
-      // validate the optional field `permission`
-      if (jsonObj.get("permission") != null && !jsonObj.get("permission").isJsonNull()) {
-        Permission.validateJsonObject(jsonObj.getAsJsonObject("permission"));
-      }
+      // validate the required field `permission`
+      Permission.validateJsonObject(jsonObj.getAsJsonObject("permission"));
   }
 
   public static class CustomTypeAdapterFactory implements TypeAdapterFactory {

@@ -113,7 +113,7 @@ public class Example {
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **initConsentRequest** | [**InitConsentRequest**](InitConsentRequest.md)| Request body for initiate consent request | [optional] |
+| **initConsentRequest** | [**InitConsentRequest**](InitConsentRequest.md)| Request body for initiate consent request | |
 
 ### Return type
 

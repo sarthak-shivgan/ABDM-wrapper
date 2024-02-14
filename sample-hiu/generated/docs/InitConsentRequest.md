@@ -7,8 +7,8 @@
 
 | Name | Type | Description | Notes |
 |------------ | ------------- | ------------- | -------------|
-|**requestId** | **String** |  |  [optional] |
-|**timestamp** | **String** |  |  [optional] |
+|**requestId** | **String** | a nonce, unique for each HTTP request. |  |
+|**timestamp** | **String** |  |  |
 |**consent** | [**ConsentRequest**](ConsentRequest.md) |  |  [optional] |
 
 
