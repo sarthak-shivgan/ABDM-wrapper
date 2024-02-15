@@ -85,7 +85,7 @@ public class DecryptionManager {
     JsonParser jsonParser = new JsonParser();
     decryptedData =
         String.valueOf(jsonParser.parse(new String(plainBytes, StandardCharsets.UTF_8)));
-    log.info("decryptedData :" + decryptedData);
+    log.debug("decryptedData :" + decryptedData);
     return decryptedData;
   }
 

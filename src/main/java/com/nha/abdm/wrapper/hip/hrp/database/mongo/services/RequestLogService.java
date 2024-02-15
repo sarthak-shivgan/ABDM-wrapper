@@ -454,7 +454,9 @@ public class RequestLogService<T> {
           .build();
     }
     Map<String, Object> map = requestLog.getRequestDetails();
-    if (map == null) map = new HashMap<>();
+    if (map == null){
+      map = new HashMap<>();
+    }
     map.put(FieldIdentifiers.ENCRYPTED_HEALTH_INFORMATION, healthInformationPushRequest);
     Update update = new Update();
     update.set(FieldIdentifiers.RESPONSE_DETAILS, map);

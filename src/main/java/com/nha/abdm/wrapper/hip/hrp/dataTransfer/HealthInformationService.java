@@ -197,7 +197,7 @@ public class HealthInformationService implements HealthInformationInterface {
       HealthInformationBundle healthInformationBundle, String consentId)
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeySpecException,
           NoSuchProviderException, InvalidKeyException {
-    log.debug("HealthInformationBundle : " + healthInformationBundle.toString());
+    log.debug("HealthInformationBundle : " + healthInformationBundle);
     RequestLog requestLog = requestLogService.findByConsentId(consentId, "HIP");
 
     HIPNotifyRequest hipNotifyRequest =
