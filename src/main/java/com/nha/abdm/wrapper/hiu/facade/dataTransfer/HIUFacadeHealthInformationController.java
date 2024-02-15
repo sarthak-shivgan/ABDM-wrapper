@@ -7,18 +7,19 @@ import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.hiu.hrp.consent.responses.HealthInformationResponse;
 import com.nha.abdm.wrapper.hiu.hrp.dataTransfer.HIUFacadeHealthInformationInterface;
 import com.nha.abdm.wrapper.hiu.hrp.dataTransfer.requests.HIUClientHealthInformationRequest;
-import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.spec.InvalidKeySpecException;
+import java.util.Objects;
+import org.bouncycastle.crypto.InvalidCipherTextException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.HttpClientErrorException;
 
 @RestController
 @RequestMapping(path = "/v1/health-information")
@@ -43,6 +44,10 @@ public class HIUFacadeHealthInformationController {
           InvalidKeySpecException, NoSuchProviderException, InvalidKeyException {
     HealthInformationResponse healthInformationResponse =
         hiuFacadeHealthInformationInterface.getHealthInformation(requestId);
+    HttpStatusCode httpStatusCode = healthInformationResponse.getHttpStatusCode();
+    if (Objects.isNull(httpStatusCode)) {
+      return new ResponseEntity<>(healthInformationResponse, HttpStatus.OK);
+    }
     return new ResponseEntity<>(
         healthInformationResponse, healthInformationResponse.getHttpStatusCode());
   }

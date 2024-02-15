@@ -2,12 +2,16 @@
 package com.nha.abdm.wrapper.hiu.hrp.dataTransfer;
 
 import com.nha.abdm.wrapper.common.cipher.CipherKeyManager;
+import com.nimbusds.jose.shaded.gson.JsonParser;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
 import javax.crypto.KeyAgreement;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.bouncycastle.crypto.digests.SHA256Digest;
@@ -24,6 +28,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class DecryptionManager {
+  private static final Logger log = LogManager.getLogger(DecryptionManager.class);
 
   public String decryptedHealthInformation(
       String hipNonce,
@@ -76,8 +81,11 @@ public class DecryptionManager {
     int retLen = cipher.processBytes(encryptedBytes, 0, encryptedBytes.length, plainBytes, 0);
     cipher.doFinal(plainBytes, retLen);
 
-    decryptedData = new String(plainBytes);
-
+    // removing the spaces and new lines during conversion of decrypted data into String.
+    JsonParser jsonParser = new JsonParser();
+    decryptedData =
+        String.valueOf(jsonParser.parse(new String(plainBytes, StandardCharsets.UTF_8)));
+    log.info("decryptedData :" + decryptedData);
     return decryptedData;
   }
 

@@ -38,7 +38,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import reactor.core.Exceptions;
-
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -198,7 +197,7 @@ public class HealthInformationService implements HealthInformationInterface {
       HealthInformationBundle healthInformationBundle, String consentId)
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeySpecException,
           NoSuchProviderException, InvalidKeyException {
-    log.info(healthInformationBundle);
+    log.debug("HealthInformationBundle : " + healthInformationBundle.toString());
     RequestLog requestLog = requestLogService.findByConsentId(consentId, "HIP");
 
     HIPNotifyRequest hipNotifyRequest =
