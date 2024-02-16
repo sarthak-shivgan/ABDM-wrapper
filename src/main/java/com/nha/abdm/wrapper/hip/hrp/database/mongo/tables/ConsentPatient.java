@@ -14,7 +14,7 @@ public class ConsentPatient {
   public String consentId;
 
   @Field("abhaAddress")
-  public String patientAbhaAddress;
+  public String abhaAddress;
 
   @Field("entityType")
   public String entityType;

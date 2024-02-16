@@ -7,7 +7,7 @@ public class FieldIdentifiers {
   public static final String REQUEST_DETAILS = "requestDetails";
   public static final String STATUS = "status";
   public static final String ERROR = "error";
-  public static final String PATIENT_ABHA_ADDRESS = "patientAbhaAddress";
+  public static final String ABHA_ADDRESS = "abhaAddress";
   public static final String CONSENTS = "consents";
   public static final String RESPONSE_DETAILS = "responseDetails";
   public static final String CONSENT_ID = "consentId";

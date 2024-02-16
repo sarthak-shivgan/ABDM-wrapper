@@ -27,6 +27,7 @@ public class Patient {
   public String dateOfBirth;
 
   @Field("patientReference")
+  @Indexed(unique = true)
   public String patientReference;
 
   @Field("patientDisplay")

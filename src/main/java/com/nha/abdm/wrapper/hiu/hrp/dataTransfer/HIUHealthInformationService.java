@@ -168,7 +168,7 @@ public class HIUHealthInformationService implements HealthInformationInterface {
     }
     String consentId = consentCipherMapping.getConsentId();
     ConsentPatient consentPatient = consentPatientService.findMappingByConsentId(consentId);
-    String patientAbhaAddress = consentPatient.getPatientAbhaAddress();
+    String patientAbhaAddress = consentPatient.getAbhaAddress();
     if (StringUtils.isEmpty(patientAbhaAddress)) {
       throw new IllegalDataStateException(
           "Patient Abha address not found for consent id: " + consentId);
