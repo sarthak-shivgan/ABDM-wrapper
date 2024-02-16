@@ -184,7 +184,7 @@ public class PatientService {
         }
       }
     }
-    Query query = new Query(Criteria.where(FieldIdentifiers.PATIENT_ABHA_ADDRESS).is(abhaAddress));
+    Query query = new Query(Criteria.where(FieldIdentifiers.ABHA_ADDRESS).is(abhaAddress));
     Update update = new Update().addToSet(FieldIdentifiers.CONSENTS, consent);
     mongoTemplate.updateFirst(query, update, Patient.class);
   }

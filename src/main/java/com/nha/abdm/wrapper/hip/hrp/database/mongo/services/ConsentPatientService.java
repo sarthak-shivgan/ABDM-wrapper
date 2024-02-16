@@ -31,7 +31,7 @@ public class ConsentPatientService {
     collection.updateOne(
         Filters.eq(FieldIdentifiers.CONSENT_ID, consentId),
         Updates.combine(
-            Updates.set(FieldIdentifiers.PATIENT_ABHA_ADDRESS, patientAbhaAddress),
+            Updates.set(FieldIdentifiers.ABHA_ADDRESS, patientAbhaAddress),
             Updates.set(FieldIdentifiers.ENTITY_TYPE, entityType)),
         updateOptions);
   }
