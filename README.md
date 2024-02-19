@@ -1,5 +1,17 @@
-This project is created to solve the challenges and issues faced by integrators to bring their systems into ABDM ecosystem.
-Wrapper tries to abstract complex workflows and algorithms exposing clean and simple interfaces for integrators.
+# ABDM Wrapper
+The Ayushman Bharat Digital Mission (ABDM) is a government initiative that aims to develop a digital health infrastructure for India. The ABDM aims to improve the efficiency and transparency of healthcare data transfer between patients, medical institutions, and healthcare service providers. It also allows patients to securely store their medical information and share with others as needed.
+The National Health Authority (NHA) is implementing Ayushman Bharat Digital Mission (ABDM) to create a digital health ecosystem for the country. ABDM intends to support different healthcare facilities like clinics, diagnostic centers, hospitals, laboratories and pharmacies in adopting the ABDM ecosystem to make available the benefits of digital health for all the citizens of India.
+In order to make any digital solution ABDM compliant, it has to go through 3 milestones and obtain AND certification.
+- Milestone 1: ABHA Id creation, verification and obtaining link token
+- Milestone 2: Linking and exporting health data
+- Milestone 3: Sending a consent request and importing data from other applications in the ecosystem
+
+ABDM Wrapper is created to solve the challenges and issues faced by integrators to bring their systems into ABDM ecosystem.
+Wrapper aims to abstract complex workflows and algorithms exposing clean and simple interfaces for integrators.
+Wrapper abstracts implementation of workflows involved in **Milestone 2** and **Milestone 3**.
+
+## Architecture
+![ABDM Wrapper Architecture.png](..%2F..%2F..%2FDownloads%2FABDM%20Wrapper%20Architecture.png)
 
 ## Pre-requisites
 ### 1. Install ABHA SBX PHR App on your mobile.
@@ -24,6 +36,7 @@ After creating the ABHA Address, your id should look like "yourAbha@sbx"
 - docker
 - docker-compose
 - jdk 17
+- gradle
 
 ### 4. Register bridge (hostUrl) with ABDM for callbacks.
 1. Get Access Token.
@@ -49,7 +62,7 @@ curl --location --request PATCH 'https://dev.abdm.gov.in/gateway/v1/bridges' \
 
 ## Bring the application up.
 ```
-docker-compose up
+docker-compose up --build
 ```
 
 ## Sample HIP
@@ -61,4 +74,9 @@ Click [here](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Sample-HIU) for more 
 ## Test Discovery and User-Initiated Linking
 Click [here](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Test-Discovery-and-User-Initiated-Linking) to get more details on this.
 
-## [Developer Guide](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Developer-guide)
+## Test Consent Workflow
+Click [here](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Test-Consent-Workflow) to get more details on this.
+
+
+### [Developer Guide](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Developer-guide)
+### [Frequently Faced Issues](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Frequently-Faced-Issues)
