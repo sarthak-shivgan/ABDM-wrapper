@@ -11,7 +11,19 @@ Wrapper aims to abstract complex workflows and algorithms exposing clean and sim
 Wrapper abstracts implementation of workflows involved in **Milestone 2** and **Milestone 3**.
 
 ## Architecture
-![ABDM Wrapper Architecture.png](..%2F..%2F..%2FDownloads%2FABDM%20Wrapper%20Architecture.png)
+![ABDM Wrapper Architecture](images/ABDM_Wrapper_Architecture.jpg)
+
+Wrapper can be deployed on existing HMIS's / health facility's infrastructure.
+
+There are sets of interfaces which wrapper exposes and the existing services 
+need to invoke them to implement ABDM workflows.
+
+At the same time if HMIS is an HIP, then existing services should expose a set 
+of interfaces which wrapper needs to invoke to get information from
+health providers.
+
+The callback apis which gateway would be making to wrapper should be behind
+facility's firewall.
 
 ## Pre-requisites
 ### 1. Install ABHA SBX PHR App on your mobile.
