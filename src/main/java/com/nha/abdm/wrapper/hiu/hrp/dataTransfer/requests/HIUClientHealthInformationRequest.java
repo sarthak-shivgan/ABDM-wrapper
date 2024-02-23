@@ -13,7 +13,4 @@ import lombok.NoArgsConstructor;
 public class HIUClientHealthInformationRequest {
   private String requestId;
   private String consentId;
-  private String fromDate;
-  private String toDate;
-  private String expiry;
 }
