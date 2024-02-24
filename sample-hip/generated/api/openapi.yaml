@@ -190,11 +190,14 @@ components:
     FacadeResponse:
       example:
         code: 0
+        clientRequestId: clientRequestId
         message: message
         error:
           code: 6
           message: message
       properties:
+        clientRequestId:
+          type: string
         code:
           type: integer
         message:

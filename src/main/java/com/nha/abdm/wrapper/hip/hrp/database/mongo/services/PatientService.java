@@ -190,6 +190,29 @@ public class PatientService {
   }
 
   /**
+   * Fetching the Consent date range for health information request
+   * @param abhaAddress
+   * @param consentId
+   * @return patient consent
+   */
+  public Consent getConsentDetails(String abhaAddress, String consentId)
+      throws IllegalDataStateException {
+    Patient patient = patientRepo.findByAbhaAddress(abhaAddress);
+    if (patient == null) {
+      throw new IllegalDataStateException("Patient not found in database: " + abhaAddress);
+    }
+    List<Consent> consents = patient.getConsents();
+    if (!CollectionUtils.isEmpty(consents)) {
+      for (Consent storedConsent : consents) {
+        if (storedConsent.getConsentDetail().getConsentId().equals(consentId)) {
+          return storedConsent;
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
    * Adds or Updates patient demographic data.
    *
    * @param patients List of patients with reference and demographic details.

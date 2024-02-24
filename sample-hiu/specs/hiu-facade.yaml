@@ -213,6 +213,8 @@ components:
     FacadeResponse:
       type: object
       properties:
+        clientRequestId:
+          type: string
         code:
           type: integer
         httpStatusCode:
@@ -242,8 +244,6 @@ components:
     ConsentStatus:
       type: object
       properties:
-        id:
-          type: string
         status:
           type: string
         consentArtefacts:
@@ -283,21 +283,9 @@ components:
           type: string
           example: ff219ebf-1959-4514-9d28-839b677d6fc6
           description: The id of the consent which has been granted
-        fromDate:
-          type: string
-          example: 2024-03-26T10:25:26.274Z
-        toDate:
-          type: string
-          example: 2023-11-15T12:52:34.925
-        expiry:
-          type: string
-          example: 2024-03-26T10:25:26.274Z
       required:
         - requestId
         - consentId
-        - fromDate
-        - toDate
-        - expiry
     HealthInformationResponse:
       type: object
       properties:

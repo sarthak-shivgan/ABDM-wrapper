@@ -6,12 +6,15 @@ import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.cipher.CipherKeyManager;
 import com.nha.abdm.wrapper.common.cipher.Key;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
+import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.requests.*;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentCipherMappingService;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentPatientService;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.ConsentCipherMapping;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
@@ -55,6 +58,9 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
   private final CipherKeyManager cipherKeyManager;
   private final ConsentCipherMappingService consentCipherMappingService;
   private final LogsRepo logsRepo;
+  private final PatientService patientService;
+  private final ConsentPatientService consentPatientService;
+
   private final DecryptionManager decryptionManager;
 
   @Autowired
@@ -64,12 +70,16 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
       CipherKeyManager cipherKeyManager,
       ConsentCipherMappingService consentCipherMappingService,
       LogsRepo logsRepo,
+      ConsentPatientService consentPatientService,
+      PatientService patientService,
       DecryptionManager decryptionManager) {
     this.requestManager = requestManager;
     this.requestLogService = requestLogService;
     this.cipherKeyManager = cipherKeyManager;
     this.consentCipherMappingService = consentCipherMappingService;
     this.logsRepo = logsRepo;
+    this.consentPatientService = consentPatientService;
+    this.patientService = patientService;
     this.decryptionManager = decryptionManager;
   }
 
@@ -79,10 +89,28 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException,
           IllegalDataStateException {
     if (Objects.isNull(hiuClientHealthInformationRequest)) {
-      return FacadeResponse.builder().httpStatusCode(HttpStatus.BAD_REQUEST).build();
+      return FacadeResponse.builder()
+          .clientRequestId(hiuClientHealthInformationRequest.getRequestId())
+          .httpStatusCode(HttpStatus.BAD_REQUEST)
+          .build();
+    }
+    String consentId = hiuClientHealthInformationRequest.getConsentId();
+    // Fetching dateRange from consent present in db.
+    Consent consentDetails =
+        patientService.getConsentDetails(
+            consentPatientService.findMappingByConsentId(consentId).getAbhaAddress(), consentId);
+    if (Objects.isNull(consentDetails)) {
+      return FacadeResponse.builder()
+          .clientRequestId(hiuClientHealthInformationRequest.getRequestId())
+          .error(
+              ErrorResponse.builder()
+                  .code(400)
+                  .message("ConsentId not found in database")
+                  .build())
+          .build();
     }
     HIUGatewayHealthInformationRequest hiuGatewayHealthInformationRequest =
-        getHiuGatewayHealthInformationRequest(hiuClientHealthInformationRequest);
+        getHiuGatewayHealthInformationRequest(hiuClientHealthInformationRequest, consentDetails);
     ResponseEntity<GenericResponse> response =
         requestManager.fetchResponseFromGateway(
             healthInformationConsentManagerPath, hiuGatewayHealthInformationRequest);
@@ -92,7 +120,10 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
           hiuGatewayHealthInformationRequest.getHiRequest().getConsent().getId(),
           RequestStatus.HEALTH_INFORMATION_REQUEST_SUCCESS,
           null);
-      return FacadeResponse.builder().httpStatusCode(HttpStatus.ACCEPTED).build();
+      return FacadeResponse.builder()
+          .clientRequestId(hiuClientHealthInformationRequest.getRequestId())
+          .httpStatusCode(HttpStatus.ACCEPTED)
+          .build();
     } else {
       String error = "Something went wrong while posting health information request to gateway";
       log.error(error);
@@ -102,6 +133,7 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
           RequestStatus.HEALTH_INFORMATION_REQUEST_ERROR,
           error);
       return FacadeResponse.builder()
+          .clientRequestId(hiuClientHealthInformationRequest.getRequestId())
           .error(ErrorResponse.builder().message(error).build())
           .httpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
           .build();
@@ -133,12 +165,12 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
   }
 
   private HIUGatewayHealthInformationRequest getHiuGatewayHealthInformationRequest(
-      HIUClientHealthInformationRequest hiuClientHealthInformationRequest)
+      HIUClientHealthInformationRequest hiuClientHealthInformationRequest, Consent consent)
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException {
     Key key = cipherKeyManager.fetchKeys();
     HealthInformationDhPublicKey healthInformationDhPublicKey =
         HealthInformationDhPublicKey.builder()
-            .expiry(hiuClientHealthInformationRequest.getExpiry())
+            .expiry(consent.getConsentDetail().getPermission().getDataEraseAt())
             .parameters(CipherKeyManager.PARAMETERS)
             .keyValue(key.getPublicKey())
             .build();
@@ -155,8 +187,8 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
                 IdRequest.builder().id(hiuClientHealthInformationRequest.getConsentId()).build())
             .dateRange(
                 DateRange.builder()
-                    .from(hiuClientHealthInformationRequest.getFromDate())
-                    .to(hiuClientHealthInformationRequest.getToDate())
+                    .from(consent.getConsentDetail().getPermission().getDateRange().getFrom())
+                    .to(consent.getConsentDetail().getPermission().getDateRange().getTo())
                     .build())
             .dataPushUrl(dataPushUrl)
             .keyMaterial(healthInformationKeyMaterial)

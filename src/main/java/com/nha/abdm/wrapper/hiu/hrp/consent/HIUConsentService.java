@@ -81,7 +81,10 @@ public class HIUConsentService implements HIUConsentInterface {
         requestLogService.saveRequest(
             initConsentRequest.getRequestId(), RequestStatus.CONSENT_INIT_ERROR, error);
       }
-      return FacadeResponse.builder().httpStatusCode(response.getStatusCode()).build();
+      return FacadeResponse.builder()
+          .clientRequestId(initConsentRequest.getRequestId())
+          .httpStatusCode(response.getStatusCode())
+          .build();
     } catch (Exception ex) {
       String error =
           "Exception while initiating consent request: "
@@ -92,6 +95,7 @@ public class HIUConsentService implements HIUConsentInterface {
       requestLogService.saveRequest(
           initConsentRequest.getRequestId(), RequestStatus.CONSENT_INIT_ERROR, error);
       return FacadeResponse.builder()
+          .clientRequestId(initConsentRequest.getRequestId())
           .message(error)
           .httpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
           .build();

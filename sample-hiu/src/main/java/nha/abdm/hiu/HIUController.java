@@ -91,9 +91,6 @@ public class HIUController {
         HIUClientHealthInformationRequest hiuClientHealthInformationRequest=new HIUClientHealthInformationRequest();
         hiuClientHealthInformationRequest.setRequestId(healthInformationRequestId);
         hiuClientHealthInformationRequest.setConsentId("ff219ebf-1959-4514-9d28-839b677d6fc6");
-        hiuClientHealthInformationRequest.setExpiry("2024-03-26T10:25:26.274Z");
-        hiuClientHealthInformationRequest.setFromDate("2021-09-25T12:52:34.925");
-        hiuClientHealthInformationRequest.setToDate("2023-11-15T12:52:34.925");
         return dataTransferApi.fetchHealthInformation(hiuClientHealthInformationRequest);
     }
     @GetMapping({"/test-wrapper/health-information-status"})

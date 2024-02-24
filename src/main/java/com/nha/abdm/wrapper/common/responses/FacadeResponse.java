@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatusCode;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FacadeResponse {
+  private String clientRequestId;
   private int code;
   private HttpStatusCode httpStatusCode;
   private String message;

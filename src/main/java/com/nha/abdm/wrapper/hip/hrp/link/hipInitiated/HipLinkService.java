@@ -112,10 +112,14 @@ public class HipLinkService implements HipLinkInterface {
             linkRecordsRequest, RequestStatus.AUTH_INIT_ERROR, null);
         return FacadeResponse.builder()
             .error(response.getBody().getErrorResponse())
+            .clientRequestId(linkRecordsRequest.getRequestId())
             .code(response.getStatusCode().value())
             .build();
       }
-      return FacadeResponse.builder().code(response.getStatusCode().value()).build();
+      return FacadeResponse.builder()
+          .clientRequestId(linkRecordsRequest.getRequestId())
+          .code(response.getStatusCode().value())
+          .build();
     } catch (Exception ex) {
       String error =
           "Exception while Initiating HIP auth: "
@@ -125,6 +129,7 @@ public class HipLinkService implements HipLinkInterface {
       log.debug(error);
       return FacadeResponse.builder()
           .message(error)
+          .clientRequestId(linkRecordsRequest.getRequestId())
           .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
           .build();
     }
@@ -272,6 +277,7 @@ public class HipLinkService implements HipLinkInterface {
       }
       return FacadeResponse.builder()
           .message(linkConfirmAuthPath + " : confirmAuthOtp: " + response.getStatusCode())
+          .clientRequestId(verifyOTP.getRequestId())
           .error(Objects.nonNull(response.getBody()) ? response.getBody().getErrorResponse() : null)
           .build();
     } catch (Exception e) {
@@ -284,7 +290,10 @@ public class HipLinkService implements HipLinkInterface {
       log.error(error);
       requestLogService.updateError(
           requestLog.getGatewayRequestId(), error, RequestStatus.AUTH_CONFIRM_ERROR);
-      return FacadeResponse.builder().error(ErrorResponse.builder().message(error).build()).build();
+      return FacadeResponse.builder()
+          .clientRequestId(verifyOTP.getRequestId())
+          .error(ErrorResponse.builder().message(error).build())
+          .build();
     }
   }
 
