@@ -103,10 +103,7 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
       return FacadeResponse.builder()
           .clientRequestId(hiuClientHealthInformationRequest.getRequestId())
           .error(
-              ErrorResponse.builder()
-                  .code(400)
-                  .message("ConsentId not found in database")
-                  .build())
+              ErrorResponse.builder().code(400).message("ConsentId not found in database").build())
           .build();
     }
     HIUGatewayHealthInformationRequest hiuGatewayHealthInformationRequest =

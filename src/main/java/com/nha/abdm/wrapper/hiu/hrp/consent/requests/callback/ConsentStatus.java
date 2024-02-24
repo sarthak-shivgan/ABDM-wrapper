@@ -14,13 +14,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ConsentStatus {
   /**
-   * Added JsonIgnore because while fetching the consentStatus there are two id
-   * 1) consentRequestId
-   * 2) consentId in consentArtifacts both are represented as ID
-   * so the consentRequestId is not required for user, so ignoring the consentRequestId
+   * Added JsonIgnore because while fetching the consentStatus there are two id 1) consentRequestId
+   * 2) consentId in consentArtifacts both are represented as ID so the consentRequestId is not
+   * required for user, so ignoring the consentRequestId
    */
-  @JsonIgnore
-  private String id;
+  @JsonIgnore private String id;
+
   private String status;
   private List<ConsentArtefact> consentArtefacts;
 }
