@@ -19,7 +19,8 @@ public class ConsentStatus {
    * 2) consentId in consentArtifacts both are represented as ID
    * so the consentRequestId is not required for user, so ignoring the consentRequestId
    */
-  @JsonIgnore private String id;
+  @JsonIgnore
+  private String id;
   private String status;
   private List<ConsentArtefact> consentArtefacts;
 }

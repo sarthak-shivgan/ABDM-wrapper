@@ -186,6 +186,8 @@ components:
     FacadeResponse:
       type: object
       properties:
+        clientRequestId:
+          type: String
         code:
           type: integer
         message:

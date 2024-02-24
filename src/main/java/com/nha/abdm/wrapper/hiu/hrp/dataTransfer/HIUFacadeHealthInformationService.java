@@ -105,7 +105,7 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
           .error(
               ErrorResponse.builder()
                   .code(400)
-                  .message("ConsentId not found in consentPatient")
+                  .message("ConsentId not found in database")
                   .build())
           .build();
     }
