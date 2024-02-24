@@ -16,7 +16,7 @@ package com.nha.abdm.wrapper.client.invoker;
 import java.util.Collection;
 import java.util.Iterator;
 
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-13T21:01:05.570301947Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-24T14:13:52.421800400+05:30[Asia/Calcutta]")
 public class StringUtil {
   /**
    * Check if the given array contains the given value (with case-insensitive comparison).

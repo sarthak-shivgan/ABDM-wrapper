@@ -214,7 +214,7 @@ components:
       type: object
       properties:
         clientRequestId:
-          type: String
+          type: string
         code:
           type: integer
         httpStatusCode:

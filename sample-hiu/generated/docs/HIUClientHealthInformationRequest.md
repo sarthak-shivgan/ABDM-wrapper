@@ -9,9 +9,6 @@
 |------------ | ------------- | ------------- | -------------|
 |**requestId** | **String** |  |  |
 |**consentId** | **String** | The id of the consent which has been granted |  |
-|**fromDate** | **String** |  |  |
-|**toDate** | **String** |  |  |
-|**expiry** | **String** |  |  |
 
 
 

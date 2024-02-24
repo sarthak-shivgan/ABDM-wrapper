@@ -22,6 +22,7 @@ import org.bouncycastle.crypto.modes.GCMBlockCipher;
 import org.bouncycastle.crypto.params.AEADParameters;
 import org.bouncycastle.crypto.params.HKDFParameters;
 import org.bouncycastle.crypto.params.KeyParameter;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.jce.spec.ECParameterSpec;
 import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class DecryptionManager {
   private static final Logger log = LogManager.getLogger(DecryptionManager.class);
+
+  /**
+   * When the service restarts the Security and its provider becomes null. It throws exception
+   * NoSuchProviderException while decrypting the bundle. Using this constructor we can fetch
+   * decrypted data anytime.
+   */
+  public DecryptionManager() {
+    Security.addProvider(new BouncyCastleProvider());
+  }
 
   public String decryptedHealthInformation(
       String hipNonce,

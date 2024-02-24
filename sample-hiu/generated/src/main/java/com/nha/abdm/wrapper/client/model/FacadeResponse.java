@@ -51,8 +51,12 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * FacadeResponse
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-13T21:01:05.570301947Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-24T14:13:52.421800400+05:30[Asia/Calcutta]")
 public class FacadeResponse {
+  public static final String SERIALIZED_NAME_CLIENT_REQUEST_ID = "clientRequestId";
+  @SerializedName(SERIALIZED_NAME_CLIENT_REQUEST_ID)
+  private String clientRequestId;
+
   public static final String SERIALIZED_NAME_CODE = "code";
   @SerializedName(SERIALIZED_NAME_CODE)
   private Integer code;
@@ -71,6 +75,27 @@ public class FacadeResponse {
 
   public FacadeResponse() {
   }
+
+  public FacadeResponse clientRequestId(String clientRequestId) {
+    
+    this.clientRequestId = clientRequestId;
+    return this;
+  }
+
+   /**
+   * Get clientRequestId
+   * @return clientRequestId
+  **/
+  @javax.annotation.Nullable
+  public String getClientRequestId() {
+    return clientRequestId;
+  }
+
+
+  public void setClientRequestId(String clientRequestId) {
+    this.clientRequestId = clientRequestId;
+  }
+
 
   public FacadeResponse code(Integer code) {
     
@@ -166,7 +191,8 @@ public class FacadeResponse {
       return false;
     }
     FacadeResponse facadeResponse = (FacadeResponse) o;
-    return Objects.equals(this.code, facadeResponse.code) &&
+    return Objects.equals(this.clientRequestId, facadeResponse.clientRequestId) &&
+        Objects.equals(this.code, facadeResponse.code) &&
         Objects.equals(this.httpStatusCode, facadeResponse.httpStatusCode) &&
         Objects.equals(this.message, facadeResponse.message) &&
         Objects.equals(this.error, facadeResponse.error);
@@ -174,13 +200,14 @@ public class FacadeResponse {
 
   @Override
   public int hashCode() {
-    return Objects.hash(code, httpStatusCode, message, error);
+    return Objects.hash(clientRequestId, code, httpStatusCode, message, error);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class FacadeResponse {\n");
+    sb.append("    clientRequestId: ").append(toIndentedString(clientRequestId)).append("\n");
     sb.append("    code: ").append(toIndentedString(code)).append("\n");
     sb.append("    httpStatusCode: ").append(toIndentedString(httpStatusCode)).append("\n");
     sb.append("    message: ").append(toIndentedString(message)).append("\n");
@@ -207,6 +234,7 @@ public class FacadeResponse {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
+    openapiFields.add("clientRequestId");
     openapiFields.add("code");
     openapiFields.add("httpStatusCode");
     openapiFields.add("message");
@@ -235,6 +263,9 @@ public class FacadeResponse {
         if (!FacadeResponse.openapiFields.contains(entry.getKey())) {
           throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `FacadeResponse` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
         }
+      }
+      if ((jsonObj.get("clientRequestId") != null && !jsonObj.get("clientRequestId").isJsonNull()) && !jsonObj.get("clientRequestId").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `clientRequestId` to be a primitive type in the JSON string but got `%s`", jsonObj.get("clientRequestId").toString()));
       }
       if ((jsonObj.get("httpStatusCode") != null && !jsonObj.get("httpStatusCode").isJsonNull()) && !jsonObj.get("httpStatusCode").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `httpStatusCode` to be a primitive type in the JSON string but got `%s`", jsonObj.get("httpStatusCode").toString()));

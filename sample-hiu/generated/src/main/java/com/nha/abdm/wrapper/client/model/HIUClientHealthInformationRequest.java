@@ -50,7 +50,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * HIUClientHealthInformationRequest
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-13T21:01:05.570301947Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-24T14:13:52.421800400+05:30[Asia/Calcutta]")
 public class HIUClientHealthInformationRequest {
   public static final String SERIALIZED_NAME_REQUEST_ID = "requestId";
   @SerializedName(SERIALIZED_NAME_REQUEST_ID)
@@ -59,18 +59,6 @@ public class HIUClientHealthInformationRequest {
   public static final String SERIALIZED_NAME_CONSENT_ID = "consentId";
   @SerializedName(SERIALIZED_NAME_CONSENT_ID)
   private String consentId;
-
-  public static final String SERIALIZED_NAME_FROM_DATE = "fromDate";
-  @SerializedName(SERIALIZED_NAME_FROM_DATE)
-  private String fromDate;
-
-  public static final String SERIALIZED_NAME_TO_DATE = "toDate";
-  @SerializedName(SERIALIZED_NAME_TO_DATE)
-  private String toDate;
-
-  public static final String SERIALIZED_NAME_EXPIRY = "expiry";
-  @SerializedName(SERIALIZED_NAME_EXPIRY)
-  private String expiry;
 
   public HIUClientHealthInformationRequest() {
   }
@@ -117,69 +105,6 @@ public class HIUClientHealthInformationRequest {
   }
 
 
-  public HIUClientHealthInformationRequest fromDate(String fromDate) {
-    
-    this.fromDate = fromDate;
-    return this;
-  }
-
-   /**
-   * Get fromDate
-   * @return fromDate
-  **/
-  @javax.annotation.Nonnull
-  public String getFromDate() {
-    return fromDate;
-  }
-
-
-  public void setFromDate(String fromDate) {
-    this.fromDate = fromDate;
-  }
-
-
-  public HIUClientHealthInformationRequest toDate(String toDate) {
-    
-    this.toDate = toDate;
-    return this;
-  }
-
-   /**
-   * Get toDate
-   * @return toDate
-  **/
-  @javax.annotation.Nonnull
-  public String getToDate() {
-    return toDate;
-  }
-
-
-  public void setToDate(String toDate) {
-    this.toDate = toDate;
-  }
-
-
-  public HIUClientHealthInformationRequest expiry(String expiry) {
-    
-    this.expiry = expiry;
-    return this;
-  }
-
-   /**
-   * Get expiry
-   * @return expiry
-  **/
-  @javax.annotation.Nonnull
-  public String getExpiry() {
-    return expiry;
-  }
-
-
-  public void setExpiry(String expiry) {
-    this.expiry = expiry;
-  }
-
-
 
   @Override
   public boolean equals(Object o) {
@@ -191,15 +116,12 @@ public class HIUClientHealthInformationRequest {
     }
     HIUClientHealthInformationRequest hiUClientHealthInformationRequest = (HIUClientHealthInformationRequest) o;
     return Objects.equals(this.requestId, hiUClientHealthInformationRequest.requestId) &&
-        Objects.equals(this.consentId, hiUClientHealthInformationRequest.consentId) &&
-        Objects.equals(this.fromDate, hiUClientHealthInformationRequest.fromDate) &&
-        Objects.equals(this.toDate, hiUClientHealthInformationRequest.toDate) &&
-        Objects.equals(this.expiry, hiUClientHealthInformationRequest.expiry);
+        Objects.equals(this.consentId, hiUClientHealthInformationRequest.consentId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestId, consentId, fromDate, toDate, expiry);
+    return Objects.hash(requestId, consentId);
   }
 
   @Override
@@ -208,9 +130,6 @@ public class HIUClientHealthInformationRequest {
     sb.append("class HIUClientHealthInformationRequest {\n");
     sb.append("    requestId: ").append(toIndentedString(requestId)).append("\n");
     sb.append("    consentId: ").append(toIndentedString(consentId)).append("\n");
-    sb.append("    fromDate: ").append(toIndentedString(fromDate)).append("\n");
-    sb.append("    toDate: ").append(toIndentedString(toDate)).append("\n");
-    sb.append("    expiry: ").append(toIndentedString(expiry)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -235,17 +154,11 @@ public class HIUClientHealthInformationRequest {
     openapiFields = new HashSet<String>();
     openapiFields.add("requestId");
     openapiFields.add("consentId");
-    openapiFields.add("fromDate");
-    openapiFields.add("toDate");
-    openapiFields.add("expiry");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
     openapiRequiredFields.add("requestId");
     openapiRequiredFields.add("consentId");
-    openapiRequiredFields.add("fromDate");
-    openapiRequiredFields.add("toDate");
-    openapiRequiredFields.add("expiry");
   }
 
  /**
@@ -280,15 +193,6 @@ public class HIUClientHealthInformationRequest {
       }
       if (!jsonObj.get("consentId").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `consentId` to be a primitive type in the JSON string but got `%s`", jsonObj.get("consentId").toString()));
-      }
-      if (!jsonObj.get("fromDate").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `fromDate` to be a primitive type in the JSON string but got `%s`", jsonObj.get("fromDate").toString()));
-      }
-      if (!jsonObj.get("toDate").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `toDate` to be a primitive type in the JSON string but got `%s`", jsonObj.get("toDate").toString()));
-      }
-      if (!jsonObj.get("expiry").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `expiry` to be a primitive type in the JSON string but got `%s`", jsonObj.get("expiry").toString()));
       }
   }
 

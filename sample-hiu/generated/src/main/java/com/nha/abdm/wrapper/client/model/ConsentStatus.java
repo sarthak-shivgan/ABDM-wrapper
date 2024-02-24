@@ -53,12 +53,8 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * ConsentStatus
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-13T21:01:05.570301947Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-24T14:13:52.421800400+05:30[Asia/Calcutta]")
 public class ConsentStatus {
-  public static final String SERIALIZED_NAME_ID = "id";
-  @SerializedName(SERIALIZED_NAME_ID)
-  private String id;
-
   public static final String SERIALIZED_NAME_STATUS = "status";
   @SerializedName(SERIALIZED_NAME_STATUS)
   private String status;
@@ -69,27 +65,6 @@ public class ConsentStatus {
 
   public ConsentStatus() {
   }
-
-  public ConsentStatus id(String id) {
-    
-    this.id = id;
-    return this;
-  }
-
-   /**
-   * Get id
-   * @return id
-  **/
-  @javax.annotation.Nullable
-  public String getId() {
-    return id;
-  }
-
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
 
   public ConsentStatus status(String status) {
     
@@ -151,21 +126,19 @@ public class ConsentStatus {
       return false;
     }
     ConsentStatus consentStatus = (ConsentStatus) o;
-    return Objects.equals(this.id, consentStatus.id) &&
-        Objects.equals(this.status, consentStatus.status) &&
+    return Objects.equals(this.status, consentStatus.status) &&
         Objects.equals(this.consentArtefacts, consentStatus.consentArtefacts);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, status, consentArtefacts);
+    return Objects.hash(status, consentArtefacts);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
     sb.append("class ConsentStatus {\n");
-    sb.append("    id: ").append(toIndentedString(id)).append("\n");
     sb.append("    status: ").append(toIndentedString(status)).append("\n");
     sb.append("    consentArtefacts: ").append(toIndentedString(consentArtefacts)).append("\n");
     sb.append("}");
@@ -190,7 +163,6 @@ public class ConsentStatus {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
-    openapiFields.add("id");
     openapiFields.add("status");
     openapiFields.add("consentArtefacts");
 
@@ -217,9 +189,6 @@ public class ConsentStatus {
         if (!ConsentStatus.openapiFields.contains(entry.getKey())) {
           throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `ConsentStatus` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
         }
-      }
-      if ((jsonObj.get("id") != null && !jsonObj.get("id").isJsonNull()) && !jsonObj.get("id").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `id` to be a primitive type in the JSON string but got `%s`", jsonObj.get("id").toString()));
       }
       if ((jsonObj.get("status") != null && !jsonObj.get("status").isJsonNull()) && !jsonObj.get("status").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `status` to be a primitive type in the JSON string but got `%s`", jsonObj.get("status").toString()));
