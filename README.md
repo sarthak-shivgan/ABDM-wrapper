@@ -13,6 +13,7 @@ Wrapper abstracts implementation of workflows involved in **Milestone 2** and **
 ## Architecture
 ![ABDM Wrapper Architecture](images/ABDM_Wrapper_Architecture.jpg)
 
+Wrapper is a springboot application packaged with mongodb database.
 Wrapper can be deployed on existing HMIS's / health facility's infrastructure.
 
 There are sets of interfaces which wrapper exposes and the existing services 
