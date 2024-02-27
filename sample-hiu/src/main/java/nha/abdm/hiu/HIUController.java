@@ -32,13 +32,24 @@ public class HIUController {
 
 
         IdRequest idRequest = new IdRequest();
-        idRequest.setId("venuajitesh12@sbx");
+        idRequest.setId("atul_kumar13@sbx");
         consentRequest.setPatient(idRequest);
 
 
         IdRequest idRequest2 = new IdRequest();
         idRequest2.setId("Predator_HIP");
         consentRequest.setHiu(idRequest2);
+
+        IdRequest idRequest3 = new IdRequest();
+        idRequest3.setId("Atul_Demo_HIP");
+        consentRequest.setHip(idRequest3);
+
+        List<ConsentCareContext> careContexts = new ArrayList<>();
+        ConsentCareContext careContext = new ConsentCareContext();
+        careContext.setCareContextReference("care-context-reference21");
+        careContext.setPatientReference("patient123");
+        careContexts.add(careContext);
+        consentRequest.setCareContexts(careContexts);
 
         ConsentRequester consentRequester = new ConsentRequester();
         consentRequester.setName("Some requester-2");
@@ -90,7 +101,7 @@ public class HIUController {
         DataTransferApi dataTransferApi = new DataTransferApi();
         HIUClientHealthInformationRequest hiuClientHealthInformationRequest=new HIUClientHealthInformationRequest();
         hiuClientHealthInformationRequest.setRequestId(healthInformationRequestId);
-        hiuClientHealthInformationRequest.setConsentId("ff219ebf-1959-4514-9d28-839b677d6fc6");
+        hiuClientHealthInformationRequest.setConsentId("b80a3848-17e6-4ac4-95b6-a8f59e4a0f71");
         return dataTransferApi.fetchHealthInformation(hiuClientHealthInformationRequest);
     }
     @GetMapping({"/test-wrapper/health-information-status"})

@@ -13,6 +13,7 @@ Wrapper abstracts implementation of workflows involved in **Milestone 2** and **
 ## Architecture
 ![ABDM Wrapper Architecture](images/ABDM_Wrapper_Architecture.jpg)
 
+Wrapper is a springboot application packaged with mongodb database.
 Wrapper can be deployed on existing HMIS's / health facility's infrastructure.
 
 There are sets of interfaces which wrapper exposes and the existing services 
@@ -76,6 +77,10 @@ curl --location --request PATCH 'https://dev.abdm.gov.in/gateway/v1/bridges' \
 ```
 docker-compose up --build
 ```
+
+## Lightweight Gateway
+In case ABDM sandbox gateway is down, you can use this lightweight [gateway](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/LightWeight-Gateway) to
+test out your workflows: 
 
 ## Sample HIP
 Click [here](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Sample-HIP) for more details on this.
