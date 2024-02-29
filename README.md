@@ -45,11 +45,36 @@ ABHA Address can be created using:
 After creating the ABHA Address, your id should look like "yourAbha@sbx"
 ```
 
-### 3. Tech Stack required to be installed on your system:
-- docker
-- docker-compose
-- jdk 17
-- gradle
+### 3. System Requirements and Installations:
+There are two ways to get wrapper and related applications running on your system:
+#### 1. Using docker (Preferred): This is an easy way to get wrapper up and running.
+Install docker and docker-compose: You can install docker desktop from [here](https://www.docker.com/products/docker-desktop/) to get both.
+
+System Requirements:
+- For Mac, check [here](https://docs.docker.com/desktop/install/mac-install/)
+- For Windows, check [here](https://docs.docker.com/desktop/install/windows-install/)
+- For Linux, check [here](https://docs.docker.com/desktop/install/linux-install/)
+
+Using default docker-compose.yaml, you can bring up wrapper and mongodb services.
+Using compose-wrapper-mockgateway.yaml, you can bring up wrapper, mongodb and mock gateway services.
+
+This repository provides two other services:
+- Sample HIP
+- Sample HIU
+
+If you need to bring these services up, then you need to install gradle from [here](https://gradle.org/install/)
+
+#### 2. If you are facing issues with installing or running docker, then you can install individual components:
+- Install mongodb from [here](https://www.mongodb.com/docs/manual/installation/)
+- Install jdk 17. Instructions can be found [here](https://www3.cs.stonybrook.edu/~amione/CSE114_Course/materials/resources/InstallingJava17.pdf)
+- Install gradle from [here](https://gradle.org/install/)
+
+System Requirements:
+- For Mongodb, you can check [here](https://www.mongodb.com/docs/manual/administration/production-notes/) to understand resource requirements.
+- For Java17, you can check [here](https://www.oracle.com/java/technologies/javase/products-doc-jdk17certconfig.html) for compatible system configurations.
+- Gradle version >= 8.5 should be fine.
+
+Recommended RAM: Systems with more than 8 GB RAM
 
 ### 4. Register bridge (hostUrl) with ABDM for callbacks.
 1. Get Access Token.
@@ -74,26 +99,34 @@ curl --location --request PATCH 'https://dev.abdm.gov.in/gateway/v1/bridges' \
 - Provide clientId and clientSecret in [application.properties](src/main/resources/application.properties)
 
 ## Bring the application up.
+If you have installed docker and docker compose then you can bring the application using:
 ```
 docker-compose up --build
 ```
 
-## Lightweight Gateway
-In case ABDM sandbox gateway is down, you can use this lightweight [gateway](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/LightWeight-Gateway) to
-test out your workflows: 
-
-## Sample HIP
-Click [here](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Sample-HIP) for more details on this.
-
-## Sample HIU
-Click [here](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Sample-HIU) for more details on this.
+If you have chosen to install separate components, then here is how you can bring the services up:
+- Start mongodb (let the port be defaulted to 27017): Instructions on how to start can be found [here](https://www.mongodb.com/docs/v7.0/administration/install-community/)
+  The links like `Install on Linux` do have instructions on how to start the service as well.
+- Start wrapper then by going to root of this repository and running `gradle bootrun`
 
 ## Test Discovery and User-Initiated Linking
-Click [here](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Test-Discovery-and-User-Initiated-Linking) to get more details on this.
+Check this [page](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Test-Discovery-and-User-Initiated-Linking) to get more details on this.
 
 ## Test Consent Workflow
-Click [here](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Test-Consent-Workflow) to get more details on this.
+Check this [page](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Test-Consent-Workflow) to get more details on this.
 
+## Test Health Information Exchange
+Check this [page](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Test-HIU-Request-for-health-information) to get more details on this.
+
+## Mock Gateway
+In case ABDM sandbox gateway is down, you can use this mock [gateway](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/LightWeight-Gateway) to
+test out your workflows:
+
+## Sample HIP
+Check this [page](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Sample-HIP) for more details on this.
+
+## Sample HIU
+Check this [page](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Sample-HIU) for more details on this.
 
 ### [Developer Guide](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Developer-guide)
 ### [Frequently Faced Issues](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Frequently-Faced-Issues)
