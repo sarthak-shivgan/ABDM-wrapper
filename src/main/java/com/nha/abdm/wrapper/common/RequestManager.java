@@ -18,10 +18,12 @@ public class RequestManager {
 
   private final WebClient webClient;
   private final WebClient hiuWebClient;
+  private final SessionManager sessionManager;
 
   @Autowired
   public RequestManager(
       @Value("${gatewayBaseUrl}") final String gatewayBaseUrl, SessionManager sessionManager) {
+    this.sessionManager = sessionManager;
     webClient =
         WebClient.builder()
             .baseUrl(gatewayBaseUrl)
@@ -35,6 +37,7 @@ public class RequestManager {
     return webClient
         .post()
         .uri(uri)
+        .headers(httpHeaders -> httpHeaders.addAll(sessionManager.setGatewayRequestHeaders()))
         .body(BodyInserters.fromValue(request))
         .retrieve()
         .toEntity(GenericResponse.class)

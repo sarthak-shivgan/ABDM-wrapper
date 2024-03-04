@@ -123,7 +123,7 @@ public class RequestLogService<T> {
               .set("clientRequestId", initResponse.getRequestId())
               .set("gatewayRequestId", requestId)
               .set("linkRefNumber", referenceNumber)
-              .set("rawResponse", map);
+              .set("requestDetails", map);
       mongoTemplate.updateFirst(query, update, RequestLog.class);
     }
   }
