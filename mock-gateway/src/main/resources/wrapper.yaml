@@ -5,7 +5,7 @@ info:
   title: Wrapper
   description: Wrapper
 servers:
-- url: http://localhost:8082
+- url: http://abdm-wrapper:8082
   description: Wrapper
 paths:
   /v0.5/care-contexts/discover:
