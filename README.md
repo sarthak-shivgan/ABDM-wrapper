@@ -438,7 +438,12 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
 - The api should return a response object:
   ```
   {
-    "bundleContent": <stringified fhir resource>
+     "healthInformationBundle": [
+        {
+           "careContextReference": "";
+           "bundleContent": "Stringified FHIR bundle";
+        }
+     ]
   }
   ```
 - Base url for this endpoint:

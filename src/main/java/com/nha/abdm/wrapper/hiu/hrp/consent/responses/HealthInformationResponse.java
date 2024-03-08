@@ -1,6 +1,7 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hiu.hrp.consent.responses;
 
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HealthInformationBundle;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -17,5 +18,5 @@ public class HealthInformationResponse {
   private RequestStatus status;
   private String error;
   private HttpStatusCode httpStatusCode;
-  private List<String> decryptedHealthInformationEntries;
+  private List<HealthInformationBundle> decryptedHealthInformationEntries;
 }

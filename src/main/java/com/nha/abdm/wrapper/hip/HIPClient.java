@@ -1,8 +1,8 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip;
 
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundle;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -40,7 +40,7 @@ public class HIPClient {
     return responseEntity.getBody();
   }
 
-  public ResponseEntity<HealthInformationBundle> healthInformationBundleRequest(
+  public ResponseEntity<HealthInformationBundleResponse> healthInformationBundleRequest(
       HealthInformationBundleRequest healthInformationBundleRequest) {
     return webClient
         .post()
@@ -48,7 +48,7 @@ public class HIPClient {
         .accept(MediaType.APPLICATION_JSON)
         .body(BodyInserters.fromValue(healthInformationBundleRequest))
         .retrieve()
-        .toEntity(HealthInformationBundle.class)
+        .toEntity(HealthInformationBundleResponse.class)
         .block();
   }
 }
