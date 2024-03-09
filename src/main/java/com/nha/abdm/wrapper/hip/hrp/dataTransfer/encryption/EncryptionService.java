@@ -3,12 +3,16 @@ package com.nha.abdm.wrapper.hip.hrp.dataTransfer.encryption;
 
 import com.nha.abdm.wrapper.common.cipher.CipherKeyManager;
 import com.nha.abdm.wrapper.common.cipher.Key;
+import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.callback.HIPHealthInformationRequest;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundle;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleResponse;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HealthInformationBundle;
 import java.math.BigInteger;
 import java.security.*;
 import java.security.spec.InvalidKeySpecException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import javax.crypto.KeyAgreement;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,6 +32,7 @@ import org.bouncycastle.jce.spec.ECPrivateKeySpec;
 import org.bouncycastle.jce.spec.ECPublicKeySpec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class EncryptionService {
@@ -42,10 +47,12 @@ public class EncryptionService {
    */
   public EncryptionResponse encrypt(
       HIPHealthInformationRequest hipHealthInformationRequest,
-      HealthInformationBundle bundleResponse)
+      HealthInformationBundleResponse bundleResponse)
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException,
-          InvalidKeySpecException, InvalidKeyException {
-    log.debug(bundleResponse.getBundleContent());
+          InvalidKeySpecException, InvalidKeyException, IllegalDataStateException {
+    if (CollectionUtils.isEmpty(bundleResponse.getHealthInformationBundle())) {
+      throw new IllegalDataStateException("Bundle response is null");
+    }
     Key senderKeys = cipherKeyManager.fetchKeys();
     Key receiverKeys =
         Key.builder()
@@ -58,16 +65,24 @@ public class EncryptionService {
             .nonce(hipHealthInformationRequest.getHiRequest().getKeyMaterial().getNonce())
             .build();
     byte[] xorOfRandom = xorOfRandom(senderKeys.getNonce(), receiverKeys.getNonce());
-
-    String encryptedData =
-        encrypt(
-            xorOfRandom,
-            senderKeys.getPrivateKey(),
-            receiverKeys.getPublicKey(),
-            bundleResponse.getBundleContent());
-
+    List<HealthInformationBundle> encryptedCareContextsList = new ArrayList<>();
+    for (HealthInformationBundle healthInformationBundle :
+        bundleResponse.getHealthInformationBundle()) {
+      log.debug(healthInformationBundle);
+      String encryptedData =
+          encrypt(
+              xorOfRandom,
+              senderKeys.getPrivateKey(),
+              receiverKeys.getPublicKey(),
+              healthInformationBundle.getBundleContent());
+      encryptedCareContextsList.add(
+          HealthInformationBundle.builder()
+              .careContextReference(healthInformationBundle.getCareContextReference())
+              .bundleContent(encryptedData)
+              .build());
+    }
     String keyToShare = getBase64String(getEncodedHIPPublicKey(getKey(senderKeys.getPublicKey())));
-    return new EncryptionResponse(encryptedData, keyToShare, senderKeys.getNonce());
+    return new EncryptionResponse(encryptedCareContextsList, keyToShare, senderKeys.getNonce());
   }
 
   private byte[] xorOfRandom(String senderNonce, String receiverNonce) {

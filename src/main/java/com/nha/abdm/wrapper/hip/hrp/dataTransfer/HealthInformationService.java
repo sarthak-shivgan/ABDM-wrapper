@@ -15,9 +15,10 @@ import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotifyRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.callback.HIPHealthInformationRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.encryption.EncryptionResponse;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.encryption.EncryptionService;
-import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundle;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleRequest;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleResponse;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationPushNotification;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HealthInformationBundle;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HealthInformationNotifier;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HealthInformationRequestStatus;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
@@ -128,11 +129,11 @@ public class HealthInformationService implements HealthInformationInterface {
     healthInformationAcknowledgementRequest(
         hipHealthInformationRequest, onHealthInformationRequest);
     // Prepare health information bundle request which needs to be sent to HIU.
-    HealthInformationBundle healthInformationBundle =
+    HealthInformationBundleResponse healthInformationBundleResponse =
         fetchHealthInformationBundle(hipHealthInformationRequest, gatewayRequestId);
     // Push the health information to HIU.
     ResponseEntity<GenericResponse> pushHealthInformationResponse =
-        pushHealthInformation(healthInformationBundle, consentId);
+        pushHealthInformation(healthInformationBundleResponse, consentId);
     // Notify Gateway that health information was pushed to HIU.
     healthInformationPushNotify(
         hipHealthInformationRequest, consentId, pushHealthInformationResponse);
@@ -170,7 +171,7 @@ public class HealthInformationService implements HealthInformationInterface {
    * @param hipHealthInformationRequest use the requestId to fetch the careContexts from dump to
    *     request HIP.
    */
-  private HealthInformationBundle fetchHealthInformationBundle(
+  private HealthInformationBundleResponse fetchHealthInformationBundle(
       HIPHealthInformationRequest hipHealthInformationRequest, String gatewayRequestId)
       throws IllegalDataStateException {
     ConsentCareContextMapping existingLog =
@@ -191,13 +192,14 @@ public class HealthInformationService implements HealthInformationInterface {
   /**
    * Encrypt the bundle and POST to /dataPushUrl of HIU
    *
-   * @param healthInformationBundle FHIR bundle received from HIP for the particular patients
+   * @param healthInformationBundleResponse FHIR bundle received from HIP for the particular
+   *     patients
    */
   private ResponseEntity<GenericResponse> pushHealthInformation(
-      HealthInformationBundle healthInformationBundle, String consentId)
+      HealthInformationBundleResponse healthInformationBundleResponse, String consentId)
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeySpecException,
-          NoSuchProviderException, InvalidKeyException {
-    log.debug("HealthInformationBundle : " + healthInformationBundle);
+          NoSuchProviderException, InvalidKeyException, IllegalDataStateException {
+    log.debug("HealthInformationBundle : " + healthInformationBundleResponse);
     RequestLog requestLog = requestLogService.findByConsentId(consentId, "HIP");
 
     HIPNotifyRequest hipNotifyRequest =
@@ -208,7 +210,7 @@ public class HealthInformationService implements HealthInformationInterface {
             requestLog.getRequestDetails().get(FieldIdentifiers.HEALTH_INFORMATION_REQUEST);
     HealthInformationPushRequest healthInformationPushRequest =
         fetchHealthInformationPushRequest(
-            hipNotifyRequest, hipHealthInformationRequest, healthInformationBundle);
+            hipNotifyRequest, hipHealthInformationRequest, healthInformationBundleResponse);
 
     log.debug("Health Information push request: " + healthInformationPushRequest);
     log.info("initiating the dataTransfer to HIU");
@@ -219,11 +221,11 @@ public class HealthInformationService implements HealthInformationInterface {
   private HealthInformationPushRequest fetchHealthInformationPushRequest(
       HIPNotifyRequest hipNotifyRequest,
       HIPHealthInformationRequest hipHealthInformationRequest,
-      HealthInformationBundle healthInformationBundle)
+      HealthInformationBundleResponse healthInformationBundleResponse)
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeySpecException,
-          NoSuchProviderException, InvalidKeyException {
+          NoSuchProviderException, InvalidKeyException, IllegalDataStateException {
     EncryptionResponse encryptedData =
-        encryptionService.encrypt(hipHealthInformationRequest, healthInformationBundle);
+        encryptionService.encrypt(hipHealthInformationRequest, healthInformationBundleResponse);
 
     HealthInformationDhPublicKey receiverDhPublicKey =
         hipHealthInformationRequest.getHiRequest().getKeyMaterial().getDhPublicKey();
@@ -243,17 +245,14 @@ public class HealthInformationService implements HealthInformationInterface {
             .nonce(encryptedData.getSenderNonce())
             .build();
     List<HealthInformationEntry> entries = new ArrayList<>();
-    List<String> careContextReferenceList =
-        hipNotifyRequest.getNotification().getConsentDetail().getCareContexts().stream()
-            .map(ConsentCareContexts::getCareContextReference)
-            .toList();
-    for (String careContextReference : careContextReferenceList) {
+    for (HealthInformationBundle healthInformationBundle :
+        encryptedData.getEncryptedCareContextsList()) {
       HealthInformationEntry healthInformationEntry =
           HealthInformationEntry.builder()
-              .content(encryptedData.getEncryptedData())
+              .content(healthInformationBundle.getBundleContent())
               .media("application/fhir+json")
               .checksum("string")
-              .careContextReference(careContextReference)
+              .careContextReference(healthInformationBundle.getCareContextReference())
               .build();
       entries.add(healthInformationEntry);
     }

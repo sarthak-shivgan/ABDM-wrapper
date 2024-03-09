@@ -33,7 +33,8 @@ public class RequestManager {
     hiuWebClient = WebClient.builder().build();
   }
 
-  // Initializing headers every time to avoid setting the old headers/session token and getting unauthorised error from gateway.
+  // Initializing headers every time to avoid setting the old headers/session token and getting
+  // unauthorised error from gateway.
   public <T> ResponseEntity<GenericResponse> fetchResponseFromGateway(String uri, T request) {
     return webClient
         .post()

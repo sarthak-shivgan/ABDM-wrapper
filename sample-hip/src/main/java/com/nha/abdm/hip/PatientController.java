@@ -42,14 +42,21 @@ public class PatientController {
     }
 
     @PostMapping(value="/health-information")
-    public @ResponseBody ResponseEntity<HealthInformationBundle> fetchHealthInformation(
+    public @ResponseBody ResponseEntity<HealthInformationResponse> fetchHealthInformation(
             @RequestBody HealthInformationBundleRequest healthInformationBundleRequest) throws IOException {
         log.debug("healthInformationBundleRequest" + healthInformationBundleRequest);
         String filePath = "src/main/resources/OP_Consultation_fhir_bundle.json";
         String bundle= new String(Files.readAllBytes(Paths.get(filePath)));
         HealthInformationBundle healthInformationBundle=new HealthInformationBundle();
-        healthInformationBundle.setBundleContent(bundle);
-        return new ResponseEntity<>(healthInformationBundle, HttpStatus.OK);
+        HealthInformationResponse healthInformationResponse=new HealthInformationResponse();
+        List<HealthInformationBundle> healthInformationBundles=new ArrayList<>();
+        for(ConsentCareContexts careContexts:healthInformationBundleRequest.getCareContextsWithPatientReferences()){
+            healthInformationBundle.setBundleContent(bundle);
+            healthInformationBundle.setCareContextReference(careContexts.getCareContextReference());
+            healthInformationBundles.add(healthInformationBundle);
+        }
+        healthInformationResponse.setHealthInformationBundle(healthInformationBundles);
+        return new ResponseEntity<>(healthInformationResponse, HttpStatus.OK);
     }
   
     @PostMapping({"/test-wrapper/upsert-patients"})

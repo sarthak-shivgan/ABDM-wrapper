@@ -1,6 +1,8 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.dataTransfer.encryption;
 
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HealthInformationBundle;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EncryptionResponse {
-  private String encryptedData;
+  private List<HealthInformationBundle> encryptedCareContextsList;
   private String keyToShare;
   private String senderNonce;
 }

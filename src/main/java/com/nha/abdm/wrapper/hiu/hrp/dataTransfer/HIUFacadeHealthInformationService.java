@@ -11,6 +11,7 @@ import com.nha.abdm.wrapper.common.requests.*;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
+import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.helpers.HealthInformationBundle;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentCipherMappingService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.ConsentPatientService;
@@ -153,7 +154,7 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
     HealthInformationPushRequest healthInformationPushRequest =
         (HealthInformationPushRequest)
             responseDetails.get(FieldIdentifiers.ENCRYPTED_HEALTH_INFORMATION);
-    List<String> decryptedHealthInformationEntries =
+    List<HealthInformationBundle> decryptedHealthInformationEntries =
         getDecryptedHealthInformation(healthInformationPushRequest);
     return HealthInformationResponse.builder()
         .httpStatusCode(HttpStatus.OK)
@@ -199,7 +200,7 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
         .build();
   }
 
-  private List<String> getDecryptedHealthInformation(
+  private List<HealthInformationBundle> getDecryptedHealthInformation(
       HealthInformationPushRequest healthInformationPushRequest)
       throws IllegalDataStateException, InvalidCipherTextException, NoSuchAlgorithmException,
           InvalidKeySpecException, NoSuchProviderException, InvalidKeyException {
@@ -217,15 +218,19 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
     String hiuNonce = consentCipherMapping.getNonce();
     List<HealthInformationEntry> healthInformationEntries =
         healthInformationPushRequest.getEntries();
-    List<String> decryptedHealthInformationEntries = new ArrayList<>();
+    List<HealthInformationBundle> decryptedHealthInformationEntries = new ArrayList<>();
     for (HealthInformationEntry healthInformationEntry : healthInformationEntries) {
       decryptedHealthInformationEntries.add(
-          decryptionManager.decryptedHealthInformation(
-              hipNonce,
-              hiuNonce,
-              hiuPrivateKey,
-              hipPublicKey,
-              healthInformationEntry.getContent()));
+          HealthInformationBundle.builder()
+              .bundleContent(
+                  decryptionManager.decryptedHealthInformation(
+                      hipNonce,
+                      hiuNonce,
+                      hiuPrivateKey,
+                      hipPublicKey,
+                      healthInformationEntry.getContent()))
+              .careContextReference(healthInformationEntry.getCareContextReference())
+              .build());
     }
     return decryptedHealthInformationEntries;
   }
