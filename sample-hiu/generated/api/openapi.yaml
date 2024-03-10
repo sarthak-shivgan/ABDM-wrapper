@@ -327,8 +327,10 @@ components:
     HealthInformationResponse:
       example:
         decryptedHealthInformationEntries:
-        - decryptedHealthInformationEntries
-        - decryptedHealthInformationEntries
+        - bundleContent: bundleContent
+          careContextReference: careContextReference
+        - bundleContent: bundleContent
+          careContextReference: careContextReference
         error: error
         status: status
         httpStatusCode: httpStatusCode
@@ -341,8 +343,18 @@ components:
           type: string
         decryptedHealthInformationEntries:
           items:
-            type: string
+            $ref: '#/components/schemas/HealthInformationBundle'
           type: array
+      type: object
+    HealthInformationBundle:
+      example:
+        bundleContent: bundleContent
+        careContextReference: careContextReference
+      properties:
+        careContextReference:
+          type: string
+        bundleContent:
+          type: string
       type: object
     HiTypeEnum:
       enum:

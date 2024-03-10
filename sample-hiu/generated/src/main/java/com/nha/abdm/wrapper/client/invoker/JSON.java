@@ -104,6 +104,7 @@ public class JSON {
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.FacadeResponse.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.Frequency.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.HIUClientHealthInformationRequest.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.HealthInformationBundle.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.HealthInformationResponse.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.IdRequest.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.InitConsentRequest.CustomTypeAdapterFactory());

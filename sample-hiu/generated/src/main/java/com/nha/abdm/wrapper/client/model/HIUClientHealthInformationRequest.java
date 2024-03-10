@@ -50,7 +50,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * HIUClientHealthInformationRequest
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-24T14:13:52.421800400+05:30[Asia/Calcutta]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-10T03:12:25.593569935Z[Etc/UTC]")
 public class HIUClientHealthInformationRequest {
   public static final String SERIALIZED_NAME_REQUEST_ID = "requestId";
   @SerializedName(SERIALIZED_NAME_REQUEST_ID)

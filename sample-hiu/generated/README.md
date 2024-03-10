@@ -2,7 +2,7 @@
 
 Swagger HIU Facade - OpenAPI 3.0
 - API version: 1.0.0
-  - Build date: 2024-02-24T14:13:52.421800400+05:30[Asia/Calcutta]
+  - Build date: 2024-03-10T03:12:25.593569935Z[Etc/UTC]
 
 This is a set of interfaces based on the OpenAPI 3.0 specification for a wrapper client
 
@@ -133,6 +133,7 @@ Class | Method | HTTP request | Description
  - [FacadeResponse](docs/FacadeResponse.md)
  - [Frequency](docs/Frequency.md)
  - [HIUClientHealthInformationRequest](docs/HIUClientHealthInformationRequest.md)
+ - [HealthInformationBundle](docs/HealthInformationBundle.md)
  - [HealthInformationResponse](docs/HealthInformationResponse.md)
  - [HiTypeEnum](docs/HiTypeEnum.md)
  - [IdRequest](docs/IdRequest.md)

@@ -298,7 +298,14 @@ components:
         decryptedHealthInformationEntries:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/HealthInformationBundle'
+    HealthInformationBundle:
+      type: object
+      properties:
+        careContextReference:
+          type: string
+        bundleContent:
+          type: string
     HiTypeEnum:
       type: string
       enum: [OPConsultation, Prescription, DischargeSummary, DiagnosticReport, ImmunizationRecord, HealthDocumentRecord, WellnessRecord]

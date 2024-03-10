@@ -20,6 +20,7 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.nha.abdm.wrapper.client.model.HealthInformationBundle;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +53,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * HealthInformationResponse
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-24T14:13:52.421800400+05:30[Asia/Calcutta]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-10T03:12:25.593569935Z[Etc/UTC]")
 public class HealthInformationResponse {
   public static final String SERIALIZED_NAME_STATUS = "status";
   @SerializedName(SERIALIZED_NAME_STATUS)
@@ -68,7 +69,7 @@ public class HealthInformationResponse {
 
   public static final String SERIALIZED_NAME_DECRYPTED_HEALTH_INFORMATION_ENTRIES = "decryptedHealthInformationEntries";
   @SerializedName(SERIALIZED_NAME_DECRYPTED_HEALTH_INFORMATION_ENTRIES)
-  private List<String> decryptedHealthInformationEntries;
+  private List<HealthInformationBundle> decryptedHealthInformationEntries;
 
   public HealthInformationResponse() {
   }
@@ -136,13 +137,13 @@ public class HealthInformationResponse {
   }
 
 
-  public HealthInformationResponse decryptedHealthInformationEntries(List<String> decryptedHealthInformationEntries) {
+  public HealthInformationResponse decryptedHealthInformationEntries(List<HealthInformationBundle> decryptedHealthInformationEntries) {
     
     this.decryptedHealthInformationEntries = decryptedHealthInformationEntries;
     return this;
   }
 
-  public HealthInformationResponse addDecryptedHealthInformationEntriesItem(String decryptedHealthInformationEntriesItem) {
+  public HealthInformationResponse addDecryptedHealthInformationEntriesItem(HealthInformationBundle decryptedHealthInformationEntriesItem) {
     if (this.decryptedHealthInformationEntries == null) {
       this.decryptedHealthInformationEntries = new ArrayList<>();
     }
@@ -155,12 +156,12 @@ public class HealthInformationResponse {
    * @return decryptedHealthInformationEntries
   **/
   @javax.annotation.Nullable
-  public List<String> getDecryptedHealthInformationEntries() {
+  public List<HealthInformationBundle> getDecryptedHealthInformationEntries() {
     return decryptedHealthInformationEntries;
   }
 
 
-  public void setDecryptedHealthInformationEntries(List<String> decryptedHealthInformationEntries) {
+  public void setDecryptedHealthInformationEntries(List<HealthInformationBundle> decryptedHealthInformationEntries) {
     this.decryptedHealthInformationEntries = decryptedHealthInformationEntries;
   }
 
@@ -254,9 +255,19 @@ public class HealthInformationResponse {
       if ((jsonObj.get("httpStatusCode") != null && !jsonObj.get("httpStatusCode").isJsonNull()) && !jsonObj.get("httpStatusCode").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `httpStatusCode` to be a primitive type in the JSON string but got `%s`", jsonObj.get("httpStatusCode").toString()));
       }
-      // ensure the optional json data is an array if present
-      if (jsonObj.get("decryptedHealthInformationEntries") != null && !jsonObj.get("decryptedHealthInformationEntries").isJsonArray()) {
-        throw new IllegalArgumentException(String.format("Expected the field `decryptedHealthInformationEntries` to be an array in the JSON string but got `%s`", jsonObj.get("decryptedHealthInformationEntries").toString()));
+      if (jsonObj.get("decryptedHealthInformationEntries") != null && !jsonObj.get("decryptedHealthInformationEntries").isJsonNull()) {
+        JsonArray jsonArraydecryptedHealthInformationEntries = jsonObj.getAsJsonArray("decryptedHealthInformationEntries");
+        if (jsonArraydecryptedHealthInformationEntries != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("decryptedHealthInformationEntries").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `decryptedHealthInformationEntries` to be an array in the JSON string but got `%s`", jsonObj.get("decryptedHealthInformationEntries").toString()));
+          }
+
+          // validate the optional field `decryptedHealthInformationEntries` (array)
+          for (int i = 0; i < jsonArraydecryptedHealthInformationEntries.size(); i++) {
+            HealthInformationBundle.validateJsonObject(jsonArraydecryptedHealthInformationEntries.get(i).getAsJsonObject());
+          };
+        }
       }
   }
 
