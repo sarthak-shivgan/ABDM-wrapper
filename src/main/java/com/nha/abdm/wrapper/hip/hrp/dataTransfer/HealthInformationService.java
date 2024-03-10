@@ -246,7 +246,7 @@ public class HealthInformationService implements HealthInformationInterface {
             .build();
     List<HealthInformationEntry> entries = new ArrayList<>();
     for (HealthInformationBundle healthInformationBundle :
-        encryptedData.getEncryptedCareContextsList()) {
+        encryptedData.getHealthInformationBundles()) {
       HealthInformationEntry healthInformationEntry =
           HealthInformationEntry.builder()
               .content(healthInformationBundle.getBundleContent())

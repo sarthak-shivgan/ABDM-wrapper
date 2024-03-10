@@ -46,7 +46,7 @@ public class HIUController {
 
         List<ConsentCareContext> careContexts = new ArrayList<>();
         ConsentCareContext careContext = new ConsentCareContext();
-        careContext.setCareContextReference("care-context-reference21");
+        careContext.setCareContextReference("care-context-reference15");
         careContext.setPatientReference("patient123");
         careContexts.add(careContext);
         consentRequest.setCareContexts(careContexts);
@@ -101,7 +101,7 @@ public class HIUController {
         DataTransferApi dataTransferApi = new DataTransferApi();
         HIUClientHealthInformationRequest hiuClientHealthInformationRequest=new HIUClientHealthInformationRequest();
         hiuClientHealthInformationRequest.setRequestId(healthInformationRequestId);
-        hiuClientHealthInformationRequest.setConsentId("b80a3848-17e6-4ac4-95b6-a8f59e4a0f71");
+        hiuClientHealthInformationRequest.setConsentId("89dc356a-4e23-4c12-a32f-9ebab2311f10");
         return dataTransferApi.fetchHealthInformation(hiuClientHealthInformationRequest);
     }
     @GetMapping({"/test-wrapper/health-information-status"})

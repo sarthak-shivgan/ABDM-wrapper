@@ -18,6 +18,7 @@ docs/ErrorResponse.md
 docs/FacadeResponse.md
 docs/Frequency.md
 docs/HIUClientHealthInformationRequest.md
+docs/HealthInformationBundle.md
 docs/HealthInformationResponse.md
 docs/HiTypeEnum.md
 docs/IdRequest.md
@@ -64,9 +65,11 @@ src/main/java/com/nha/abdm/wrapper/client/model/ErrorResponse.java
 src/main/java/com/nha/abdm/wrapper/client/model/FacadeResponse.java
 src/main/java/com/nha/abdm/wrapper/client/model/Frequency.java
 src/main/java/com/nha/abdm/wrapper/client/model/HIUClientHealthInformationRequest.java
+src/main/java/com/nha/abdm/wrapper/client/model/HealthInformationBundle.java
 src/main/java/com/nha/abdm/wrapper/client/model/HealthInformationResponse.java
 src/main/java/com/nha/abdm/wrapper/client/model/HiTypeEnum.java
 src/main/java/com/nha/abdm/wrapper/client/model/IdRequest.java
 src/main/java/com/nha/abdm/wrapper/client/model/InitConsentRequest.java
 src/main/java/com/nha/abdm/wrapper/client/model/Permission.java
 src/main/java/com/nha/abdm/wrapper/client/model/Purpose.java
+src/test/java/com/nha/abdm/wrapper/client/model/HealthInformationBundleTest.java

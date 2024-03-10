@@ -48,43 +48,22 @@ import java.util.Set;
 import com.nha.abdm.wrapper.client.invoker.JSON;
 
 /**
- * ConsentCareContext
+ * HealthInformationBundle
  */
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-10T03:12:25.593569935Z[Etc/UTC]")
-public class ConsentCareContext {
-  public static final String SERIALIZED_NAME_PATIENT_REFERENCE = "patientReference";
-  @SerializedName(SERIALIZED_NAME_PATIENT_REFERENCE)
-  private String patientReference;
-
+public class HealthInformationBundle {
   public static final String SERIALIZED_NAME_CARE_CONTEXT_REFERENCE = "careContextReference";
   @SerializedName(SERIALIZED_NAME_CARE_CONTEXT_REFERENCE)
   private String careContextReference;
 
-  public ConsentCareContext() {
+  public static final String SERIALIZED_NAME_BUNDLE_CONTENT = "bundleContent";
+  @SerializedName(SERIALIZED_NAME_BUNDLE_CONTENT)
+  private String bundleContent;
+
+  public HealthInformationBundle() {
   }
 
-  public ConsentCareContext patientReference(String patientReference) {
-    
-    this.patientReference = patientReference;
-    return this;
-  }
-
-   /**
-   * Get patientReference
-   * @return patientReference
-  **/
-  @javax.annotation.Nullable
-  public String getPatientReference() {
-    return patientReference;
-  }
-
-
-  public void setPatientReference(String patientReference) {
-    this.patientReference = patientReference;
-  }
-
-
-  public ConsentCareContext careContextReference(String careContextReference) {
+  public HealthInformationBundle careContextReference(String careContextReference) {
     
     this.careContextReference = careContextReference;
     return this;
@@ -105,6 +84,27 @@ public class ConsentCareContext {
   }
 
 
+  public HealthInformationBundle bundleContent(String bundleContent) {
+    
+    this.bundleContent = bundleContent;
+    return this;
+  }
+
+   /**
+   * Get bundleContent
+   * @return bundleContent
+  **/
+  @javax.annotation.Nullable
+  public String getBundleContent() {
+    return bundleContent;
+  }
+
+
+  public void setBundleContent(String bundleContent) {
+    this.bundleContent = bundleContent;
+  }
+
+
 
   @Override
   public boolean equals(Object o) {
@@ -114,22 +114,22 @@ public class ConsentCareContext {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ConsentCareContext consentCareContext = (ConsentCareContext) o;
-    return Objects.equals(this.patientReference, consentCareContext.patientReference) &&
-        Objects.equals(this.careContextReference, consentCareContext.careContextReference);
+    HealthInformationBundle healthInformationBundle = (HealthInformationBundle) o;
+    return Objects.equals(this.careContextReference, healthInformationBundle.careContextReference) &&
+        Objects.equals(this.bundleContent, healthInformationBundle.bundleContent);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(patientReference, careContextReference);
+    return Objects.hash(careContextReference, bundleContent);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class ConsentCareContext {\n");
-    sb.append("    patientReference: ").append(toIndentedString(patientReference)).append("\n");
+    sb.append("class HealthInformationBundle {\n");
     sb.append("    careContextReference: ").append(toIndentedString(careContextReference)).append("\n");
+    sb.append("    bundleContent: ").append(toIndentedString(bundleContent)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -152,8 +152,8 @@ public class ConsentCareContext {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
-    openapiFields.add("patientReference");
     openapiFields.add("careContextReference");
+    openapiFields.add("bundleContent");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
@@ -163,27 +163,27 @@ public class ConsentCareContext {
   * Validates the JSON Object and throws an exception if issues found
   *
   * @param jsonObj JSON Object
-  * @throws IOException if the JSON Object is invalid with respect to ConsentCareContext
+  * @throws IOException if the JSON Object is invalid with respect to HealthInformationBundle
   */
   public static void validateJsonObject(JsonObject jsonObj) throws IOException {
       if (jsonObj == null) {
-        if (!ConsentCareContext.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in ConsentCareContext is not found in the empty JSON string", ConsentCareContext.openapiRequiredFields.toString()));
+        if (!HealthInformationBundle.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in HealthInformationBundle is not found in the empty JSON string", HealthInformationBundle.openapiRequiredFields.toString()));
         }
       }
 
       Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
       // check to see if the JSON string contains additional fields
       for (Entry<String, JsonElement> entry : entries) {
-        if (!ConsentCareContext.openapiFields.contains(entry.getKey())) {
-          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `ConsentCareContext` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        if (!HealthInformationBundle.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `HealthInformationBundle` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
         }
-      }
-      if ((jsonObj.get("patientReference") != null && !jsonObj.get("patientReference").isJsonNull()) && !jsonObj.get("patientReference").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `patientReference` to be a primitive type in the JSON string but got `%s`", jsonObj.get("patientReference").toString()));
       }
       if ((jsonObj.get("careContextReference") != null && !jsonObj.get("careContextReference").isJsonNull()) && !jsonObj.get("careContextReference").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `careContextReference` to be a primitive type in the JSON string but got `%s`", jsonObj.get("careContextReference").toString()));
+      }
+      if ((jsonObj.get("bundleContent") != null && !jsonObj.get("bundleContent").isJsonNull()) && !jsonObj.get("bundleContent").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `bundleContent` to be a primitive type in the JSON string but got `%s`", jsonObj.get("bundleContent").toString()));
       }
   }
 
@@ -191,22 +191,22 @@ public class ConsentCareContext {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!ConsentCareContext.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'ConsentCareContext' and its subtypes
+       if (!HealthInformationBundle.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'HealthInformationBundle' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<ConsentCareContext> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(ConsentCareContext.class));
+       final TypeAdapter<HealthInformationBundle> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(HealthInformationBundle.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<ConsentCareContext>() {
+       return (TypeAdapter<T>) new TypeAdapter<HealthInformationBundle>() {
            @Override
-           public void write(JsonWriter out, ConsentCareContext value) throws IOException {
+           public void write(JsonWriter out, HealthInformationBundle value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              elementAdapter.write(out, obj);
            }
 
            @Override
-           public ConsentCareContext read(JsonReader in) throws IOException {
+           public HealthInformationBundle read(JsonReader in) throws IOException {
              JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
              validateJsonObject(jsonObj);
              return thisAdapter.fromJsonTree(jsonObj);
@@ -217,18 +217,18 @@ public class ConsentCareContext {
   }
 
  /**
-  * Create an instance of ConsentCareContext given an JSON string
+  * Create an instance of HealthInformationBundle given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of ConsentCareContext
-  * @throws IOException if the JSON string is invalid with respect to ConsentCareContext
+  * @return An instance of HealthInformationBundle
+  * @throws IOException if the JSON string is invalid with respect to HealthInformationBundle
   */
-  public static ConsentCareContext fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, ConsentCareContext.class);
+  public static HealthInformationBundle fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, HealthInformationBundle.class);
   }
 
  /**
-  * Convert an instance of ConsentCareContext to an JSON string
+  * Convert an instance of HealthInformationBundle to an JSON string
   *
   * @return JSON string
   */
