@@ -13,7 +13,7 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
-import com.nha.abdm.wrapper.hip.hrp.discover.responses.DiscoverResponse;
+import com.nha.abdm.wrapper.hip.hrp.discover.requests.DiscoverRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnAddCareContextsResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
@@ -52,15 +52,17 @@ public class GatewayCallbackController {
    *
    * <p>Routing to workFlowManager for using service interface.
    *
-   * @param discoverResponse response body with demographic details and abhaAddress of patient.
+   * @param discoverRequest response body with demographic details and abhaAddress of patient.
    */
   @PostMapping("/v0.5/care-contexts/discover")
-  public void discoverCall(@RequestBody DiscoverResponse discoverResponse) {
-    if (discoverResponse != null && discoverResponse.getError() == null) {
-      log.info("/v0.5/care-contexts/discover :" + discoverResponse);
-      workflowManager.initiateOnDiscover(discoverResponse);
+  public ResponseEntity<GatewayCallbackResponse> discover(
+      @RequestBody DiscoverRequest discoverRequest) {
+    if (discoverRequest != null && discoverRequest.getError() == null) {
+      log.info("/v0.5/care-contexts/discover :" + discoverRequest);
+      return workflowManager.discover(discoverRequest);
     } else {
-      log.error("/v0.5/care-contexts/discover :" + discoverResponse.getError().getMessage());
+      log.error("/v0.5/care-contexts/discover :" + discoverRequest.getError().getMessage());
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
   }
 

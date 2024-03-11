@@ -36,6 +36,95 @@ paths:
           description: Address not found
         '422':
           description: Validation exception
+  /patient-discover:
+    post:
+      tags:
+        - patients
+      summary: Discover patient's accounts
+      description: >
+        Request for patient care context discover, made by CM for a specific HIP. It is expected that HIP will subsequently return either zero or one patient record with (potentially masked) associated care contexts
+          1. **At least one of the verified identifier matches**
+          2. **Name (fuzzy), gender matches**
+          3. **If YoB was given, age band(+-2) matches**
+          4. **If unverified identifiers were given, one of them matches**
+          5. **If more than one patient records would be found after aforementioned steps, then patient who matches most verified and unverified identifiers would be returned.**
+          6. **If there would be still more than one patients (after ranking) error would be returned**
+          7. **Intended HIP should be able to resolve and identify results returned in the subsequent link confirmation request via the specified transactionId**
+          8. **Intended HIP should store the discovery results with transactionId and care contexts discovered for subsequent link initiation**
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientDiscoveryRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+        "400":
+          description: >
+            **Causes:**
+              * Empty verified identifiers.
+              * Format mismatch of any of attributes.
+                | type   | Format/Allowed Values|
+                | ------- | ----------------    |
+                | gender  | M/F/O/U |
+                | MOBILE  | valid mobile number with proper country code |
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: >
+            **Causes:**
+              * Unauthorized request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: >
+            **Causes:**
+              * Downstream system(s) is down.
+              * Unhandled exceptions.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /patient-care-contexts/{patientId}:
+    get:
+      tags:
+        - patients
+      summary: Gets Care Contexts of the given patient id
+      parameters:
+        - in: path
+          name: patientId
+          schema:
+            type: string
+          required: true
+          description: Patient Id for which care contexts are being requested.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+        '400':
+          description: Invalid request body supplied
+        '404':
+          description: Address not found
+        '422':
+          description: Validation exception
   /verify-otp:
     post:
       tags:
@@ -157,6 +246,10 @@ components:
           type: string
         patientMobile:
           type: string
+        careContexts:
+          type: array
+          items:
+            $ref: '#/components/schemas/CareContext'
     PatientWithCareContext:
       type: object
       properties:
@@ -201,3 +294,79 @@ components:
           type: integer
         message:
           type: string
+    PatientDiscoveryRequest:
+      type: object
+      required:
+        - requestId
+        - timestamp
+        - transactionId
+        - patient
+      properties:
+        requestId:
+          type: string
+          format: uuid
+          description: a nonce, unique for each HTTP request.
+          example: "499a5a4a-7dda-4f20-9b67-e24589627061"
+        timestamp:
+          $ref: "#/components/schemas/TimestampSchema"
+        transactionId:
+          type: string
+          format: uuid
+          description: correlation-Id for patient discovery and subsequent care context linkage
+        patient:
+          type: object
+          required:
+            - id
+            - verifiedIdentifiers
+            - name
+            - gender
+            - yearOfBirth
+          properties:
+            id:
+              type: string
+              example: <patient-id>@<consent-manager-id>
+              description: Identifier of patient at consent manager
+            verifiedIdentifiers:
+              type: array
+              items:
+                $ref: "#/components/schemas/Identifier"
+              xml:
+                name: verifiedIdentifiers
+                wrapped: true
+            unverifiedIdentifiers:
+              type: array
+              items:
+                $ref: "#/components/schemas/Identifier"
+              xml:
+                name: unverifiedIdentifiers
+                wrapped: true
+            name:
+              type: string
+              example: "chandler bing"
+            gender:
+              $ref: "#/components/schemas/PatientGender"
+            yearOfBirth:
+              type: integer
+              example: 2000
+      xml:
+        name: PatientDiscoveryRequest
+    PatientGender:
+      type: string
+      enum: [ M, F, O, U ]
+    TimestampSchema:
+      type: string
+      format: date-time
+      description: Date time format in UTC, includes miliseconds YYYY-MM-DDThh:mm:ss.vZ
+    Identifier:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/IdentifierType"
+        value:
+          type: string
+          example: "+919800083232"
+      xml:
+        name: Identifier
+    IdentifierType:
+      type: string
+      enum: [ MR, MOBILE, NDHM_HEALTH_NUMBER, HEALTH_ID ]

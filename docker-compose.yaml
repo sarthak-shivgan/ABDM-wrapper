@@ -10,6 +10,8 @@ services:
       - mongodb
     networks:
       - docker_network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   mongodb:
     image: mongodb/mongodb-community-server:latest

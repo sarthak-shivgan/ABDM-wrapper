@@ -27,8 +27,10 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 
 
+import com.nha.abdm.wrapper.client.model.ErrorResponse;
 import com.nha.abdm.wrapper.client.model.FacadeResponse;
 import com.nha.abdm.wrapper.client.model.Patient;
+import com.nha.abdm.wrapper.client.model.PatientDiscoveryRequest;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -74,6 +76,142 @@ public class PatientsApi {
         this.localCustomBaseUrl = customBaseUrl;
     }
 
+    /**
+     * Build call for patientDiscoverPost
+     * @param patientDiscoveryRequest  (required)
+     * @param _callback Callback for upload/download progress
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> **Causes:**   * Empty verified identifiers.   * Format mismatch of any of attributes.     | type   | Format/Allowed Values|     | ------- | ----------------    |     | gender  | M/F/O/U |     | MOBILE  | valid mobile number with proper country code |  </td><td>  -  </td></tr>
+        <tr><td> 401 </td><td> **Causes:**   * Unauthorized request  </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> **Causes:**   * Downstream system(s) is down.   * Unhandled exceptions.  </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call patientDiscoverPostCall(PatientDiscoveryRequest patientDiscoveryRequest, final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = patientDiscoveryRequest;
+
+        // create path and map variables
+        String localVarPath = "/patient-discover";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            "application/json",
+            "application/xml"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            "application/json"
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put("Content-Type", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(basePath, localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call patientDiscoverPostValidateBeforeCall(PatientDiscoveryRequest patientDiscoveryRequest, final ApiCallback _callback) throws ApiException {
+        // verify the required parameter 'patientDiscoveryRequest' is set
+        if (patientDiscoveryRequest == null) {
+            throw new ApiException("Missing the required parameter 'patientDiscoveryRequest' when calling patientDiscoverPost(Async)");
+        }
+
+        return patientDiscoverPostCall(patientDiscoveryRequest, _callback);
+
+    }
+
+    /**
+     * Discover patient&#39;s accounts
+     * Request for patient care context discover, made by CM for a specific HIP. It is expected that HIP will subsequently return either zero or one patient record with (potentially masked) associated care contexts   1. **At least one of the verified identifier matches**   2. **Name (fuzzy), gender matches**   3. **If YoB was given, age band(+-2) matches**   4. **If unverified identifiers were given, one of them matches**   5. **If more than one patient records would be found after aforementioned steps, then patient who matches most verified and unverified identifiers would be returned.**   6. **If there would be still more than one patients (after ranking) error would be returned**   7. **Intended HIP should be able to resolve and identify results returned in the subsequent link confirmation request via the specified transactionId**   8. **Intended HIP should store the discovery results with transactionId and care contexts discovered for subsequent link initiation** 
+     * @param patientDiscoveryRequest  (required)
+     * @return Patient
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> **Causes:**   * Empty verified identifiers.   * Format mismatch of any of attributes.     | type   | Format/Allowed Values|     | ------- | ----------------    |     | gender  | M/F/O/U |     | MOBILE  | valid mobile number with proper country code |  </td><td>  -  </td></tr>
+        <tr><td> 401 </td><td> **Causes:**   * Unauthorized request  </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> **Causes:**   * Downstream system(s) is down.   * Unhandled exceptions.  </td><td>  -  </td></tr>
+     </table>
+     */
+    public Patient patientDiscoverPost(PatientDiscoveryRequest patientDiscoveryRequest) throws ApiException {
+        ApiResponse<Patient> localVarResp = patientDiscoverPostWithHttpInfo(patientDiscoveryRequest);
+        return localVarResp.getData();
+    }
+
+    /**
+     * Discover patient&#39;s accounts
+     * Request for patient care context discover, made by CM for a specific HIP. It is expected that HIP will subsequently return either zero or one patient record with (potentially masked) associated care contexts   1. **At least one of the verified identifier matches**   2. **Name (fuzzy), gender matches**   3. **If YoB was given, age band(+-2) matches**   4. **If unverified identifiers were given, one of them matches**   5. **If more than one patient records would be found after aforementioned steps, then patient who matches most verified and unverified identifiers would be returned.**   6. **If there would be still more than one patients (after ranking) error would be returned**   7. **Intended HIP should be able to resolve and identify results returned in the subsequent link confirmation request via the specified transactionId**   8. **Intended HIP should store the discovery results with transactionId and care contexts discovered for subsequent link initiation** 
+     * @param patientDiscoveryRequest  (required)
+     * @return ApiResponse&lt;Patient&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> **Causes:**   * Empty verified identifiers.   * Format mismatch of any of attributes.     | type   | Format/Allowed Values|     | ------- | ----------------    |     | gender  | M/F/O/U |     | MOBILE  | valid mobile number with proper country code |  </td><td>  -  </td></tr>
+        <tr><td> 401 </td><td> **Causes:**   * Unauthorized request  </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> **Causes:**   * Downstream system(s) is down.   * Unhandled exceptions.  </td><td>  -  </td></tr>
+     </table>
+     */
+    public ApiResponse<Patient> patientDiscoverPostWithHttpInfo(PatientDiscoveryRequest patientDiscoveryRequest) throws ApiException {
+        okhttp3.Call localVarCall = patientDiscoverPostValidateBeforeCall(patientDiscoveryRequest, null);
+        Type localVarReturnType = new TypeToken<Patient>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+    /**
+     * Discover patient&#39;s accounts (asynchronously)
+     * Request for patient care context discover, made by CM for a specific HIP. It is expected that HIP will subsequently return either zero or one patient record with (potentially masked) associated care contexts   1. **At least one of the verified identifier matches**   2. **Name (fuzzy), gender matches**   3. **If YoB was given, age band(+-2) matches**   4. **If unverified identifiers were given, one of them matches**   5. **If more than one patient records would be found after aforementioned steps, then patient who matches most verified and unverified identifiers would be returned.**   6. **If there would be still more than one patients (after ranking) error would be returned**   7. **Intended HIP should be able to resolve and identify results returned in the subsequent link confirmation request via the specified transactionId**   8. **Intended HIP should store the discovery results with transactionId and care contexts discovered for subsequent link initiation** 
+     * @param patientDiscoveryRequest  (required)
+     * @param _callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> **Causes:**   * Empty verified identifiers.   * Format mismatch of any of attributes.     | type   | Format/Allowed Values|     | ------- | ----------------    |     | gender  | M/F/O/U |     | MOBILE  | valid mobile number with proper country code |  </td><td>  -  </td></tr>
+        <tr><td> 401 </td><td> **Causes:**   * Unauthorized request  </td><td>  -  </td></tr>
+        <tr><td> 500 </td><td> **Causes:**   * Downstream system(s) is down.   * Unhandled exceptions.  </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call patientDiscoverPostAsync(PatientDiscoveryRequest patientDiscoveryRequest, final ApiCallback<Patient> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = patientDiscoverPostValidateBeforeCall(patientDiscoveryRequest, _callback);
+        Type localVarReturnType = new TypeToken<Patient>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
     /**
      * Build call for upsertPatients
      * @param patient Insert or update a list of patients in the wrapper database (required)

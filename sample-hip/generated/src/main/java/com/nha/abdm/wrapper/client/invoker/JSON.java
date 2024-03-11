@@ -96,8 +96,11 @@ public class JSON {
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.CareContext.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.ErrorResponse.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.FacadeResponse.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.Identifier.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.LinkCareContextsRequest.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.Patient.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.PatientDiscoveryRequest.CustomTypeAdapterFactory());
+        gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.PatientDiscoveryRequestPatient.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.PatientWithCareContext.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.RequestStatusResponse.CustomTypeAdapterFactory());
         gsonBuilder.registerTypeAdapterFactory(new com.nha.abdm.wrapper.client.model.VerifyOTPRequest.CustomTypeAdapterFactory());

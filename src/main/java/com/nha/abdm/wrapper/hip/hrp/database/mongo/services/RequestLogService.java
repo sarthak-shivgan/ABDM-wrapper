@@ -2,8 +2,6 @@
 package com.nha.abdm.wrapper.hip.hrp.database.mongo.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.requests.HealthInformationPushRequest;
@@ -17,7 +15,7 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.RequestLog;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
-import com.nha.abdm.wrapper.hip.hrp.discover.responses.DiscoverResponse;
+import com.nha.abdm.wrapper.hip.hrp.discover.requests.DiscoverRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkAddCareContext;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkConfirmRequest;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
@@ -29,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -77,17 +74,17 @@ public class RequestLogService<T> {
    *
    * <p>Adding discoverResponseDump into db.
    *
-   * @param discoverResponse Response from ABDM gateway for discovery
+   * @param discoverRequest Response from ABDM gateway for discovery
    */
-  public void setDiscoverResponse(DiscoverResponse discoverResponse) {
-    if (Objects.isNull(discoverResponse)) {
+  public void setDiscoverResponse(DiscoverRequest discoverRequest) {
+    if (Objects.isNull(discoverRequest)) {
       return;
     }
     RequestLog newRecord = new RequestLog();
-    newRecord.setClientRequestId(discoverResponse.getRequestId());
-    newRecord.setTransactionId(discoverResponse.getTransactionId());
+    newRecord.setClientRequestId(discoverRequest.getRequestId());
+    newRecord.setTransactionId(discoverRequest.getTransactionId());
     HashMap<String, Object> map = new HashMap<>();
-    map.put("DiscoverResponse", discoverResponse);
+    map.put("DiscoverResponse", discoverRequest);
     newRecord.setRequestDetails(map);
     mongoTemplate.save(newRecord);
   }
@@ -132,29 +129,17 @@ public class RequestLogService<T> {
    * Select the careContexts according to the careContexts referenceNumbers of the response
    *
    * @param linkRefNumber identifier for list of careContexts for linking.
-   * @param careContextsList list of careContexts in response of /link/init.
    * @return the selected careContexts.
    */
-  public List<CareContext> getSelectedCareContexts(
-      String linkRefNumber, List<CareContext> careContextsList) {
-    RequestLog existingRecord = logsRepo.findByLinkRefNumber(linkRefNumber);
+  public List<CareContext> getSelectedCareContexts(String linkRefNumber) {
+    RequestLog requestLog = logsRepo.findByLinkRefNumber(linkRefNumber);
     log.info("linkRefNum in getSelectedContexts : " + linkRefNumber);
-    if (existingRecord != null) {
-      ObjectNode dump =
-          objectMapper.convertValue(
-              existingRecord.getRequestDetails().get("InitResponse"), ObjectNode.class);
-      if (dump != null && dump.has("patient") && dump.get("patient").has("careContexts")) {
-        ArrayNode careContexts = (ArrayNode) dump.path("patient").path("careContexts");
-        List<String> selectedList = careContexts.findValuesAsText("referenceNumber");
-
-        List<CareContext> selectedCareContexts =
-            careContextsList.stream()
-                .filter(careContext -> selectedList.contains(careContext.getReferenceNumber()))
-                .collect(Collectors.toList());
-        log.info("Dump: {}", dump);
-        log.info("Selected List: {}", selectedList);
-
-        return selectedCareContexts;
+    if (Objects.nonNull(requestLog)) {
+      Map<String, Object> requestDetails = requestLog.getRequestDetails();
+      if (Objects.nonNull(requestDetails)) {
+        InitResponse initResponse =
+            (InitResponse) requestDetails.get(FieldIdentifiers.INIT_RESPONSE);
+        return initResponse.getPatient().getCareContexts();
       }
     }
     return null;
