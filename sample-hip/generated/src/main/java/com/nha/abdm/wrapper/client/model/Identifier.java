@@ -20,6 +20,7 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.nha.abdm.wrapper.client.model.IdentifierType;
 import java.io.IOException;
 
 import com.google.gson.Gson;
@@ -48,60 +49,60 @@ import java.util.Set;
 import com.nha.abdm.wrapper.client.invoker.JSON;
 
 /**
- * ErrorResponse
+ * Identifier
  */
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-11T12:36:04.856487569Z[Etc/UTC]")
-public class ErrorResponse {
-  public static final String SERIALIZED_NAME_CODE = "code";
-  @SerializedName(SERIALIZED_NAME_CODE)
-  private Integer code;
+public class Identifier {
+  public static final String SERIALIZED_NAME_TYPE = "type";
+  @SerializedName(SERIALIZED_NAME_TYPE)
+  private IdentifierType type;
 
-  public static final String SERIALIZED_NAME_MESSAGE = "message";
-  @SerializedName(SERIALIZED_NAME_MESSAGE)
-  private String message;
+  public static final String SERIALIZED_NAME_VALUE = "value";
+  @SerializedName(SERIALIZED_NAME_VALUE)
+  private String value;
 
-  public ErrorResponse() {
+  public Identifier() {
   }
 
-  public ErrorResponse code(Integer code) {
+  public Identifier type(IdentifierType type) {
     
-    this.code = code;
+    this.type = type;
     return this;
   }
 
    /**
-   * Get code
-   * @return code
+   * Get type
+   * @return type
   **/
   @javax.annotation.Nullable
-  public Integer getCode() {
-    return code;
+  public IdentifierType getType() {
+    return type;
   }
 
 
-  public void setCode(Integer code) {
-    this.code = code;
+  public void setType(IdentifierType type) {
+    this.type = type;
   }
 
 
-  public ErrorResponse message(String message) {
+  public Identifier value(String value) {
     
-    this.message = message;
+    this.value = value;
     return this;
   }
 
    /**
-   * Get message
-   * @return message
+   * Get value
+   * @return value
   **/
   @javax.annotation.Nullable
-  public String getMessage() {
-    return message;
+  public String getValue() {
+    return value;
   }
 
 
-  public void setMessage(String message) {
-    this.message = message;
+  public void setValue(String value) {
+    this.value = value;
   }
 
 
@@ -114,22 +115,22 @@ public class ErrorResponse {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    ErrorResponse errorResponse = (ErrorResponse) o;
-    return Objects.equals(this.code, errorResponse.code) &&
-        Objects.equals(this.message, errorResponse.message);
+    Identifier identifier = (Identifier) o;
+    return Objects.equals(this.type, identifier.type) &&
+        Objects.equals(this.value, identifier.value);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(code, message);
+    return Objects.hash(type, value);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class ErrorResponse {\n");
-    sb.append("    code: ").append(toIndentedString(code)).append("\n");
-    sb.append("    message: ").append(toIndentedString(message)).append("\n");
+    sb.append("class Identifier {\n");
+    sb.append("    type: ").append(toIndentedString(type)).append("\n");
+    sb.append("    value: ").append(toIndentedString(value)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -152,8 +153,8 @@ public class ErrorResponse {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
-    openapiFields.add("code");
-    openapiFields.add("message");
+    openapiFields.add("type");
+    openapiFields.add("value");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
@@ -163,24 +164,24 @@ public class ErrorResponse {
   * Validates the JSON Object and throws an exception if issues found
   *
   * @param jsonObj JSON Object
-  * @throws IOException if the JSON Object is invalid with respect to ErrorResponse
+  * @throws IOException if the JSON Object is invalid with respect to Identifier
   */
   public static void validateJsonObject(JsonObject jsonObj) throws IOException {
       if (jsonObj == null) {
-        if (!ErrorResponse.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in ErrorResponse is not found in the empty JSON string", ErrorResponse.openapiRequiredFields.toString()));
+        if (!Identifier.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in Identifier is not found in the empty JSON string", Identifier.openapiRequiredFields.toString()));
         }
       }
 
       Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
       // check to see if the JSON string contains additional fields
       for (Entry<String, JsonElement> entry : entries) {
-        if (!ErrorResponse.openapiFields.contains(entry.getKey())) {
-          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `ErrorResponse` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        if (!Identifier.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `Identifier` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
         }
       }
-      if ((jsonObj.get("message") != null && !jsonObj.get("message").isJsonNull()) && !jsonObj.get("message").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `message` to be a primitive type in the JSON string but got `%s`", jsonObj.get("message").toString()));
+      if ((jsonObj.get("value") != null && !jsonObj.get("value").isJsonNull()) && !jsonObj.get("value").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `value` to be a primitive type in the JSON string but got `%s`", jsonObj.get("value").toString()));
       }
   }
 
@@ -188,22 +189,22 @@ public class ErrorResponse {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!ErrorResponse.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'ErrorResponse' and its subtypes
+       if (!Identifier.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'Identifier' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<ErrorResponse> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(ErrorResponse.class));
+       final TypeAdapter<Identifier> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(Identifier.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<ErrorResponse>() {
+       return (TypeAdapter<T>) new TypeAdapter<Identifier>() {
            @Override
-           public void write(JsonWriter out, ErrorResponse value) throws IOException {
+           public void write(JsonWriter out, Identifier value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              elementAdapter.write(out, obj);
            }
 
            @Override
-           public ErrorResponse read(JsonReader in) throws IOException {
+           public Identifier read(JsonReader in) throws IOException {
              JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
              validateJsonObject(jsonObj);
              return thisAdapter.fromJsonTree(jsonObj);
@@ -214,18 +215,18 @@ public class ErrorResponse {
   }
 
  /**
-  * Create an instance of ErrorResponse given an JSON string
+  * Create an instance of Identifier given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of ErrorResponse
-  * @throws IOException if the JSON string is invalid with respect to ErrorResponse
+  * @return An instance of Identifier
+  * @throws IOException if the JSON string is invalid with respect to Identifier
   */
-  public static ErrorResponse fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, ErrorResponse.class);
+  public static Identifier fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, Identifier.class);
   }
 
  /**
-  * Convert an instance of ErrorResponse to an JSON string
+  * Convert an instance of Identifier to an JSON string
   *
   * @return JSON string
   */

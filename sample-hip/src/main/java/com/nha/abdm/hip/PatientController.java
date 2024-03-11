@@ -41,6 +41,58 @@ public class PatientController {
         return patient;
     }
 
+    @PostMapping({"/discover-patient"})
+    public @ResponseBody Patient discoverPatient(@RequestBody PatientDiscoveryRequest patientDiscoveryRequest) {
+
+        // TODO: Logic to discover patient in HIP database using abhaAddress, verifiedIdentifiers or unverifiedIdentifiers.
+
+        // Placeholder to send dummy patient.
+        Patient patient = new Patient();
+        patient.setAbhaAddress(patientDiscoveryRequest.getPatient().getId());
+        patient.setName(patientDiscoveryRequest.getPatient().getName());
+        patient.setGender(Patient.GenderEnum.M);
+        patient.setDateOfBirth("1986-10-13");
+
+        CareContext careContext1 = new CareContext();
+        careContext1.setReferenceNumber("care-context-reference41");
+        careContext1.setDisplay("care-context-display41");
+
+        CareContext careContext2 = new CareContext();
+        careContext2.setReferenceNumber("care-context-reference42");
+        careContext2.setDisplay("care-context-display42");
+
+        List<CareContext> careContexts = new ArrayList<>();
+        careContexts.add(careContext1);
+        careContexts.add(careContext2);
+        patient.setCareContexts(careContexts);
+
+        return patient;
+    }
+
+    @GetMapping({"/patient-care-contexts/{patientId}"})
+    public Patient fetchPatientCareContexts(@PathVariable("patientId") String abhaAddress) {
+
+        // TODO: Logic to find patient care contexts in HIP database.
+
+        // Placeholder to send dummy patient.
+        Patient patient = new Patient();
+        patient.setAbhaAddress(abhaAddress);
+        patient.setPatientReference("patient123");
+        patient.setPatientDisplay("Atul");
+
+        CareContext careContext1 = new CareContext();
+        careContext1.setReferenceNumber("care-context-reference80");
+        careContext1.setDisplay("care-context-display80");
+
+
+        List<CareContext> careContexts = new ArrayList<>();
+        careContexts.add(careContext1);
+
+        patient.setCareContexts(careContexts);
+
+        return patient;
+    }
+
     @PostMapping(value="/health-information")
     public @ResponseBody ResponseEntity<HealthInformationResponse> fetchHealthInformation(
             @RequestBody HealthInformationBundleRequest healthInformationBundleRequest) throws IOException {

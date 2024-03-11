@@ -3,6 +3,7 @@ package com.nha.abdm.wrapper.hip;
 
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleResponse;
+import com.nha.abdm.wrapper.hip.hrp.discover.requests.DiscoverRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,6 +21,12 @@ public class HIPClient {
   @Value("${getPatientPath}")
   private String patientPath;
 
+  @Value("${patientDiscoverPath}")
+  private String patientDiscoverPath;
+
+  @Value("${getPatientCareContextsPath}")
+  private String getPatientCareContextsPath;
+
   @Value("${getHealthInformationPath}")
   private String getHealthInformationPath;
 
@@ -35,7 +42,35 @@ public class HIPClient {
 
   public HIPPatient getPatient(String patientId) {
     ResponseEntity<HIPPatient> responseEntity =
-        webClient.get().uri(patientPath).retrieve().toEntity(HIPPatient.class).block();
+        webClient
+            .get()
+            .uri(patientPath + "/" + patientId)
+            .retrieve()
+            .toEntity(HIPPatient.class)
+            .block();
+
+    return responseEntity.getBody();
+  }
+
+  public ResponseEntity<HIPPatient> patientDiscover(DiscoverRequest discoverRequest) {
+    return webClient
+        .post()
+        .uri(patientDiscoverPath)
+        .accept(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromValue(discoverRequest))
+        .retrieve()
+        .toEntity(HIPPatient.class)
+        .block();
+  }
+
+  public HIPPatient getPatientCareContexts(String patientId) {
+    ResponseEntity<HIPPatient> responseEntity =
+        webClient
+            .get()
+            .uri(getPatientCareContextsPath + "/" + patientId)
+            .retrieve()
+            .toEntity(HIPPatient.class)
+            .block();
 
     return responseEntity.getBody();
   }

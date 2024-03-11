@@ -9,5 +9,4 @@ import org.springframework.stereotype.Component;
 public class CareContext {
   public String referenceNumber;
   public String display;
-  public boolean isLinked;
 }

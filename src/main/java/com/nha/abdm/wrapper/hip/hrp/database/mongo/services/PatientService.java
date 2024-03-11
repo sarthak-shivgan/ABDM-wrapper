@@ -14,24 +14,20 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.requests.LinkRecordsRequest;
-import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.ConsentCareContexts;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class PatientService {
@@ -83,51 +79,11 @@ public class PatientService {
    * @param careContexts List of careContext to update the status.
    */
   public void updateCareContextStatus(String abhaAddress, List<CareContext> careContexts) {
-    BulkOperations bulkOperations =
-        mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, Patient.class);
-
-    for (CareContext updatedCareContext : careContexts) {
-      Query query =
-          Query.query(
-              Criteria.where("abhaAddress")
-                  .is(abhaAddress)
-                  .and("careContexts.referenceNumber")
-                  .is(updatedCareContext.getReferenceNumber()));
-
-      Update update = new Update().set("careContexts.$.isLinked", true);
-      bulkOperations.updateOne(query, update);
-    }
-
-    bulkOperations.execute();
-  }
-
-  /**
-   * <B>discovery</B>
-   *
-   * <p>Match the response careContexts with patient careContexts.
-   *
-   * @param initResponse Response from ABDM gateway to link particular careContexts.
-   * @return if careContexts matches returns returns true else false.
-   */
-  public boolean checkCareContexts(InitResponse initResponse) {
-    try {
-      List<CareContext> patientCareContexts =
-          patientRepo
-              .findByPatientReference(initResponse.getPatient().getReferenceNumber())
-              .getCareContexts();
-      Set<String> patientReferenceNumbers =
-          patientCareContexts.stream()
-              .map(CareContext::getReferenceNumber)
-              .collect(Collectors.toSet());
-      return initResponse.getPatient().getCareContexts().stream()
-          .allMatch(
-              responseContext ->
-                  patientReferenceNumbers.contains(responseContext.getReferenceNumber()));
-
-    } catch (NullPointerException e) {
-      log.error("Init CareContext verify failed -> mismatch of careContexts" + e);
-    }
-    return true;
+    Query query = new Query(Criteria.where(FieldIdentifiers.ABHA_ADDRESS).is(abhaAddress));
+    Update update = new Update().addToSet("careContext").each(careContexts);
+    log.info(
+        "updateCareContextStatus: abhaAddress: " + abhaAddress + " careContext: " + careContexts);
+    this.mongoTemplate.updateFirst(query, update, Patient.class);
   }
 
   /**
@@ -151,7 +107,6 @@ public class PatientService {
                       CareContext modifiedContext = new CareContext();
                       modifiedContext.setReferenceNumber(careContextRequest.getReferenceNumber());
                       modifiedContext.setDisplay(careContextRequest.getDisplay());
-                      modifiedContext.setLinked(true);
                       return modifiedContext;
                     })
                 .collect(Collectors.toList());

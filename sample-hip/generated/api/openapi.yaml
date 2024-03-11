@@ -38,6 +38,72 @@ paths:
       - patients
       x-content-type: application/json
       x-accepts: application/json
+  /patient-discover:
+    post:
+      description: |
+        Request for patient care context discover, made by CM for a specific HIP. It is expected that HIP will subsequently return either zero or one patient record with (potentially masked) associated care contexts
+          1. **At least one of the verified identifier matches**
+          2. **Name (fuzzy), gender matches**
+          3. **If YoB was given, age band(+-2) matches**
+          4. **If unverified identifiers were given, one of them matches**
+          5. **If more than one patient records would be found after aforementioned steps, then patient who matches most verified and unverified identifiers would be returned.**
+          6. **If there would be still more than one patients (after ranking) error would be returned**
+          7. **Intended HIP should be able to resolve and identify results returned in the subsequent link confirmation request via the specified transactionId**
+          8. **Intended HIP should store the discovery results with transactionId and care contexts discovered for subsequent link initiation**
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientDiscoveryRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+          description: OK
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: |
+            **Causes:**
+              * Empty verified identifiers.
+              * Format mismatch of any of attributes.
+                | type   | Format/Allowed Values|
+                | ------- | ----------------    |
+                | gender  | M/F/O/U |
+                | MOBILE  | valid mobile number with proper country code |
+        "401":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: |
+            **Causes:**
+              * Unauthorized request
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: |
+            **Causes:**
+              * Downstream system(s) is down.
+              * Unhandled exceptions.
+      summary: Discover patient's accounts
+      tags:
+      - patients
+      x-content-type: application/json
+      x-accepts: application/json
   /verify-otp:
     post:
       description: Verify OTP for link auth modes Mobile and Aadhaar
@@ -132,6 +198,11 @@ components:
         name: name
         dateOfBirth: 2003-09-23
         patientDisplay: patientDisplay
+        careContexts:
+        - referenceNumber: referenceNumber
+          display: display
+        - referenceNumber: referenceNumber
+          display: display
         abhaAddress: abhaAddress
       properties:
         abhaAddress:
@@ -155,6 +226,10 @@ components:
           type: string
         patientMobile:
           type: string
+        careContexts:
+          items:
+            $ref: '#/components/schemas/CareContext'
+          type: array
       type: object
     PatientWithCareContext:
       properties:
@@ -169,6 +244,9 @@ components:
           type: array
       type: object
     CareContext:
+      example:
+        referenceNumber: referenceNumber
+        display: display
       properties:
         referenceNumber:
           type: string
@@ -215,6 +293,82 @@ components:
         message:
           type: string
       type: object
+    PatientDiscoveryRequest:
+      example:
+        requestId: 499a5a4a-7dda-4f20-9b67-e24589627061
+        patient:
+          verifiedIdentifiers:
+          - type: null
+            value: +919800083232
+          - type: null
+            value: +919800083232
+          gender: null
+          name: chandler bing
+          unverifiedIdentifiers:
+          - type: null
+            value: +919800083232
+          - type: null
+            value: +919800083232
+          id: <patient-id>@<consent-manager-id>
+          yearOfBirth: 2000
+        transactionId: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        timestamp: 2000-01-23T04:56:07.000+00:00
+      properties:
+        requestId:
+          description: "a nonce, unique for each HTTP request."
+          example: 499a5a4a-7dda-4f20-9b67-e24589627061
+          format: uuid
+          type: string
+        timestamp:
+          description: "Date time format in UTC, includes miliseconds YYYY-MM-DDThh:mm:ss.vZ"
+          format: date-time
+          type: string
+        transactionId:
+          description: correlation-Id for patient discovery and subsequent care context
+            linkage
+          format: uuid
+          type: string
+        patient:
+          $ref: '#/components/schemas/PatientDiscoveryRequest_patient'
+      required:
+      - patient
+      - requestId
+      - timestamp
+      - transactionId
+      type: object
+      xml:
+        name: PatientDiscoveryRequest
+    PatientGender:
+      enum:
+      - M
+      - F
+      - O
+      - U
+      type: string
+    TimestampSchema:
+      description: "Date time format in UTC, includes miliseconds YYYY-MM-DDThh:mm:ss.vZ"
+      format: date-time
+      type: string
+    Identifier:
+      example:
+        type: null
+        value: +919800083232
+      properties:
+        type:
+          $ref: '#/components/schemas/IdentifierType'
+        value:
+          example: +919800083232
+          type: string
+      type: object
+      xml:
+        name: Identifier
+    IdentifierType:
+      enum:
+      - MR
+      - MOBILE
+      - NDHM_HEALTH_NUMBER
+      - HEALTH_ID
+      type: string
     verifyOTP_request:
       properties:
         loginHint:
@@ -244,5 +398,55 @@ components:
           type: string
         patient:
           $ref: '#/components/schemas/PatientWithCareContext'
+      type: object
+    PatientDiscoveryRequest_patient:
+      example:
+        verifiedIdentifiers:
+        - type: null
+          value: +919800083232
+        - type: null
+          value: +919800083232
+        gender: null
+        name: chandler bing
+        unverifiedIdentifiers:
+        - type: null
+          value: +919800083232
+        - type: null
+          value: +919800083232
+        id: <patient-id>@<consent-manager-id>
+        yearOfBirth: 2000
+      properties:
+        id:
+          description: Identifier of patient at consent manager
+          example: <patient-id>@<consent-manager-id>
+          type: string
+        verifiedIdentifiers:
+          items:
+            $ref: '#/components/schemas/Identifier'
+          type: array
+          xml:
+            name: verifiedIdentifiers
+            wrapped: true
+        unverifiedIdentifiers:
+          items:
+            $ref: '#/components/schemas/Identifier'
+          type: array
+          xml:
+            name: unverifiedIdentifiers
+            wrapped: true
+        name:
+          example: chandler bing
+          type: string
+        gender:
+          $ref: '#/components/schemas/PatientGender'
+        yearOfBirth:
+          example: 2000
+          type: integer
+      required:
+      - gender
+      - id
+      - name
+      - verifiedIdentifiers
+      - yearOfBirth
       type: object
 

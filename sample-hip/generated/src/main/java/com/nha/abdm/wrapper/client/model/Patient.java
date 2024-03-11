@@ -20,7 +20,10 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.nha.abdm.wrapper.client.model.CareContext;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -50,7 +53,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * Patient
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-02-24T14:12:00.679990700+05:30[Asia/Calcutta]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-11T12:36:04.856487569Z[Etc/UTC]")
 public class Patient {
   public static final String SERIALIZED_NAME_ABHA_ADDRESS = "abhaAddress";
   @SerializedName(SERIALIZED_NAME_ABHA_ADDRESS)
@@ -130,6 +133,10 @@ public class Patient {
   public static final String SERIALIZED_NAME_PATIENT_MOBILE = "patientMobile";
   @SerializedName(SERIALIZED_NAME_PATIENT_MOBILE)
   private String patientMobile;
+
+  public static final String SERIALIZED_NAME_CARE_CONTEXTS = "careContexts";
+  @SerializedName(SERIALIZED_NAME_CARE_CONTEXTS)
+  private List<CareContext> careContexts;
 
   public Patient() {
   }
@@ -281,6 +288,35 @@ public class Patient {
   }
 
 
+  public Patient careContexts(List<CareContext> careContexts) {
+    
+    this.careContexts = careContexts;
+    return this;
+  }
+
+  public Patient addCareContextsItem(CareContext careContextsItem) {
+    if (this.careContexts == null) {
+      this.careContexts = new ArrayList<>();
+    }
+    this.careContexts.add(careContextsItem);
+    return this;
+  }
+
+   /**
+   * Get careContexts
+   * @return careContexts
+  **/
+  @javax.annotation.Nullable
+  public List<CareContext> getCareContexts() {
+    return careContexts;
+  }
+
+
+  public void setCareContexts(List<CareContext> careContexts) {
+    this.careContexts = careContexts;
+  }
+
+
 
   @Override
   public boolean equals(Object o) {
@@ -297,12 +333,13 @@ public class Patient {
         Objects.equals(this.dateOfBirth, patient.dateOfBirth) &&
         Objects.equals(this.patientReference, patient.patientReference) &&
         Objects.equals(this.patientDisplay, patient.patientDisplay) &&
-        Objects.equals(this.patientMobile, patient.patientMobile);
+        Objects.equals(this.patientMobile, patient.patientMobile) &&
+        Objects.equals(this.careContexts, patient.careContexts);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(abhaAddress, name, gender, dateOfBirth, patientReference, patientDisplay, patientMobile);
+    return Objects.hash(abhaAddress, name, gender, dateOfBirth, patientReference, patientDisplay, patientMobile, careContexts);
   }
 
   @Override
@@ -316,6 +353,7 @@ public class Patient {
     sb.append("    patientReference: ").append(toIndentedString(patientReference)).append("\n");
     sb.append("    patientDisplay: ").append(toIndentedString(patientDisplay)).append("\n");
     sb.append("    patientMobile: ").append(toIndentedString(patientMobile)).append("\n");
+    sb.append("    careContexts: ").append(toIndentedString(careContexts)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -345,6 +383,7 @@ public class Patient {
     openapiFields.add("patientReference");
     openapiFields.add("patientDisplay");
     openapiFields.add("patientMobile");
+    openapiFields.add("careContexts");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
@@ -390,6 +429,20 @@ public class Patient {
       }
       if ((jsonObj.get("patientMobile") != null && !jsonObj.get("patientMobile").isJsonNull()) && !jsonObj.get("patientMobile").isJsonPrimitive()) {
         throw new IllegalArgumentException(String.format("Expected the field `patientMobile` to be a primitive type in the JSON string but got `%s`", jsonObj.get("patientMobile").toString()));
+      }
+      if (jsonObj.get("careContexts") != null && !jsonObj.get("careContexts").isJsonNull()) {
+        JsonArray jsonArraycareContexts = jsonObj.getAsJsonArray("careContexts");
+        if (jsonArraycareContexts != null) {
+          // ensure the json data is an array
+          if (!jsonObj.get("careContexts").isJsonArray()) {
+            throw new IllegalArgumentException(String.format("Expected the field `careContexts` to be an array in the JSON string but got `%s`", jsonObj.get("careContexts").toString()));
+          }
+
+          // validate the optional field `careContexts` (array)
+          for (int i = 0; i < jsonArraycareContexts.size(); i++) {
+            CareContext.validateJsonObject(jsonArraycareContexts.get(i).getAsJsonObject());
+          };
+        }
       }
   }
 

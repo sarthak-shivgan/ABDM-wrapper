@@ -215,38 +215,72 @@ We need to first add patient's details into wrapper's database. There are differ
 
 ### Discovery and User Initiated Linking
 Follow the steps to link care contexts:
-- Add care contexts to patient in database. There are different ways to do this:
-   * Use Postman. Create / Edit your PUT request to update patient:
-       ```
-        curl --location --request PUT 'localhost:8082/v1/add-patients' \
-        --header 'Content-Type: application/json' \
-        --data-raw '[{
-          "name":"Govada Venu Ajitesh",
-          "abhaAddress":"govada2704@sbx",
-          "patientReference":"govada2704",
-          "gender":"M",
-          "dateOfBirth":"YYYY-MM-DD",
-          "display": "Govada Venu Ajitesh",
-          "patientMobile":"Patient mobile",
-          "careContext": [
+- When a discover request will land on HIP wrapper, Wrapper will follow this workflow:
+  - It will search for patient in its database based on the [logic](https://sandbox.abdm.gov.in/sandbox/v3/new-documentation?doc=DiscoveryAndlink) suggested by ABDM
+  - If it finds patient in its database then it will ask HIP for unlinked care contexts
+  - It it does not find patient in the database, then it will ask HIP to search for patient using the same [logic](https://sandbox.abdm.gov.in/sandbox/v3/new-documentation?doc=DiscoveryAndlink) which is recommended by ABDM.
+
+- So, HIP needs to implement following apis and expose endpoints for wrapper:
+  - Please note that if HIP has added patients in the wrapper database with adequate details then this api will not be called. But at the same time
+    any request for non-existent patient can come to wrapper so in which case HIP will have to implement `/v1/patient-discover`: 
+    * `POST` Request:
+      ```
+      {
+        "requestId": "499a5a4a-7dda-4f20-9b67-e24589627061",
+        "timestamp": "2024-03-11T07:22:52.213Z",
+        "transactionId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "patient": {
+          "id": "<patient-id>@<consent-manager-id>",
+          "verifiedIdentifiers": [
             {
-              "referenceNumber": " test visit-f9af123c-a723-45c2-b50b-617f4b1a5be0",
-              "display": "Consultation on Mon Jul 31 2023 08:18:37 GMT+0530 (India Standard Time)",
-              "isLinked": false
-            },
-            {
-               "referenceNumber": "test visit-f9af123c-a823-49c2-b50b-617f4b1a5be0",
-               "display": "Consultation on Mon Jul 31 2023 08:18:37 GMT+0530 (India Standard Time)",
-               "isLinked": false
+              "type": "MR",
+              "value": "+919800083232"
             }
-          ]
-        }]'
-       ```
-   * By using [Sample HIP](https://github.com/NHA-ABDM/ABDM-wrapper/wiki/Sample-HIP)
-      - Go to [PatientController.java](https://github.com/NHA-ABDM/ABDM-wrapper/blob/master/sample-hip/src/main/java/com/nha/abdm/hip/PatientController.java)
-      - Make changes in upsertPatients method for patient details which you want to add or update in wrapper's database
-      - Bring the sample hip application up: `gradle bootRun`
-      - Open postman and post a request to `http://localhost:8081/v1/test-wrapper/upsert-patients` 
+          ],
+          "unverifiedIdentifiers": [
+            {
+              "type": "MR",
+              "value": "+919800083232"
+            }
+          ],
+          "name": "chandler bing",
+          "gender": "M",
+          "yearOfBirth": 2000
+        }
+      }
+      ```
+    * Response:
+      ```
+      {
+        "abhaAddress": <>,
+        "name": <>,
+        "gender": <>,
+        "dateOfBirth": <>,
+        "patientReference": <>,
+        "patientDisplay": <>,
+        "patientMobile": <>,
+        "careContexts": [{
+          "referenceNumber": <>,
+          "display": <>
+        }],
+      }
+      ```
+  - Now, in the scenario where wrapper has found patient in its database, it will ask HIP for care contexts. HIP shall
+    send all the care contexts for this patient and wrapper will filter out the care contexts which are unlinked and
+    send them to gateway as response to discover request. So, HIP should implement `/v1/patients-care-contexts`
+    * `GET` Request: `/v1/patients-care-contexts/<patientId>`
+    * Response:
+      ```
+      {
+        "abhaAddress": <>,
+        "patientRefernce": <>,
+        "patientDisplay": <>,
+        "careContexts": [{
+          "referenceNumber": <>,
+          "display": <>
+        }],
+      }
+      ```
 - On PHR App
    * Login into the PHR app using the details which are stored in DB which is your ABHA Address. 
    * Search the HIP in PHR app : `Linked Facility` > Click on `(+)` -> Search for the facility (name of the registered facility)
@@ -478,6 +512,9 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
        ```
        curl --location 'http://localhost:8083/v1/test-wrapper/health-information'
        ```
+   * Or, use [Reference HIU UI](https://github.com/NHA-ABDM/ABDM-wrapper/blob/master/sample-hiu-ui/sample-hiu.html)
+     - Enter patient's abha address in ABHA Address field and hit Enter
+     - You will see the granted consents. Hit the first button in Actions column against the consent id to submit its health information.
 - You can check the status of health information request by:
    - If you chose the postman way, you will get a value for `clientRequestId` in your response.
      Use that clientRequestId's value to fire health information status request using postman:
@@ -488,6 +525,9 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
      ```
      curl --location 'http://localhost:8083/v1/test-wrapper/health-information-status`
      ```
+   - Or, use [Reference HIU UI](https://github.com/NHA-ABDM/ABDM-wrapper/blob/master/sample-hiu-ui/sample-hiu.html)
+     - You would have search patient using their abha address and listed consents and requested for any consent's health information in above step.
+     - Hit the second button in Actions column against the consent id to display health information.
 ## Helper Applications
 This repository offers few helper sample applications: 
 - **Sample HIP**

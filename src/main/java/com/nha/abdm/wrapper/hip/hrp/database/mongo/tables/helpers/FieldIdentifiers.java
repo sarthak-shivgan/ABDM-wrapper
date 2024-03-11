@@ -29,4 +29,5 @@ public class FieldIdentifiers {
   public static final String HIP_NOTIFY_REQUEST = "HIPConsentNotification";
   public static final String HEALTH_INFORMATION_REQUEST = "HIPHealthInformationRequest";
   public static final String ENCRYPTED_HEALTH_INFORMATION = "encryptedHealthInformation";
+  public static final String INIT_RESPONSE = "InitResponse";
 }

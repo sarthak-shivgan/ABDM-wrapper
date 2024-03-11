@@ -14,6 +14,7 @@
 |**patientReference** | **String** |  |  [optional] |
 |**patientDisplay** | **String** |  |  [optional] |
 |**patientMobile** | **String** |  |  [optional] |
+|**careContexts** | [**List&lt;CareContext&gt;**](CareContext.md) |  |  [optional] |
 
 
 
