@@ -104,6 +104,32 @@ paths:
       - patients
       x-content-type: application/json
       x-accepts: application/json
+  /patient-care-contexts:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CareContextRequest'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+          description: OK
+        "400":
+          description: Invalid request body supplied
+        "404":
+          description: Address not found
+        "422":
+          description: Validation exception
+      summary: Gets Care Contexts of the given patient id
+      tags:
+      - patients
+      x-content-type: application/json
+      x-accepts: application/json
   /verify-otp:
     post:
       description: Verify OTP for link auth modes Mobile and Aadhaar
@@ -231,6 +257,16 @@ components:
             $ref: '#/components/schemas/CareContext'
           type: array
       type: object
+    CareContextRequest:
+      example:
+        hipId: hipId
+        abhaAddress: abhaAddress
+      properties:
+        abhaAddress:
+          type: string
+        hipId:
+          type: string
+      type: object
     PatientWithCareContext:
       properties:
         id:
@@ -295,6 +331,7 @@ components:
       type: object
     PatientDiscoveryRequest:
       example:
+        hipId: hipId
         requestId: 499a5a4a-7dda-4f20-9b67-e24589627061
         patient:
           verifiedIdentifiers:
@@ -330,6 +367,8 @@ components:
           type: string
         patient:
           $ref: '#/components/schemas/PatientDiscoveryRequest_patient'
+        hipId:
+          type: string
       required:
       - patient
       - requestId

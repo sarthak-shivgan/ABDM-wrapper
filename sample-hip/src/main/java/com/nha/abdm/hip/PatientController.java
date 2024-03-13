@@ -41,10 +41,13 @@ public class PatientController {
         return patient;
     }
 
-    @PostMapping({"/discover-patient"})
+    @PostMapping({"/patient-discover"})
     public @ResponseBody Patient discoverPatient(@RequestBody PatientDiscoveryRequest patientDiscoveryRequest) {
 
         // TODO: Logic to discover patient in HIP database using abhaAddress, verifiedIdentifiers or unverifiedIdentifiers.
+
+        // Use this hipId to route your discovery request.
+        String hipId = patientDiscoveryRequest.getHipId();
 
         // Placeholder to send dummy patient.
         Patient patient = new Patient();
@@ -69,20 +72,23 @@ public class PatientController {
         return patient;
     }
 
-    @GetMapping({"/patient-care-contexts/{patientId}"})
-    public Patient fetchPatientCareContexts(@PathVariable("patientId") String abhaAddress) {
+    @PostMapping({"/patient-care-contexts"})
+    public Patient fetchPatientCareContexts(@RequestBody CareContextRequest careContextRequest) {
 
         // TODO: Logic to find patient care contexts in HIP database.
 
+        // Use this hipId to route your discovery request.
+        String hipId = careContextRequest.getHipId();
+
         // Placeholder to send dummy patient.
         Patient patient = new Patient();
-        patient.setAbhaAddress(abhaAddress);
+        patient.setAbhaAddress(careContextRequest.getAbhaAddress());
         patient.setPatientReference("patient123");
         patient.setPatientDisplay("Atul");
 
         CareContext careContext1 = new CareContext();
-        careContext1.setReferenceNumber("care-context-reference80");
-        careContext1.setDisplay("care-context-display80");
+        careContext1.setReferenceNumber("care-context-reference81");
+        careContext1.setDisplay("care-context-display81");
 
 
         List<CareContext> careContexts = new ArrayList<>();

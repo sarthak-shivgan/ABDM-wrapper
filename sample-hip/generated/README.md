@@ -2,7 +2,7 @@
 
 Swagger HIP Facade - OpenAPI 3.0
 - API version: 1.0.0
-  - Build date: 2024-03-11T12:36:04.856487569Z[Etc/UTC]
+  - Build date: 2024-03-13T13:58:51.142146410Z[Etc/UTC]
 
 This is a set of interfaces based on the OpenAPI 3.0 specification for a wrapper client
 
@@ -117,6 +117,7 @@ Class | Method | HTTP request | Description
 *LinkApi* | [**linkCareContexts**](docs/LinkApi.md#linkCareContexts) | **POST** /link-carecontexts | Links care contexts for a given patient&#39;s abha address
 *LinkApi* | [**linkStatusRequestIdGet**](docs/LinkApi.md#linkStatusRequestIdGet) | **GET** /link-status/{requestId} | Get status of Link request.
 *LinkApi* | [**verifyOTP**](docs/LinkApi.md#verifyOTP) | **POST** /verify-otp | Verify OTP for link auth modes Mobile and Aadhaar
+*PatientsApi* | [**patientCareContextsPost**](docs/PatientsApi.md#patientCareContextsPost) | **POST** /patient-care-contexts | Gets Care Contexts of the given patient id
 *PatientsApi* | [**patientDiscoverPost**](docs/PatientsApi.md#patientDiscoverPost) | **POST** /patient-discover | Discover patient&#39;s accounts
 *PatientsApi* | [**upsertPatients**](docs/PatientsApi.md#upsertPatients) | **PUT** /add-patients | Insert or Update a list of patients
 
@@ -124,6 +125,7 @@ Class | Method | HTTP request | Description
 ## Documentation for Models
 
  - [CareContext](docs/CareContext.md)
+ - [CareContextRequest](docs/CareContextRequest.md)
  - [ErrorResponse](docs/ErrorResponse.md)
  - [FacadeResponse](docs/FacadeResponse.md)
  - [Identifier](docs/Identifier.md)

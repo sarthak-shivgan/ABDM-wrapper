@@ -27,6 +27,7 @@ import com.google.gson.reflect.TypeToken;
 import java.io.IOException;
 
 
+import com.nha.abdm.wrapper.client.model.CareContextRequest;
 import com.nha.abdm.wrapper.client.model.ErrorResponse;
 import com.nha.abdm.wrapper.client.model.FacadeResponse;
 import com.nha.abdm.wrapper.client.model.Patient;
@@ -76,6 +77,141 @@ public class PatientsApi {
         this.localCustomBaseUrl = customBaseUrl;
     }
 
+    /**
+     * Build call for patientCareContextsPost
+     * @param careContextRequest  (required)
+     * @param _callback Callback for upload/download progress
+     * @return Call to execute
+     * @throws ApiException If fail to serialize the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call patientCareContextsPostCall(CareContextRequest careContextRequest, final ApiCallback _callback) throws ApiException {
+        String basePath = null;
+        // Operation Servers
+        String[] localBasePaths = new String[] {  };
+
+        // Determine Base Path to Use
+        if (localCustomBaseUrl != null){
+            basePath = localCustomBaseUrl;
+        } else if ( localBasePaths.length > 0 ) {
+            basePath = localBasePaths[localHostIndex];
+        } else {
+            basePath = null;
+        }
+
+        Object localVarPostBody = careContextRequest;
+
+        // create path and map variables
+        String localVarPath = "/patient-care-contexts";
+
+        List<Pair> localVarQueryParams = new ArrayList<Pair>();
+        List<Pair> localVarCollectionQueryParams = new ArrayList<Pair>();
+        Map<String, String> localVarHeaderParams = new HashMap<String, String>();
+        Map<String, String> localVarCookieParams = new HashMap<String, String>();
+        Map<String, Object> localVarFormParams = new HashMap<String, Object>();
+
+        final String[] localVarAccepts = {
+            "application/json"
+        };
+        final String localVarAccept = localVarApiClient.selectHeaderAccept(localVarAccepts);
+        if (localVarAccept != null) {
+            localVarHeaderParams.put("Accept", localVarAccept);
+        }
+
+        final String[] localVarContentTypes = {
+            "application/json"
+        };
+        final String localVarContentType = localVarApiClient.selectHeaderContentType(localVarContentTypes);
+        if (localVarContentType != null) {
+            localVarHeaderParams.put("Content-Type", localVarContentType);
+        }
+
+        String[] localVarAuthNames = new String[] {  };
+        return localVarApiClient.buildCall(basePath, localVarPath, "POST", localVarQueryParams, localVarCollectionQueryParams, localVarPostBody, localVarHeaderParams, localVarCookieParams, localVarFormParams, localVarAuthNames, _callback);
+    }
+
+    @SuppressWarnings("rawtypes")
+    private okhttp3.Call patientCareContextsPostValidateBeforeCall(CareContextRequest careContextRequest, final ApiCallback _callback) throws ApiException {
+        // verify the required parameter 'careContextRequest' is set
+        if (careContextRequest == null) {
+            throw new ApiException("Missing the required parameter 'careContextRequest' when calling patientCareContextsPost(Async)");
+        }
+
+        return patientCareContextsPostCall(careContextRequest, _callback);
+
+    }
+
+    /**
+     * Gets Care Contexts of the given patient id
+     * 
+     * @param careContextRequest  (required)
+     * @return Patient
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
+     </table>
+     */
+    public Patient patientCareContextsPost(CareContextRequest careContextRequest) throws ApiException {
+        ApiResponse<Patient> localVarResp = patientCareContextsPostWithHttpInfo(careContextRequest);
+        return localVarResp.getData();
+    }
+
+    /**
+     * Gets Care Contexts of the given patient id
+     * 
+     * @param careContextRequest  (required)
+     * @return ApiResponse&lt;Patient&gt;
+     * @throws ApiException If fail to call the API, e.g. server error or cannot deserialize the response body
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
+     </table>
+     */
+    public ApiResponse<Patient> patientCareContextsPostWithHttpInfo(CareContextRequest careContextRequest) throws ApiException {
+        okhttp3.Call localVarCall = patientCareContextsPostValidateBeforeCall(careContextRequest, null);
+        Type localVarReturnType = new TypeToken<Patient>(){}.getType();
+        return localVarApiClient.execute(localVarCall, localVarReturnType);
+    }
+
+    /**
+     * Gets Care Contexts of the given patient id (asynchronously)
+     * 
+     * @param careContextRequest  (required)
+     * @param _callback The callback to be executed when the API call finishes
+     * @return The request call
+     * @throws ApiException If fail to process the API call, e.g. serializing the request body object
+     * @http.response.details
+     <table summary="Response Details" border="1">
+        <tr><td> Status Code </td><td> Description </td><td> Response Headers </td></tr>
+        <tr><td> 200 </td><td> OK </td><td>  -  </td></tr>
+        <tr><td> 400 </td><td> Invalid request body supplied </td><td>  -  </td></tr>
+        <tr><td> 404 </td><td> Address not found </td><td>  -  </td></tr>
+        <tr><td> 422 </td><td> Validation exception </td><td>  -  </td></tr>
+     </table>
+     */
+    public okhttp3.Call patientCareContextsPostAsync(CareContextRequest careContextRequest, final ApiCallback<Patient> _callback) throws ApiException {
+
+        okhttp3.Call localVarCall = patientCareContextsPostValidateBeforeCall(careContextRequest, _callback);
+        Type localVarReturnType = new TypeToken<Patient>(){}.getType();
+        localVarApiClient.executeAsync(localVarCall, localVarReturnType, _callback);
+        return localVarCall;
+    }
     /**
      * Build call for patientDiscoverPost
      * @param patientDiscoveryRequest  (required)
