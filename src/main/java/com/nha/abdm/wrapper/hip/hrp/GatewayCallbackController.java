@@ -19,21 +19,20 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmRes
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.spec.InvalidKeySpecException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Map;
 
 @Component
 @RestController
@@ -44,6 +43,8 @@ public class GatewayCallbackController {
   @Autowired PatientService patientService;
   @Autowired ConsentService consentService;
   @Autowired LogsRepo logsRepo;
+
+  private static final String X_HIP_ID = "x-hip-id";
 
   private static final Logger log = LogManager.getLogger(GatewayCallbackController.class);
 
@@ -56,9 +57,12 @@ public class GatewayCallbackController {
    */
   @PostMapping("/v0.5/care-contexts/discover")
   public ResponseEntity<GatewayCallbackResponse> discover(
-      @RequestBody DiscoverRequest discoverRequest) {
+      @RequestBody DiscoverRequest discoverRequest, @RequestHeader Map<String, String> headers) {
     if (discoverRequest != null && discoverRequest.getError() == null) {
       log.info("/v0.5/care-contexts/discover :" + discoverRequest);
+      log.info("GatewayCallbackController headers: " + headers);
+      String hipId = headers.get(X_HIP_ID);
+      discoverRequest.setHipId(hipId);
       return workflowManager.discover(discoverRequest);
     } else {
       log.error("/v0.5/care-contexts/discover :" + discoverRequest.getError().getMessage());

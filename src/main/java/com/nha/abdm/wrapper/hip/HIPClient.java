@@ -3,6 +3,7 @@ package com.nha.abdm.wrapper.hip;
 
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleResponse;
+import com.nha.abdm.wrapper.hip.hrp.discover.requests.CareContextRequest;
 import com.nha.abdm.wrapper.hip.hrp.discover.requests.DiscoverRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -63,11 +64,13 @@ public class HIPClient {
         .block();
   }
 
-  public HIPPatient getPatientCareContexts(String patientId) {
+  public HIPPatient getPatientCareContexts(CareContextRequest careContextRequest) {
     ResponseEntity<HIPPatient> responseEntity =
         webClient
-            .get()
-            .uri(getPatientCareContextsPath + "/" + patientId)
+            .post()
+            .uri(getPatientCareContextsPath)
+            .accept(MediaType.APPLICATION_JSON)
+            .body(BodyInserters.fromValue(careContextRequest))
             .retrieve()
             .toEntity(HIPPatient.class)
             .block();

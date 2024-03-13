@@ -6,6 +6,7 @@ api/openapi.yaml
 build.gradle
 build.sbt
 docs/CareContext.md
+docs/CareContextRequest.md
 docs/ErrorResponse.md
 docs/FacadeResponse.md
 docs/Identifier.md
@@ -50,6 +51,7 @@ src/main/java/com/nha/abdm/wrapper/client/invoker/auth/HttpBasicAuth.java
 src/main/java/com/nha/abdm/wrapper/client/invoker/auth/HttpBearerAuth.java
 src/main/java/com/nha/abdm/wrapper/client/model/AbstractOpenApiSchema.java
 src/main/java/com/nha/abdm/wrapper/client/model/CareContext.java
+src/main/java/com/nha/abdm/wrapper/client/model/CareContextRequest.java
 src/main/java/com/nha/abdm/wrapper/client/model/ErrorResponse.java
 src/main/java/com/nha/abdm/wrapper/client/model/FacadeResponse.java
 src/main/java/com/nha/abdm/wrapper/client/model/Identifier.java
@@ -62,8 +64,4 @@ src/main/java/com/nha/abdm/wrapper/client/model/PatientGender.java
 src/main/java/com/nha/abdm/wrapper/client/model/PatientWithCareContext.java
 src/main/java/com/nha/abdm/wrapper/client/model/RequestStatusResponse.java
 src/main/java/com/nha/abdm/wrapper/client/model/VerifyOTPRequest.java
-src/test/java/com/nha/abdm/wrapper/client/model/IdentifierTest.java
-src/test/java/com/nha/abdm/wrapper/client/model/IdentifierTypeTest.java
-src/test/java/com/nha/abdm/wrapper/client/model/PatientDiscoveryRequestPatientTest.java
-src/test/java/com/nha/abdm/wrapper/client/model/PatientDiscoveryRequestTest.java
-src/test/java/com/nha/abdm/wrapper/client/model/PatientGenderTest.java
+src/test/java/com/nha/abdm/wrapper/client/model/CareContextRequestTest.java

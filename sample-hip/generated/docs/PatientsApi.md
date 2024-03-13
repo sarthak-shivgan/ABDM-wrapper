@@ -4,9 +4,73 @@ All URIs are relative to *http://localhost:8082/v1*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
+| [**patientCareContextsPost**](PatientsApi.md#patientCareContextsPost) | **POST** /patient-care-contexts | Gets Care Contexts of the given patient id |
 | [**patientDiscoverPost**](PatientsApi.md#patientDiscoverPost) | **POST** /patient-discover | Discover patient&#39;s accounts |
 | [**upsertPatients**](PatientsApi.md#upsertPatients) | **PUT** /add-patients | Insert or Update a list of patients |
 
+
+<a id="patientCareContextsPost"></a>
+# **patientCareContextsPost**
+> Patient patientCareContextsPost(careContextRequest)
+
+Gets Care Contexts of the given patient id
+
+### Example
+```java
+// Import classes:
+import com.nha.abdm.wrapper.client.invoker.ApiClient;
+import com.nha.abdm.wrapper.client.invoker.ApiException;
+import com.nha.abdm.wrapper.client.invoker.Configuration;
+import com.nha.abdm.wrapper.client.invoker.models.*;
+import com.nha.abdm.wrapper.client.api.PatientsApi;
+
+public class Example {
+  public static void main(String[] args) {
+    ApiClient defaultClient = Configuration.getDefaultApiClient();
+    defaultClient.setBasePath("http://localhost:8082/v1");
+
+    PatientsApi apiInstance = new PatientsApi(defaultClient);
+    CareContextRequest careContextRequest = new CareContextRequest(); // CareContextRequest | 
+    try {
+      Patient result = apiInstance.patientCareContextsPost(careContextRequest);
+      System.out.println(result);
+    } catch (ApiException e) {
+      System.err.println("Exception when calling PatientsApi#patientCareContextsPost");
+      System.err.println("Status code: " + e.getCode());
+      System.err.println("Reason: " + e.getResponseBody());
+      System.err.println("Response headers: " + e.getResponseHeaders());
+      e.printStackTrace();
+    }
+  }
+}
+```
+
+### Parameters
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **careContextRequest** | [**CareContextRequest**](CareContextRequest.md)|  | |
+
+### Return type
+
+[**Patient**](Patient.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **200** | OK |  -  |
+| **400** | Invalid request body supplied |  -  |
+| **404** | Address not found |  -  |
+| **422** | Validation exception |  -  |
 
 <a id="patientDiscoverPost"></a>
 # **patientDiscoverPost**

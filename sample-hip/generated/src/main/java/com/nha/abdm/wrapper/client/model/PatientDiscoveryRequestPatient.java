@@ -54,7 +54,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * PatientDiscoveryRequestPatient
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-11T12:36:04.856487569Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-13T13:58:51.142146410Z[Etc/UTC]")
 public class PatientDiscoveryRequestPatient {
   public static final String SERIALIZED_NAME_ID = "id";
   @SerializedName(SERIALIZED_NAME_ID)

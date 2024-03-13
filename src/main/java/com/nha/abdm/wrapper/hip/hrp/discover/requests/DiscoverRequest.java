@@ -4,11 +4,15 @@ package com.nha.abdm.wrapper.hip.hrp.discover.requests;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.helpers.PatientDemographicDetails;
 import java.io.Serializable;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import org.springframework.stereotype.Component;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Data
-@Component
+@Builder
 public class DiscoverRequest implements Serializable {
 
   private static final long serialVersionUID = 165269402517398406L;
@@ -22,4 +26,5 @@ public class DiscoverRequest implements Serializable {
   public ErrorResponse error;
 
   public PatientDemographicDetails patient;
+  public String hipId;
 }

@@ -14,10 +14,7 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.Patient;
-import com.nha.abdm.wrapper.hip.hrp.discover.requests.DiscoverRequest;
-import com.nha.abdm.wrapper.hip.hrp.discover.requests.OnDiscoverErrorRequest;
-import com.nha.abdm.wrapper.hip.hrp.discover.requests.OnDiscoverPatient;
-import com.nha.abdm.wrapper.hip.hrp.discover.requests.OnDiscoverRequest;
+import com.nha.abdm.wrapper.hip.hrp.discover.requests.*;
 import info.debatty.java.stringsimilarity.JaroWinkler;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -80,6 +77,7 @@ public class DiscoveryService implements DiscoveryInterface {
    */
   @Override
   public ResponseEntity<GatewayCallbackResponse> discover(DiscoverRequest discoverRequest) {
+    log.info("DiscoveryService discoverRequest: " + discoverRequest);
     if (Objects.isNull(discoverRequest) || Objects.isNull(discoverRequest.getPatient())) {
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
@@ -90,25 +88,22 @@ public class DiscoveryService implements DiscoveryInterface {
 
     // First find patient using their abha address.
     Patient patient = patientRepo.findByAbhaAddress(abhaAddress);
+    log.info("DiscoveryService patient:" + patient);
     // If there is no match by abha address, then the lookup should be done by mobile number
     // and patient reference number.
     if (Objects.isNull(patient)) {
-      Optional<Patient> patientMatch;
+      boolean patientFound = false;
       if (!CollectionUtils.isEmpty(discoverRequest.getPatient().getVerifiedIdentifiers())) {
         String patientMobileNumber =
             discoverRequest.getPatient().getVerifiedIdentifiers().get(0).getValue();
         // If mobile number was provided in request as verified identifier.
         if (StringUtils.hasLength(patientMobileNumber)) {
-          patientMatch =
+          Optional<Patient> patientMatch =
               findPatientUsingMobile(
                   discoverRequest, patientMobileNumber, yearOfBirth, gender, name);
-          if (patientMatch.isEmpty()) {
-            ErrorResponse errorResponse = new ErrorResponse();
-            errorResponse.setCode(1000);
-            errorResponse.setMessage("HIP -> Patient details mismatch with mobile");
-            onDiscoverNoPatientRequest(discoverRequest, errorResponse);
-          } else {
+          if (!patientMatch.isEmpty()) {
             patient = patientMatch.get();
+            patientFound = true;
           }
         } else if (!CollectionUtils.isEmpty(
             discoverRequest.getPatient().getUnverifiedIdentifiers())) {
@@ -120,27 +115,36 @@ public class DiscoveryService implements DiscoveryInterface {
             Patient patientByReference = patientRepo.findByPatientReference(patientReferenceNumber);
             // If patient is not found in database using their reference number
             // or if found but not matched by demographics, then send error.
-            if (Objects.isNull(patientByReference)
-                || !(isGenderMatch(patientByReference, gender)
+            if (Objects.nonNull(patientByReference)
+                && (isGenderMatch(patientByReference, gender)
                     && (isYearOfBirthInRange(patientByReference, yearOfBirth)
                         && (isFuzzyNameMatch(patientByReference, name))))) {
-              ErrorResponse errorResponse = new ErrorResponse();
-              errorResponse.setCode(1000);
-              errorResponse.setMessage("HIP -> Patient details mismatch with reference number");
-              onDiscoverNoPatientRequest(discoverRequest, errorResponse);
-            } else {
               patient = patientByReference;
+              patientFound = true;
             }
           }
-        } else {
+        }
+
+        if (!patientFound) {
           // Patient not found in database. Request Patient details from HIP.
-          HIPPatient hipPatient = hipClient.getPatient(abhaAddress);
+          ResponseEntity<HIPPatient> responseEntity = hipClient.patientDiscover(discoverRequest);
+          // If patient was not found at HIP as well.
+          if (Objects.isNull(responseEntity)
+              || responseEntity.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
+            ErrorResponse errorResponse = new ErrorResponse();
+            errorResponse.setCode(1000);
+            errorResponse.setMessage("Patient details could not be found in the system.");
+            onDiscoverNoPatientRequest(discoverRequest, errorResponse);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+          }
+          HIPPatient hipPatient = responseEntity.getBody();
           onDiscoverRequest(
               discoverRequest,
               hipPatient.getPatientReference(),
               hipPatient.getPatientDisplay(),
               hipPatient.getCareContexts());
-          addPatienttoDatabase(hipPatient);
+          addPatientToDatabase(hipPatient);
+          return new ResponseEntity<>(HttpStatus.ACCEPTED);
         }
       }
     }
@@ -148,7 +152,7 @@ public class DiscoveryService implements DiscoveryInterface {
     return new ResponseEntity<>(HttpStatus.ACCEPTED);
   }
 
-  private void addPatienttoDatabase(HIPPatient hipPatient) {
+  private void addPatientToDatabase(HIPPatient hipPatient) {
     Patient patient = new Patient();
     patient.setName(hipPatient.getName());
     patient.setDisplay(hipPatient.getPatientDisplay());
@@ -198,7 +202,12 @@ public class DiscoveryService implements DiscoveryInterface {
     // Get Linked Care Contexts which were fetched from database.
     List<CareContext> linkedCareContexts = patient.getCareContexts();
     // Get All Care Contexts of the given patient from HIP.
-    HIPPatient hipPatient = hipClient.getPatientCareContexts(abhaAddress);
+    CareContextRequest careContextRequest =
+        CareContextRequest.builder()
+            .abhaAddress(discoverRequest.getRequestId())
+            .hipId(discoverRequest.getHipId())
+            .build();
+    HIPPatient hipPatient = hipClient.getPatientCareContexts(careContextRequest);
     if (Objects.isNull(hipPatient)) {
       ErrorResponse errorResponse = new ErrorResponse();
       errorResponse.setCode(1000);

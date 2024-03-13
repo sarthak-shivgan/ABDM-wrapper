@@ -20,7 +20,6 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.nha.abdm.wrapper.client.model.ErrorResponse;
 import java.io.IOException;
 
 import com.google.gson.Gson;
@@ -49,60 +48,60 @@ import java.util.Set;
 import com.nha.abdm.wrapper.client.invoker.JSON;
 
 /**
- * RequestStatusResponse
+ * CareContextRequest
  */
 @javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-13T13:58:51.142146410Z[Etc/UTC]")
-public class RequestStatusResponse {
-  public static final String SERIALIZED_NAME_STATUS = "status";
-  @SerializedName(SERIALIZED_NAME_STATUS)
-  private String status;
+public class CareContextRequest {
+  public static final String SERIALIZED_NAME_ABHA_ADDRESS = "abhaAddress";
+  @SerializedName(SERIALIZED_NAME_ABHA_ADDRESS)
+  private String abhaAddress;
 
-  public static final String SERIALIZED_NAME_ERROR = "error";
-  @SerializedName(SERIALIZED_NAME_ERROR)
-  private ErrorResponse error;
+  public static final String SERIALIZED_NAME_HIP_ID = "hipId";
+  @SerializedName(SERIALIZED_NAME_HIP_ID)
+  private String hipId;
 
-  public RequestStatusResponse() {
+  public CareContextRequest() {
   }
 
-  public RequestStatusResponse status(String status) {
+  public CareContextRequest abhaAddress(String abhaAddress) {
     
-    this.status = status;
+    this.abhaAddress = abhaAddress;
     return this;
   }
 
    /**
-   * Get status
-   * @return status
+   * Get abhaAddress
+   * @return abhaAddress
   **/
   @javax.annotation.Nullable
-  public String getStatus() {
-    return status;
+  public String getAbhaAddress() {
+    return abhaAddress;
   }
 
 
-  public void setStatus(String status) {
-    this.status = status;
+  public void setAbhaAddress(String abhaAddress) {
+    this.abhaAddress = abhaAddress;
   }
 
 
-  public RequestStatusResponse error(ErrorResponse error) {
+  public CareContextRequest hipId(String hipId) {
     
-    this.error = error;
+    this.hipId = hipId;
     return this;
   }
 
    /**
-   * Get error
-   * @return error
+   * Get hipId
+   * @return hipId
   **/
   @javax.annotation.Nullable
-  public ErrorResponse getError() {
-    return error;
+  public String getHipId() {
+    return hipId;
   }
 
 
-  public void setError(ErrorResponse error) {
-    this.error = error;
+  public void setHipId(String hipId) {
+    this.hipId = hipId;
   }
 
 
@@ -115,22 +114,22 @@ public class RequestStatusResponse {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    RequestStatusResponse requestStatusResponse = (RequestStatusResponse) o;
-    return Objects.equals(this.status, requestStatusResponse.status) &&
-        Objects.equals(this.error, requestStatusResponse.error);
+    CareContextRequest careContextRequest = (CareContextRequest) o;
+    return Objects.equals(this.abhaAddress, careContextRequest.abhaAddress) &&
+        Objects.equals(this.hipId, careContextRequest.hipId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(status, error);
+    return Objects.hash(abhaAddress, hipId);
   }
 
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    sb.append("class RequestStatusResponse {\n");
-    sb.append("    status: ").append(toIndentedString(status)).append("\n");
-    sb.append("    error: ").append(toIndentedString(error)).append("\n");
+    sb.append("class CareContextRequest {\n");
+    sb.append("    abhaAddress: ").append(toIndentedString(abhaAddress)).append("\n");
+    sb.append("    hipId: ").append(toIndentedString(hipId)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -153,8 +152,8 @@ public class RequestStatusResponse {
   static {
     // a set of all properties/fields (JSON key names)
     openapiFields = new HashSet<String>();
-    openapiFields.add("status");
-    openapiFields.add("error");
+    openapiFields.add("abhaAddress");
+    openapiFields.add("hipId");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
@@ -164,28 +163,27 @@ public class RequestStatusResponse {
   * Validates the JSON Object and throws an exception if issues found
   *
   * @param jsonObj JSON Object
-  * @throws IOException if the JSON Object is invalid with respect to RequestStatusResponse
+  * @throws IOException if the JSON Object is invalid with respect to CareContextRequest
   */
   public static void validateJsonObject(JsonObject jsonObj) throws IOException {
       if (jsonObj == null) {
-        if (!RequestStatusResponse.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
-          throw new IllegalArgumentException(String.format("The required field(s) %s in RequestStatusResponse is not found in the empty JSON string", RequestStatusResponse.openapiRequiredFields.toString()));
+        if (!CareContextRequest.openapiRequiredFields.isEmpty()) { // has required fields but JSON object is null
+          throw new IllegalArgumentException(String.format("The required field(s) %s in CareContextRequest is not found in the empty JSON string", CareContextRequest.openapiRequiredFields.toString()));
         }
       }
 
       Set<Entry<String, JsonElement>> entries = jsonObj.entrySet();
       // check to see if the JSON string contains additional fields
       for (Entry<String, JsonElement> entry : entries) {
-        if (!RequestStatusResponse.openapiFields.contains(entry.getKey())) {
-          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `RequestStatusResponse` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
+        if (!CareContextRequest.openapiFields.contains(entry.getKey())) {
+          throw new IllegalArgumentException(String.format("The field `%s` in the JSON string is not defined in the `CareContextRequest` properties. JSON: %s", entry.getKey(), jsonObj.toString()));
         }
       }
-      if ((jsonObj.get("status") != null && !jsonObj.get("status").isJsonNull()) && !jsonObj.get("status").isJsonPrimitive()) {
-        throw new IllegalArgumentException(String.format("Expected the field `status` to be a primitive type in the JSON string but got `%s`", jsonObj.get("status").toString()));
+      if ((jsonObj.get("abhaAddress") != null && !jsonObj.get("abhaAddress").isJsonNull()) && !jsonObj.get("abhaAddress").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `abhaAddress` to be a primitive type in the JSON string but got `%s`", jsonObj.get("abhaAddress").toString()));
       }
-      // validate the optional field `error`
-      if (jsonObj.get("error") != null && !jsonObj.get("error").isJsonNull()) {
-        ErrorResponse.validateJsonObject(jsonObj.getAsJsonObject("error"));
+      if ((jsonObj.get("hipId") != null && !jsonObj.get("hipId").isJsonNull()) && !jsonObj.get("hipId").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `hipId` to be a primitive type in the JSON string but got `%s`", jsonObj.get("hipId").toString()));
       }
   }
 
@@ -193,22 +191,22 @@ public class RequestStatusResponse {
     @SuppressWarnings("unchecked")
     @Override
     public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-       if (!RequestStatusResponse.class.isAssignableFrom(type.getRawType())) {
-         return null; // this class only serializes 'RequestStatusResponse' and its subtypes
+       if (!CareContextRequest.class.isAssignableFrom(type.getRawType())) {
+         return null; // this class only serializes 'CareContextRequest' and its subtypes
        }
        final TypeAdapter<JsonElement> elementAdapter = gson.getAdapter(JsonElement.class);
-       final TypeAdapter<RequestStatusResponse> thisAdapter
-                        = gson.getDelegateAdapter(this, TypeToken.get(RequestStatusResponse.class));
+       final TypeAdapter<CareContextRequest> thisAdapter
+                        = gson.getDelegateAdapter(this, TypeToken.get(CareContextRequest.class));
 
-       return (TypeAdapter<T>) new TypeAdapter<RequestStatusResponse>() {
+       return (TypeAdapter<T>) new TypeAdapter<CareContextRequest>() {
            @Override
-           public void write(JsonWriter out, RequestStatusResponse value) throws IOException {
+           public void write(JsonWriter out, CareContextRequest value) throws IOException {
              JsonObject obj = thisAdapter.toJsonTree(value).getAsJsonObject();
              elementAdapter.write(out, obj);
            }
 
            @Override
-           public RequestStatusResponse read(JsonReader in) throws IOException {
+           public CareContextRequest read(JsonReader in) throws IOException {
              JsonObject jsonObj = elementAdapter.read(in).getAsJsonObject();
              validateJsonObject(jsonObj);
              return thisAdapter.fromJsonTree(jsonObj);
@@ -219,18 +217,18 @@ public class RequestStatusResponse {
   }
 
  /**
-  * Create an instance of RequestStatusResponse given an JSON string
+  * Create an instance of CareContextRequest given an JSON string
   *
   * @param jsonString JSON string
-  * @return An instance of RequestStatusResponse
-  * @throws IOException if the JSON string is invalid with respect to RequestStatusResponse
+  * @return An instance of CareContextRequest
+  * @throws IOException if the JSON string is invalid with respect to CareContextRequest
   */
-  public static RequestStatusResponse fromJson(String jsonString) throws IOException {
-    return JSON.getGson().fromJson(jsonString, RequestStatusResponse.class);
+  public static CareContextRequest fromJson(String jsonString) throws IOException {
+    return JSON.getGson().fromJson(jsonString, CareContextRequest.class);
   }
 
  /**
-  * Convert an instance of RequestStatusResponse to an JSON string
+  * Convert an instance of CareContextRequest to an JSON string
   *
   * @return JSON string
   */

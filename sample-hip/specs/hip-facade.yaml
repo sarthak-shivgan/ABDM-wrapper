@@ -100,18 +100,17 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-  /patient-care-contexts/{patientId}:
-    get:
+  /patient-care-contexts:
+    post:
       tags:
         - patients
       summary: Gets Care Contexts of the given patient id
-      parameters:
-        - in: path
-          name: patientId
-          schema:
-            type: string
-          required: true
-          description: Patient Id for which care contexts are being requested.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CareContextRequest"
       responses:
         '200':
           description: OK
@@ -250,6 +249,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CareContext'
+    CareContextRequest:
+      type: object
+      properties:
+        abhaAddress:
+          type: string
+        hipId:
+          type: string
     PatientWithCareContext:
       type: object
       properties:
@@ -348,6 +354,8 @@ components:
             yearOfBirth:
               type: integer
               example: 2000
+        hipId:
+          type: string
       xml:
         name: PatientDiscoveryRequest
     PatientGender:

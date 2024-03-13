@@ -53,7 +53,7 @@ import com.nha.abdm.wrapper.client.invoker.JSON;
 /**
  * PatientDiscoveryRequest
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-11T12:36:04.856487569Z[Etc/UTC]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.JavaClientCodegen", date = "2024-03-13T13:58:51.142146410Z[Etc/UTC]")
 public class PatientDiscoveryRequest {
   public static final String SERIALIZED_NAME_REQUEST_ID = "requestId";
   @SerializedName(SERIALIZED_NAME_REQUEST_ID)
@@ -70,6 +70,10 @@ public class PatientDiscoveryRequest {
   public static final String SERIALIZED_NAME_PATIENT = "patient";
   @SerializedName(SERIALIZED_NAME_PATIENT)
   private PatientDiscoveryRequestPatient patient;
+
+  public static final String SERIALIZED_NAME_HIP_ID = "hipId";
+  @SerializedName(SERIALIZED_NAME_HIP_ID)
+  private String hipId;
 
   public PatientDiscoveryRequest() {
   }
@@ -158,6 +162,27 @@ public class PatientDiscoveryRequest {
   }
 
 
+  public PatientDiscoveryRequest hipId(String hipId) {
+    
+    this.hipId = hipId;
+    return this;
+  }
+
+   /**
+   * Get hipId
+   * @return hipId
+  **/
+  @javax.annotation.Nullable
+  public String getHipId() {
+    return hipId;
+  }
+
+
+  public void setHipId(String hipId) {
+    this.hipId = hipId;
+  }
+
+
 
   @Override
   public boolean equals(Object o) {
@@ -171,12 +196,13 @@ public class PatientDiscoveryRequest {
     return Objects.equals(this.requestId, patientDiscoveryRequest.requestId) &&
         Objects.equals(this.timestamp, patientDiscoveryRequest.timestamp) &&
         Objects.equals(this.transactionId, patientDiscoveryRequest.transactionId) &&
-        Objects.equals(this.patient, patientDiscoveryRequest.patient);
+        Objects.equals(this.patient, patientDiscoveryRequest.patient) &&
+        Objects.equals(this.hipId, patientDiscoveryRequest.hipId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(requestId, timestamp, transactionId, patient);
+    return Objects.hash(requestId, timestamp, transactionId, patient, hipId);
   }
 
   @Override
@@ -187,6 +213,7 @@ public class PatientDiscoveryRequest {
     sb.append("    timestamp: ").append(toIndentedString(timestamp)).append("\n");
     sb.append("    transactionId: ").append(toIndentedString(transactionId)).append("\n");
     sb.append("    patient: ").append(toIndentedString(patient)).append("\n");
+    sb.append("    hipId: ").append(toIndentedString(hipId)).append("\n");
     sb.append("}");
     return sb.toString();
   }
@@ -213,6 +240,7 @@ public class PatientDiscoveryRequest {
     openapiFields.add("timestamp");
     openapiFields.add("transactionId");
     openapiFields.add("patient");
+    openapiFields.add("hipId");
 
     // a set of required properties/fields (JSON key names)
     openapiRequiredFields = new HashSet<String>();
@@ -257,6 +285,9 @@ public class PatientDiscoveryRequest {
       }
       // validate the required field `patient`
       PatientDiscoveryRequestPatient.validateJsonObject(jsonObj.getAsJsonObject("patient"));
+      if ((jsonObj.get("hipId") != null && !jsonObj.get("hipId").isJsonNull()) && !jsonObj.get("hipId").isJsonPrimitive()) {
+        throw new IllegalArgumentException(String.format("Expected the field `hipId` to be a primitive type in the JSON string but got `%s`", jsonObj.get("hipId").toString()));
+      }
   }
 
   public static class CustomTypeAdapterFactory implements TypeAdapterFactory {
