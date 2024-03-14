@@ -204,7 +204,7 @@ public class DiscoveryService implements DiscoveryInterface {
     // Get All Care Contexts of the given patient from HIP.
     CareContextRequest careContextRequest =
         CareContextRequest.builder()
-            .abhaAddress(discoverRequest.getRequestId())
+            .abhaAddress(discoverRequest.getPatient().getId())
             .hipId(discoverRequest.getHipId())
             .build();
     HIPPatient hipPatient = hipClient.getPatientCareContexts(careContextRequest);
