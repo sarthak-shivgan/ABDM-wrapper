@@ -12,6 +12,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.spec.InvalidKeySpecException;
+import java.text.ParseException;
 import java.util.Objects;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class HIUFacadeHealthInformationController {
   public ResponseEntity<FacadeResponse> healthInformation(
       @RequestBody HIUClientHealthInformationRequest hiuClientHealthInformationRequest)
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException,
-          IllegalDataStateException {
+          IllegalDataStateException, ParseException {
     FacadeResponse facadeResponse =
         hiuFacadeHealthInformationInterface.healthInformation(hiuClientHealthInformationRequest);
     return new ResponseEntity<>(facadeResponse, facadeResponse.getHttpStatusCode());
