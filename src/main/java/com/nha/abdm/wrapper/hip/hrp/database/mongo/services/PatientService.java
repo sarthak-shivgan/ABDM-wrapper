@@ -1,11 +1,15 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.database.mongo.services;
 
+import static com.mongodb.client.model.Updates.set;
+
 import com.mongodb.bulk.BulkWriteResult;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.model.WriteModel;
+import com.mongodb.client.result.UpdateResult;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.Consent;
@@ -21,6 +25,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -242,5 +247,16 @@ public class PatientService {
 
   public Patient getPatientDetails(String abhaAddress) {
     return patientRepo.findByAbhaAddress(abhaAddress);
+  }
+
+  public void updatePatientConsent(String abhaAddress, String consentId, String consentStatus) {
+    MongoCollection<Document> collection = mongoTemplate.getCollection("patients");
+    Bson filter =
+        Filters.and(
+            Filters.eq(FieldIdentifiers.ABHA_ADDRESS, abhaAddress),
+            Filters.eq("consents.consentDetail.consentId", consentId));
+    Bson update = set("consents.$.status", consentStatus);
+    UpdateResult result = collection.updateOne(filter, update);
+    log.debug("consent update result: ", result);
   }
 }

@@ -16,10 +16,7 @@ import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.RequestStatus;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.FetchConsentRequest;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.OnNotifyRequest;
 import com.nha.abdm.wrapper.hiu.hrp.consent.requests.callback.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,6 +112,28 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
   public HttpStatus hiuNotify(NotifyHIURequest notifyHIURequest) throws IllegalDataStateException {
     if (Objects.nonNull(notifyHIURequest) && Objects.nonNull(notifyHIURequest.getNotification())) {
       // Get corresponding gateway request for the given consent request id.
+      if (!notifyHIURequest.getNotification().getStatus().equals("GRANTED")) {
+        List<ConsentArtefact> consentArtefacts =
+            notifyHIURequest.getNotification().getConsentArtefacts();
+        for (ConsentArtefact consentArtefact : consentArtefacts) {
+          patientService.updatePatientConsent(
+              consentPatientService
+                  .findMappingByConsentId(consentArtefact.getId())
+                  .getAbhaAddress(),
+              consentArtefact.getId(),
+              notifyHIURequest.getNotification().getStatus());
+        }
+        OnNotifyRequest onNotifyRequest =
+            OnNotifyRequest.builder()
+                .requestId(UUID.randomUUID().toString())
+                .timestamp(Utils.getCurrentTimeStamp())
+                .acknowledgment(
+                    Collections.singletonList((Acknowledgement.builder().status("OK").build())))
+                .resp(RespRequest.builder().requestId(notifyHIURequest.getRequestId()).build())
+                .build();
+        hiuConsentInterface.hiuOnNotify(onNotifyRequest);
+        return HttpStatus.OK;
+      }
       String gatewayRequestId =
           consentRequestService.getGatewayRequestId(
               notifyHIURequest.getNotification().getConsentRequestId());

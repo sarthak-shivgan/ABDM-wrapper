@@ -30,10 +30,9 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.crypto.InvalidCipherTextException;
@@ -88,7 +87,7 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
   public FacadeResponse healthInformation(
       HIUClientHealthInformationRequest hiuClientHealthInformationRequest)
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException,
-          IllegalDataStateException {
+          IllegalDataStateException, ParseException {
     if (Objects.isNull(hiuClientHealthInformationRequest)) {
       return FacadeResponse.builder()
           .clientRequestId(hiuClientHealthInformationRequest.getRequestId())
@@ -103,8 +102,37 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
     if (Objects.isNull(consentDetails)) {
       return FacadeResponse.builder()
           .clientRequestId(hiuClientHealthInformationRequest.getRequestId())
+          .httpStatusCode(HttpStatus.NOT_FOUND)
+          .error(ErrorResponse.builder().message("ConsentId not found in database").build())
+          .build();
+    }
+    if (!consentDetails.getStatus().equals("GRANTED")) {
+      return FacadeResponse.builder()
+          .clientRequestId(hiuClientHealthInformationRequest.getRequestId())
+          .httpStatusCode(HttpStatus.OK)
           .error(
-              ErrorResponse.builder().code(400).message("ConsentId not found in database").build())
+              ErrorResponse.builder()
+                  .message("Consent status : " + consentDetails.getStatus())
+                  .build())
+          .build();
+    }
+    String dataExpired = consentDetails.getConsentDetail().getPermission().getDataEraseAt();
+    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+    Date expiredDate;
+    try {
+      expiredDate = format.parse(dataExpired);
+
+    } catch (ParseException e) {
+      SimpleDateFormat simpleDateFormat =
+          new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US);
+      expiredDate = simpleDateFormat.parse(dataExpired);
+    }
+
+    if (expiredDate.compareTo(new Date()) < 0) {
+      return FacadeResponse.builder()
+          .clientRequestId(hiuClientHealthInformationRequest.getRequestId())
+          .httpStatusCode(HttpStatus.OK)
+          .error(ErrorResponse.builder().message("Consent status : EXPIRED").build())
           .build();
     }
     HIUGatewayHealthInformationRequest hiuGatewayHealthInformationRequest =

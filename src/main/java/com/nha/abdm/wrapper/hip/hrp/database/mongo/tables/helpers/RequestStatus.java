@@ -29,7 +29,9 @@ public enum RequestStatus {
   CONSENT_FETCH_ERROR("Error thrown by Gateway for consent fetch"),
   CONSENT_ON_FETCH_SUCCESS("Response received from gateway for consent fetch"),
   CONSENT_ON_FETCH_ERROR("Error thrown by Gateway for on consent fetch"),
-
+  CONSENT_REVOKED("Consent has been revoked by user"),
+  CONSENT_EXPIRED("Consent has expired"),
+  CONSENT_DENIED("Consent has been denied by user"),
   HIP_ON_NOTIFY_SUCCESS("Data onNotify accepted by gateway"),
   HIP_ON_NOTIFY_ERROR("Error thrown by Gateway for on Notify"),
   HEALTH_INFORMATION_REQUEST_SUCCESS("Health Information request done by HIU accepted by gateway"),

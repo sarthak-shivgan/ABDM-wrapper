@@ -10,13 +10,14 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.spec.InvalidKeySpecException;
+import java.text.ParseException;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 
 public interface HIUFacadeHealthInformationInterface {
   FacadeResponse healthInformation(
       HIUClientHealthInformationRequest hiuClientHealthInformationRequest)
       throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchProviderException,
-          IllegalDataStateException;
+          IllegalDataStateException, ParseException;
 
   HealthInformationResponse getHealthInformation(String requestId)
       throws IllegalDataStateException, InvalidCipherTextException, NoSuchAlgorithmException,
