@@ -123,6 +123,11 @@ curl --location --request PATCH 'https://dev.abdm.gov.in/gateway/v1/bridges' \
      - Go to mock-gateway directory: `cd mock-gateway`
      - Run `mvn spring-boot:run`
      - In a different terminal, come to root of the repository and start wrapper by running `gradle bootrun`
+3. **Proxy Server Settings**:
+   * If wrapper needs to send requests using proxy server then please define the following properties in [application.properties](src/main/resources/application.properties):
+      - useProxySettings=true
+      - proxyHost=your proxy server ip
+      - proxyPort=your proxy server port
 
 ## Step-by-Step Testing Instructions:
 Testing can be done majorly in 3 parts:

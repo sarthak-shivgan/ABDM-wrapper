@@ -25,14 +25,7 @@ import com.nha.abdm.wrapper.hiu.hrp.consent.requests.DateRange;
 import com.nha.abdm.wrapper.hiu.hrp.consent.responses.HealthInformationResponse;
 import com.nha.abdm.wrapper.hiu.hrp.dataTransfer.requests.HIUClientHealthInformationRequest;
 import com.nha.abdm.wrapper.hiu.hrp.dataTransfer.requests.HIUGatewayHealthInformationRequest;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.spec.InvalidKeySpecException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import org.apache.commons.lang3.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.crypto.InvalidCipherTextException;
@@ -41,6 +34,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.spec.InvalidKeySpecException;
+import java.text.ParseException;
+import java.util.*;
 
 @Service
 public class HIUFacadeHealthInformationService implements HIUFacadeHealthInformationInterface {
@@ -117,17 +118,15 @@ public class HIUFacadeHealthInformationService implements HIUFacadeHealthInforma
           .build();
     }
     String dataExpired = consentDetails.getConsentDetail().getPermission().getDataEraseAt();
-    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-    Date expiredDate;
-    try {
-      expiredDate = format.parse(dataExpired);
-
-    } catch (ParseException e) {
-      SimpleDateFormat simpleDateFormat =
-          new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US);
-      expiredDate = simpleDateFormat.parse(dataExpired);
-    }
-
+    Date expiredDate =
+        DateUtils.parseDateStrictly(
+            dataExpired,
+            new String[] {
+              "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+              "yyyy-MM-dd'T'HH:mm:ss.SSS",
+              "yyyy-MM-dd'T'HH:mm:ss",
+              "yyyy-MM-dd'T'HH:mm:ss'Z'"
+            });
     if (expiredDate.compareTo(new Date()) < 0) {
       return FacadeResponse.builder()
           .clientRequestId(hiuClientHealthInformationRequest.getRequestId())

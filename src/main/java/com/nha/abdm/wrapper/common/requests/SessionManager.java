@@ -3,7 +3,6 @@ package com.nha.abdm.wrapper.common.requests;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.nha.abdm.wrapper.ApplicationConfig;
-import java.text.MessageFormat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +10,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.Exceptions;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.transport.ProxyProvider;
+
+import java.text.MessageFormat;
 
 @Component
 public class SessionManager {
@@ -28,6 +32,15 @@ public class SessionManager {
 
   @Value("${createSessionPath}")
   private String createSessionPath;
+
+  @Value("${useProxySettings}")
+  private boolean useProxySettings;
+
+  @Value("${proxyHost}")
+  private String proxyHost;
+
+  @Value("${proxyPort}")
+  private int proxyPort;
 
   private static final Logger log = LogManager.getLogger(SessionManager.class);
 
@@ -66,15 +79,8 @@ public class SessionManager {
             .clientSecret(applicationConfig.clientSecret)
             .build();
     try {
-      WebClient webClient = WebClient.builder().baseUrl(gatewayBaseUrl).build();
-      ResponseEntity<ObjectNode> responseEntity =
-          webClient
-              .post()
-              .uri(createSessionPath)
-              .body(BodyInserters.fromValue(createSessionRequest))
-              .retrieve()
-              .toEntity(ObjectNode.class)
-              .block();
+
+      ResponseEntity<ObjectNode> responseEntity = getSessionResponse(createSessionRequest);
       String accessTokenResponse =
           MessageFormat.format(
               "Bearer {0}", responseEntity.getBody().findValue("accessToken").asText());
@@ -92,5 +98,36 @@ public class SessionManager {
       // This is to get actual exception wrapped under ReactiveException.
       throw Exceptions.unwrap(e);
     }
+  }
+
+  private ResponseEntity<ObjectNode> getSessionResponse(CreateSessionRequest createSessionRequest) {
+    WebClient webClient;
+    if (useProxySettings) {
+      webClient =
+          WebClient.builder()
+              .baseUrl(gatewayBaseUrl)
+              .clientConnector(new ReactorClientHttpConnector(getHttpClient()))
+              .build();
+    } else {
+      webClient = WebClient.builder().baseUrl(gatewayBaseUrl).build();
+    }
+    return webClient
+        .post()
+        .uri(createSessionPath)
+        .body(BodyInserters.fromValue(createSessionRequest))
+        .retrieve()
+        .toEntity(ObjectNode.class)
+        .block();
+  }
+
+  public HttpClient getHttpClient() {
+    HttpClient httpClient =
+        HttpClient.create()
+            .tcpConfiguration(
+                tcpClient ->
+                    tcpClient.proxy(
+                        proxy ->
+                            proxy.type(ProxyProvider.Proxy.HTTP).host(proxyHost).port(proxyPort)));
+    return httpClient;
   }
 }
