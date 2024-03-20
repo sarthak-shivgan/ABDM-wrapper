@@ -120,9 +120,9 @@ public class LinkService implements LinkInterface {
     Patient patientWithPatientRef = patientRepo.findByPatientReference(patientReference);
 
     if (patientWithAbha != null) {
-      display = patientWithAbha.getDisplay();
+      display = patientWithAbha.getPatientDisplay();
     } else if (patientWithPatientRef != null) {
-      display = patientWithPatientRef.getDisplay();
+      display = patientWithPatientRef.getPatientDisplay();
     }
     log.info("onConfirm Abha address is: " + abhaAddress);
     if (abhaAddress == null) {

@@ -3,6 +3,7 @@ package com.nha.abdm.wrapper.hip.hrp.database.mongo.tables;
 
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.Consent;
+import com.nha.abdm.wrapper.hip.hrp.database.mongo.tables.helpers.FieldIdentifiers;
 import java.util.List;
 import lombok.Data;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -13,37 +14,34 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(collection = "patients")
 public class Patient {
 
-  @Field("abhaAddress")
+  @Field(FieldIdentifiers.ABHA_ADDRESS)
   @Indexed(unique = true)
   public String abhaAddress;
 
-  @Field("name")
+  @Field(FieldIdentifiers.NAME)
   public String name;
 
-  @Field("gender")
+  @Field(FieldIdentifiers.GENDER)
   public String gender;
 
-  @Field("dateOfBirth")
+  @Field(FieldIdentifiers.DATE_OF_BIRTH)
   public String dateOfBirth;
 
-  @Field("patientReference")
+  @Field(FieldIdentifiers.PATIENT_REFERENCE)
   @Indexed(unique = true)
   public String patientReference;
 
-  @Field("patientDisplay")
-  public String display;
+  @Field(FieldIdentifiers.PATIENT_DISPLAY)
+  public String patientDisplay;
 
-  @Field("patientMobile")
+  @Field(FieldIdentifiers.PATIENT_MOBILE)
   public String patientMobile;
 
-  @Field("careContext")
+  @Field(FieldIdentifiers.CARE_CONTEXTS)
   public List<CareContext> careContexts;
 
-  @Field("consents")
+  @Field(FieldIdentifiers.CONSENTS)
   public List<Consent> consents;
-
-  @Field("lastUpdated")
-  public String lastUpdated;
 
   public Patient() {}
 }

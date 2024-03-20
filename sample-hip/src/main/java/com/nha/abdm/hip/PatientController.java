@@ -24,7 +24,7 @@ import java.util.List;
 public class PatientController {
 
     private static final Logger log = LogManager.getLogger(PatientController.class);
-    private static final String requestId = "263ad640-ffb9-4c7d-b5bc-e099577e7e99";
+    private static final String requestId = "263ad643-ffb9-4c7d-b5bc-e099577e7e99";
 
     @GetMapping({"/patients/{patientId}"})
     public Patient fetchPatientById(@PathVariable("patientId") String abhaAddress) {
@@ -123,18 +123,16 @@ public class PatientController {
 
         List<Patient> patients = new ArrayList<>();
 
-        Patient patient1 = new Patient();
-        patient1.setAbhaAddress("abc@sbx");
-        patient1.setName("random");
-        patient1.setGender(Patient.GenderEnum.M);
+        Patient patient = new Patient();
+        patient.setAbhaAddress("atul_kumar13@sbx");
+        patient.setName("Atul Kumar");
+        patient.setPatientDisplay("Atul");
+        patient.setPatientReference("patient123");
+        patient.setGender(Patient.GenderEnum.M);
+        patient.setPatientMobile("+91-9742181684");
+        patient.setDateOfBirth("1986-10-13");
 
-        Patient patient2 = new Patient();
-        patient2.setAbhaAddress("abcd@sbx");
-        patient2.setName("kalyan");
-        patient2.setGender(Patient.GenderEnum.M);
-
-        patients.add(patient1);
-        patients.add(patient2);
+        patients.add(patient);
 
         return patientsApi.upsertPatients(patients);
     }
@@ -144,26 +142,26 @@ public class PatientController {
         LinkApi linkApi = new LinkApi();
 
         CareContext careContext1 = new CareContext();
-        careContext1.setReferenceNumber("care-context-reference13");
-        careContext1.setDisplay("care-context-display13");
+        careContext1.setReferenceNumber("care-context-reference31");
+        careContext1.setDisplay("care-context-display31");
 
         CareContext careContext2 = new CareContext();
-        careContext2.setReferenceNumber("care-context-reference14");
-        careContext2.setDisplay("care-context-display14");
+        careContext2.setReferenceNumber("care-context-reference32");
+        careContext2.setDisplay("care-context-display32");
 
         List<CareContext> careContexts = new ArrayList<>();
         careContexts.add(careContext1);
         careContexts.add(careContext2);
 
         PatientWithCareContext patient = new PatientWithCareContext();
-        patient.setId("venuajietsh12@sbx");
-        patient.setReferenceNumber("venu");
+        patient.setId("atul_kumar13@sbx");
+        patient.setReferenceNumber("patient123");
         patient.setCareContexts(careContexts);
 
         LinkCareContextsRequest linkCareContextsRequest = new LinkCareContextsRequest();
         linkCareContextsRequest.setRequestId(requestId);
         linkCareContextsRequest.setRequesterId("Demo_Atul_HIP");
-        linkCareContextsRequest.setAbhaAddress("venuajietsh12@sbx");
+        linkCareContextsRequest.setAbhaAddress("atul_kumar13@sbx");
         linkCareContextsRequest.setAuthMode(LinkCareContextsRequest.AuthModeEnum.DEMOGRAPHICS);
         linkCareContextsRequest.setPatient(patient);
 
