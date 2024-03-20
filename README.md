@@ -462,7 +462,7 @@ Follow the steps to link care contexts. The linking can be achieved by two modes
 * Make sure that consent has been `GRANTED`
 
 ### Expose Endpoint to share health information bundle
-- Integrators need to write an api which exposes an endpoint to provide health information for a given care context.
+- Integrators need to write an api  which exposes an endpoint `/v1/health-information` to provide health information for a given care context.
 - The api should be a `POST` handler and should accept a request body:
    ```
    {

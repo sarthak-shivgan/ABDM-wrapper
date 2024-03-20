@@ -20,12 +20,11 @@ public class RequestManager {
   private final WebClient webClient;
   private final SessionManager sessionManager;
 
-  @Value("${useProxySettings}")
-  private boolean useProxySettings;
-
   @Autowired
   public RequestManager(
-      @Value("${gatewayBaseUrl}") final String gatewayBaseUrl, SessionManager sessionManager) {
+      @Value("${gatewayBaseUrl}") final String gatewayBaseUrl,
+      @Value("${useProxySettings}") final boolean useProxySettings,
+      SessionManager sessionManager) {
     this.sessionManager = sessionManager;
     if (useProxySettings) {
       webClient =

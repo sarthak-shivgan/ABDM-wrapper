@@ -216,7 +216,7 @@ public class HipLinkService implements HipLinkInterface {
     patient.setGender(hipPatient.getGender());
     patient.setName(hipPatient.getName());
     patient.setDateOfBirth(hipPatient.getDateOfBirth());
-    patient.setDisplay(hipPatient.getPatientDisplay());
+    patient.setPatientDisplay(hipPatient.getPatientDisplay());
     patient.setPatientReference(hipPatient.getPatientReference());
     patient.setPatientMobile(hipPatient.getPatientMobile());
 
@@ -330,7 +330,7 @@ public class HipLinkService implements HipLinkInterface {
     OnDiscoverPatient patientNode =
         OnDiscoverPatient.builder()
             .referenceNumber(patient.getPatientReference())
-            .display(patient.getDisplay())
+            .display(patient.getPatientDisplay())
             .careContexts(linkRecordsRequest.getPatient().getCareContexts())
             .build();
     LinkTokenAndPatient linkNode =

@@ -63,8 +63,8 @@ public class PatientService {
    * @return patientDisplay.
    */
   public String getPatientDisplay(String abhaAddress) {
-    Patient existingRecord = this.patientRepo.findByAbhaAddress(abhaAddress);
-    return existingRecord != null ? existingRecord.getDisplay() : "";
+    Patient patient = patientRepo.findByAbhaAddress(abhaAddress);
+    return patient != null ? patient.getPatientDisplay() : "";
   }
   /**
    * Fetch of abhaAddress using abhaAddress
@@ -85,9 +85,9 @@ public class PatientService {
    */
   public void updateCareContextStatus(String abhaAddress, List<CareContext> careContexts) {
     Query query = new Query(Criteria.where(FieldIdentifiers.ABHA_ADDRESS).is(abhaAddress));
-    Update update = new Update().addToSet("careContext").each(careContexts);
+    Update update = new Update().addToSet(FieldIdentifiers.CARE_CONTEXTS).each(careContexts);
     log.info(
-        "updateCareContextStatus: abhaAddress: " + abhaAddress + " careContext: " + careContexts);
+        "updateCareContextStatus: abhaAddress: " + abhaAddress + " careContexts: " + careContexts);
     this.mongoTemplate.updateFirst(query, update, Patient.class);
   }
 
@@ -116,8 +116,11 @@ public class PatientService {
                     })
                 .collect(Collectors.toList());
         Query query =
-            new Query(Criteria.where("abhaAddress").is(linkRecordsRequest.getAbhaAddress()));
-        Update update = new Update().addToSet("careContext").each(modifiedCareContexts);
+            new Query(
+                Criteria.where(FieldIdentifiers.ABHA_ADDRESS)
+                    .is(linkRecordsRequest.getAbhaAddress()));
+        Update update =
+            new Update().addToSet(FieldIdentifiers.CARE_CONTEXTS).each(modifiedCareContexts);
         this.mongoTemplate.updateFirst(query, update, Patient.class);
       }
     } catch (Exception e) {
@@ -186,16 +189,16 @@ public class PatientService {
     for (Patient patient : patients) {
       Document document =
           new Document()
-              .append("abhaAddress", patient.getAbhaAddress())
-              .append("name", patient.getName())
-              .append("gender", patient.getGender())
-              .append("dateOfBirth", patient.getDateOfBirth())
-              .append("patientReference", patient.getPatientReference())
-              .append("display", patient.getDisplay())
-              .append("patientMobile", patient.getPatientMobile());
+              .append(FieldIdentifiers.ABHA_ADDRESS, patient.getAbhaAddress())
+              .append(FieldIdentifiers.NAME, patient.getName())
+              .append(FieldIdentifiers.GENDER, patient.getGender())
+              .append(FieldIdentifiers.DATE_OF_BIRTH, patient.getDateOfBirth())
+              .append(FieldIdentifiers.PATIENT_REFERENCE, patient.getPatientReference())
+              .append(FieldIdentifiers.PATIENT_DISPLAY, patient.getPatientDisplay())
+              .append(FieldIdentifiers.PATIENT_MOBILE, patient.getPatientMobile());
       updates.add(
           new UpdateOneModel<>(
-              new Document("abhaAddress", patient.getAbhaAddress()),
+              new Document(FieldIdentifiers.ABHA_ADDRESS, patient.getAbhaAddress()),
               new Document("$set", document),
               new UpdateOptions().upsert(true)));
     }

@@ -154,7 +154,7 @@ public class DiscoveryService implements DiscoveryInterface {
   private void addPatientToDatabase(HIPPatient hipPatient) {
     Patient patient = new Patient();
     patient.setName(hipPatient.getName());
-    patient.setDisplay(hipPatient.getPatientDisplay());
+    patient.setPatientDisplay(hipPatient.getPatientDisplay());
     patient.setPatientMobile(hipPatient.getPatientMobile());
     patient.setDateOfBirth(hipPatient.getDateOfBirth());
     patient.setGender(hipPatient.getGender());

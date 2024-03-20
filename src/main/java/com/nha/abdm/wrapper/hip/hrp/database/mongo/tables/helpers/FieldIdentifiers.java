@@ -17,6 +17,14 @@ public class FieldIdentifiers {
   public static final String ENTITY_TYPE = "entityType";
   public static final String CARE_CONTEXTS = "careContexts";
 
+  // Patient table.
+  public static final String NAME = "name";
+  public static final String GENDER = "gender";
+  public static final String DATE_OF_BIRTH = "dateOfBirth";
+  public static final String PATIENT_REFERENCE = "patientReference";
+  public static final String PATIENT_DISPLAY = "patientDisplay";
+  public static final String PATIENT_MOBILE = "patientMobile";
+
   // Nested fields.
   public static final String LINK_RECORDS_REQUEST = "linkRecordsRequest";
   public static final String HIP_ON_INIT_RESPONSE = "hipOnInitResponse";
