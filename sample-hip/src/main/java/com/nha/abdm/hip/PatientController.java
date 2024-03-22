@@ -18,6 +18,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/v1")
@@ -55,9 +56,10 @@ public class PatientController {
         patient.setName(patientDiscoveryRequest.getPatient().getName());
         patient.setGender(Patient.GenderEnum.M);
         patient.setDateOfBirth("1986-10-13");
-
+        patient.setPatientDisplay(patientDiscoveryRequest.getPatient().getName());
+        patient.setPatientReference(patientDiscoveryRequest.getPatient().getId());
         CareContext careContext1 = new CareContext();
-        careContext1.setReferenceNumber("care-context-reference41");
+        careContext1.setReferenceNumber(UUID.randomUUID().toString());
         careContext1.setDisplay("care-context-display41");
 
         CareContext careContext2 = new CareContext();
@@ -85,12 +87,9 @@ public class PatientController {
         patient.setAbhaAddress(careContextRequest.getAbhaAddress());
         patient.setPatientReference("patient123");
         patient.setPatientDisplay("Atul");
-
         CareContext careContext1 = new CareContext();
-        careContext1.setReferenceNumber("care-context-reference81");
+        careContext1.setReferenceNumber(UUID.randomUUID().toString());
         careContext1.setDisplay("care-context-display81");
-
-
         List<CareContext> careContexts = new ArrayList<>();
         careContexts.add(careContext1);
 

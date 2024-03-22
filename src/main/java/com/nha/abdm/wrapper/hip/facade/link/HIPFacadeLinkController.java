@@ -62,7 +62,7 @@ public class HIPFacadeLinkController {
         .error(
             ErrorResponse.builder()
                 .message("Unknown Login Hint")
-                .code(HttpStatus.BAD_REQUEST.value())
+                .code(HttpStatus.BAD_REQUEST.toString())
                 .build())
         .build();
   }
