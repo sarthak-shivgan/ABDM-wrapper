@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RequestStatusResponse {
+  private String requestId;
   private String status;
   private ErrorResponse error;
+  private String linkRefNumber;
 }
