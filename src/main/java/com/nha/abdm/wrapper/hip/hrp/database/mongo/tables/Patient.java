@@ -43,5 +43,8 @@ public class Patient {
   @Field(FieldIdentifiers.CONSENTS)
   public List<Consent> consents;
 
+  @Field(FieldIdentifiers.ENTITY_TYPE)
+  public String entity;
+
   public Patient() {}
 }

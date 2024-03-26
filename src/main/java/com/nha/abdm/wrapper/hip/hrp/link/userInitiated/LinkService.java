@@ -5,7 +5,12 @@ import com.nha.abdm.wrapper.common.RequestManager;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.RespRequest;
+import com.nha.abdm.wrapper.common.models.VerifyOTP;
+import com.nha.abdm.wrapper.common.requests.GenericRequest;
+import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
+import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
+import com.nha.abdm.wrapper.hip.HIPClient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
@@ -15,6 +20,7 @@ import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,16 +37,22 @@ public class LinkService implements LinkInterface {
   private final RequestManager requestManager;
   @Autowired RequestLogService requestLogService;
   @Autowired PatientService patientService;
+  private final HIPClient hipClient;
 
   @Value("${onInitLinkPath}")
   public String onInitLinkPath;
 
   @Value("${onConfirmLinkPath}")
   public String onConfirmLinkPath;
+  @Value("${requestOtp}")
+  public String requestOtp;
+  @Value("${verifyOtpPath}")
+  public String verifyOtpPath;
 
   @Autowired
-  public LinkService(RequestManager requestManager) {
+  public LinkService(RequestManager requestManager, HIPClient hipClient) {
     this.requestManager = requestManager;
+      this.hipClient = hipClient;
   }
 
   private static final Logger log = LogManager.getLogger(LinkService.class);
@@ -86,14 +98,26 @@ public class LinkService implements LinkInterface {
 
     log.info("onInit body : " + onInitRequest.toString());
     try {
-      ResponseEntity<GenericResponse> responseEntity =
-          requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
-      log.info(onInitLinkPath + " : onInitCall: " + responseEntity.getStatusCode());
+      log.info("Sending otp request to HIP");
+      GenericRequest genericRequest=GenericRequest.builder().abhaAddress(initResponse.getPatient().getId()).patientReference(initResponse.getPatient().getReferenceNumber()).build();
+      ResponseEntity<RequestStatusResponse> hipResponse=hipClient.fetchResponseFromHIP(requestOtp,genericRequest);
+      log.info(requestOtp + " : requestOtp: " + hipResponse.getStatusCode());
+      if(Objects.requireNonNull(hipResponse.getBody()).getError()==null){
+        onInitRequest.getLink().setReferenceNumber(hipResponse.getBody().getLinkRefNumber());
+        ResponseEntity<GenericResponse> responseEntity =
+                requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
+        log.info(onInitLinkPath + " : onInitCall: " + responseEntity.getStatusCode());
+      }else{
+        onInitRequest.setError(ErrorResponse.builder().code("1000").message("Unable to send OTP").build());
+        ResponseEntity<GenericResponse> responseEntity =
+                requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
+        log.info(onInitLinkPath + " : onInitCall: " + responseEntity.getStatusCode());
+      }
     } catch (Exception e) {
       log.info(onInitLinkPath + " : OnInitCall -> Error : " + Arrays.toString(e.getStackTrace()));
     }
     try {
-      requestLogService.setLinkResponse(initResponse, requestId, linkReferenceNumber);
+      requestLogService.setLinkResponse(initResponse, requestId, onInitRequest.getLink().getReferenceNumber());
     } catch (Exception e) {
       log.info("onInitCall -> Error: unable to set content : " + Exceptions.unwrap(e));
     }
@@ -131,24 +155,51 @@ public class LinkService implements LinkInterface {
     List<CareContext> careContexts = requestLogService.getSelectedCareContexts(linkRefNumber);
 
     OnConfirmPatient onConfirmPatient = null;
+    ResponseEntity<RequestStatusResponse> hipResponse=null;
+    try {
+      log.info("Requesting HIP for verify otp in discovery");
+      VerifyOTP verifyOTP=VerifyOTP.builder().authCode(confirmResponse.getConfirmation().getToken())
+              .loginHint("Discovery OTP request")
+              .linkRefNumber(confirmResponse.getConfirmation().getLinkRefNumber()).build();
+      hipResponse=
+              hipClient.fetchResponseFromHIP(verifyOtpPath,verifyOTP );
+      log.info(verifyOtpPath + " : verifyOtp: " + hipResponse.getStatusCode());
+    } catch (Exception e) {
+      log.error(verifyOtpPath + " : verifyOtp -> Error :" + Exceptions.unwrap(e));
+    }
+    OnConfirmRequest onConfirmRequest=null;
     String tokenNumber = confirmResponse.getConfirmation().getToken();
-    if (tokenNumber.equals("123456")) {
+      assert hipResponse != null;
+      if (Objects.requireNonNull(hipResponse.getBody()).getError()==null) {
       onConfirmPatient =
           OnConfirmPatient.builder()
               .referenceNumber(patientReference)
               .display(display)
               .careContexts(careContexts)
               .build();
-    }
-
-    OnConfirmRequest onConfirmRequest =
-        OnConfirmRequest.builder()
-            .requestId(UUID.randomUUID().toString())
-            .timestamp(Utils.getCurrentTimeStamp())
-            .patient(onConfirmPatient)
-            .resp(RespRequest.builder().requestId(confirmResponse.getRequestId()).build())
-            .build();
-    log.info("onConfirm : " + onConfirmRequest.toString());
+        onConfirmRequest =
+                OnConfirmRequest.builder()
+                        .requestId(UUID.randomUUID().toString())
+                        .timestamp(Utils.getCurrentTimeStamp())
+                        .patient(onConfirmPatient)
+                        .resp(RespRequest.builder().requestId(confirmResponse.getRequestId()).build())
+                        .build();
+        log.info("onConfirm : " + onConfirmRequest.toString());
+    }else{
+        onConfirmPatient =
+                OnConfirmPatient.builder()
+                        .referenceNumber(patientReference)
+                        .display(display)
+                        .build();
+        onConfirmRequest =
+                OnConfirmRequest.builder()
+                        .requestId(UUID.randomUUID().toString())
+                        .timestamp(Utils.getCurrentTimeStamp())
+                        .patient(onConfirmPatient)
+                        .error(ErrorResponse.builder().code("1000").message("Incorrect Otp").build())
+                        .resp(RespRequest.builder().requestId(confirmResponse.getRequestId()).build())
+                        .build();
+      }
     try {
       ResponseEntity responseEntity =
           requestManager.fetchResponseFromGateway(onConfirmLinkPath, onConfirmRequest);
