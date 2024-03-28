@@ -4,6 +4,7 @@ package com.nha.abdm.wrapper.hip;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
+import com.nha.abdm.wrapper.common.responses.ResponseOtp;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleResponse;
 import com.nha.abdm.wrapper.hip.hrp.discover.requests.CareContextRequest;
@@ -108,6 +109,15 @@ public class HIPClient {
         .retrieve()
         .toEntity(ProfileAcknowledgement.class)
         .block();
+  }
+  public <T> ResponseEntity<ResponseOtp> fetchResponseFromHIPForOtp(String uri, T request) {
+    return webClient
+            .post()
+            .uri(uri)
+            .body(BodyInserters.fromValue(request))
+            .retrieve()
+            .toEntity(ResponseOtp.class)
+            .block();
   }
   public <T> ResponseEntity<RequestStatusResponse> fetchResponseFromHIP(String uri, T request) {
     return webClient

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class GenericRequest {
+public class RequestOtp {
     private String abhaAddress;
     private String patientReference;
 }

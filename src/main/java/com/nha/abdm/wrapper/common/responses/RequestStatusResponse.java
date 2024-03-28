@@ -14,5 +14,4 @@ public class RequestStatusResponse {
   private String requestId;
   private String status;
   private ErrorResponse error;
-  private String linkRefNumber;
 }

@@ -6,10 +6,11 @@ import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.models.CareContext;
 import com.nha.abdm.wrapper.common.models.RespRequest;
 import com.nha.abdm.wrapper.common.models.VerifyOTP;
-import com.nha.abdm.wrapper.common.requests.GenericRequest;
+import com.nha.abdm.wrapper.common.requests.RequestOtp;
 import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
+import com.nha.abdm.wrapper.common.responses.ResponseOtp;
 import com.nha.abdm.wrapper.hip.HIPClient;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.PatientService;
@@ -99,16 +100,18 @@ public class LinkService implements LinkInterface {
     log.info("onInit body : " + onInitRequest.toString());
     try {
       log.info("Sending otp request to HIP");
-      GenericRequest genericRequest=GenericRequest.builder().abhaAddress(initResponse.getPatient().getId()).patientReference(initResponse.getPatient().getReferenceNumber()).build();
-      ResponseEntity<RequestStatusResponse> hipResponse=hipClient.fetchResponseFromHIP(requestOtp,genericRequest);
-      log.info(requestOtp + " : requestOtp: " + hipResponse.getStatusCode());
+      RequestOtp requestOtp = RequestOtp.builder().abhaAddress(initResponse.getPatient().getId()).patientReference(initResponse.getPatient().getReferenceNumber()).build();
+      ResponseEntity<ResponseOtp> hipResponse=hipClient.fetchResponseFromHIPForOtp(this.requestOtp, requestOtp);
+      log.info(this.requestOtp + " : requestOtp: " + hipResponse.getStatusCode());
+
       if(Objects.requireNonNull(hipResponse.getBody()).getError()==null){
         onInitRequest.getLink().setReferenceNumber(hipResponse.getBody().getLinkRefNumber());
         ResponseEntity<GenericResponse> responseEntity =
                 requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
         log.info(onInitLinkPath + " : onInitCall: " + responseEntity.getStatusCode());
+
       }else{
-        onInitRequest.setError(ErrorResponse.builder().code("1000").message("Unable to send OTP").build());
+        onInitRequest.setError(ErrorResponse.builder().code(1000).message("Unable to send OTP").build());
         ResponseEntity<GenericResponse> responseEntity =
                 requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
         log.info(onInitLinkPath + " : onInitCall: " + responseEntity.getStatusCode());
@@ -157,20 +160,22 @@ public class LinkService implements LinkInterface {
     OnConfirmPatient onConfirmPatient = null;
     ResponseEntity<RequestStatusResponse> hipResponse=null;
     try {
+
       log.info("Requesting HIP for verify otp in discovery");
       VerifyOTP verifyOTP=VerifyOTP.builder().authCode(confirmResponse.getConfirmation().getToken())
               .loginHint("Discovery OTP request")
               .linkRefNumber(confirmResponse.getConfirmation().getLinkRefNumber()).build();
-      hipResponse=
-              hipClient.fetchResponseFromHIP(verifyOtpPath,verifyOTP );
+
+      hipResponse=hipClient.fetchResponseFromHIP(verifyOtpPath,verifyOTP );
       log.info(verifyOtpPath + " : verifyOtp: " + hipResponse.getStatusCode());
     } catch (Exception e) {
       log.error(verifyOtpPath + " : verifyOtp -> Error :" + Exceptions.unwrap(e));
+
     }
     OnConfirmRequest onConfirmRequest=null;
     String tokenNumber = confirmResponse.getConfirmation().getToken();
-      assert hipResponse != null;
-      if (Objects.requireNonNull(hipResponse.getBody()).getError()==null) {
+    RequestStatusResponse requestStatusResponse=Objects.requireNonNull(hipResponse.getBody());
+      if (requestStatusResponse.getError()==null) {
       onConfirmPatient =
           OnConfirmPatient.builder()
               .referenceNumber(patientReference)
@@ -196,7 +201,7 @@ public class LinkService implements LinkInterface {
                         .requestId(UUID.randomUUID().toString())
                         .timestamp(Utils.getCurrentTimeStamp())
                         .patient(onConfirmPatient)
-                        .error(ErrorResponse.builder().code("1000").message("Incorrect Otp").build())
+                        .error(ErrorResponse.builder().code(1000).message("Incorrect Otp").build())
                         .resp(RespRequest.builder().requestId(confirmResponse.getRequestId()).build())
                         .build();
       }

@@ -110,7 +110,7 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
 
   @Override
   public HttpStatus hiuNotify(NotifyHIURequest notifyHIURequest) throws IllegalDataStateException {
-    if (Objects.nonNull(notifyHIURequest) && Objects.nonNull(notifyHIURequest.getNotification())) {
+    if (Objects.nonNull(notifyHIURequest) && Objects.nonNull(notifyHIURequest.getNotification()) &&  Objects.isNull(notifyHIURequest.getError())) {
       // Get corresponding gateway request for the given consent request id.
       if (!notifyHIURequest.getNotification().getStatus().equals("GRANTED")) {
         List<ConsentArtefact> consentArtefacts =
@@ -168,6 +168,17 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
               .build();
       hiuConsentInterface.hiuOnNotify(onNotifyRequest);
     } else {
+      if(notifyHIURequest.getError()!=null){
+        String gatewayRequestId =
+                consentRequestService.getGatewayRequestId(
+                        notifyHIURequest.getNotification().getConsentRequestId());
+        requestLogService.updateError(
+                gatewayRequestId,
+                RequestStatus.CONSENT_NOTIFY_ERROR.getValue(),
+                RequestStatus.CONSENT_NOTIFY_ERROR);
+        log.error("HIU Notify : "+notifyHIURequest.getError().toString());
+        return HttpStatus.OK;
+      }
       // There is no way to track the gateway request id since gateway sent empty request. So we
       // will not be
       // able to update the error status in database.

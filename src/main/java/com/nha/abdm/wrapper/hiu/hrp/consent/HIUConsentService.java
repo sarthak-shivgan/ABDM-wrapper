@@ -118,6 +118,10 @@ public class HIUConsentService implements HIUConsentInterface {
               requestLog.getResponseDetails().get(FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE))) {
         return consentOnNotifyResponse(requestLog);
       }
+      if (requestLog.getStatus().equals(RequestStatus.CONSENT_NOTIFY_ERROR)) {
+        return consentOnNotifyResponse(requestLog);
+      }
+
 
       // Check whether we have got consent response as part of 'consent on-status'.
       if (Objects.nonNull(requestLog.getResponseDetails())
@@ -225,6 +229,13 @@ public class HIUConsentService implements HIUConsentInterface {
     Notification notification =
         (Notification)
             requestLog.getResponseDetails().get(FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE);
+    if(requestLog.getError()!=null){
+      return ConsentStatusResponse.builder()
+              .status(requestLog.getStatus())
+              .error(requestLog.getError())
+              .httpStatusCode(HttpStatus.OK)
+              .build();
+    }
     return ConsentStatusResponse.builder()
         .status(requestLog.getStatus())
         .httpStatusCode(HttpStatus.OK)
@@ -262,6 +273,13 @@ public class HIUConsentService implements HIUConsentInterface {
     if (response.getStatusCode().is2xxSuccessful()) {
       requestLogService.updateStatus(
           requestLog.getGatewayRequestId(), RequestStatus.CONSENT_STATUS_ACCEPTED);
+      if(requestLog.getError()!=null){
+        return ConsentStatusResponse.builder()
+                .status(RequestStatus.CONSENT_STATUS_ACCEPTED)
+                .error(requestLog.getError())
+                .httpStatusCode(HttpStatus.OK)
+                .build();
+      }
       return ConsentStatusResponse.builder()
           .status(RequestStatus.CONSENT_STATUS_ACCEPTED)
           .httpStatusCode(HttpStatus.OK)
