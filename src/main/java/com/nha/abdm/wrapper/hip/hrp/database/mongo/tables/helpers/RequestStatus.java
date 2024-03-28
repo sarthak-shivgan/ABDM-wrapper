@@ -27,6 +27,7 @@ public enum RequestStatus {
   CONSENT_ON_NOTIFY_RESPONSE_RECEIVED("Response received from gateway for hiu notify"),
   CONSENT_FETCH_ACCEPTED("Consent fetch request accepted by gateway"),
   CONSENT_FETCH_ERROR("Error thrown by Gateway for consent fetch"),
+  CONSENT_NOTIFY_ERROR("None of the careContexts present for the requested HI-Type"),
   CONSENT_ON_FETCH_SUCCESS("Response received from gateway for consent fetch"),
   CONSENT_ON_FETCH_ERROR("Error thrown by Gateway for on consent fetch"),
   CONSENT_REVOKED("Consent has been revoked by user"),

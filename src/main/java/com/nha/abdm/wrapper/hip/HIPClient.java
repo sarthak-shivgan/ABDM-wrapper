@@ -1,10 +1,16 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip;
 
+import com.nha.abdm.wrapper.common.models.VerifyOTP;
+import com.nha.abdm.wrapper.common.responses.GenericResponse;
+import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
+import com.nha.abdm.wrapper.common.responses.ResponseOtp;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleRequest;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleResponse;
 import com.nha.abdm.wrapper.hip.hrp.discover.requests.CareContextRequest;
 import com.nha.abdm.wrapper.hip.hrp.discover.requests.DiscoverRequest;
+import com.nha.abdm.wrapper.hip.hrp.share.requests.ShareProfileRequest;
+import com.nha.abdm.wrapper.hip.hrp.share.requests.helpers.ProfileAcknowledgement;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -30,6 +36,9 @@ public class HIPClient {
 
   @Value("${getHealthInformationPath}")
   private String getHealthInformationPath;
+
+  @Value("${shareProfilePath}")
+  private String shareProfilePath;
 
   private WebClient webClient;
 
@@ -89,4 +98,35 @@ public class HIPClient {
         .toEntity(HealthInformationBundleResponse.class)
         .block();
   }
+
+  public ResponseEntity<ProfileAcknowledgement> shareProfile(
+      ShareProfileRequest shareProfileRequest) {
+    return webClient
+        .post()
+        .uri(shareProfilePath)
+        .accept(MediaType.APPLICATION_JSON)
+        .body(BodyInserters.fromValue(shareProfileRequest))
+        .retrieve()
+        .toEntity(ProfileAcknowledgement.class)
+        .block();
+  }
+  public <T> ResponseEntity<ResponseOtp> fetchResponseFromHIPForOtp(String uri, T request) {
+    return webClient
+            .post()
+            .uri(uri)
+            .body(BodyInserters.fromValue(request))
+            .retrieve()
+            .toEntity(ResponseOtp.class)
+            .block();
+  }
+  public <T> ResponseEntity<RequestStatusResponse> fetchResponseFromHIP(String uri, T request) {
+    return webClient
+            .post()
+            .uri(uri)
+            .body(BodyInserters.fromValue(request))
+            .retrieve()
+            .toEntity(RequestStatusResponse.class)
+            .block();
+  }
+
 }

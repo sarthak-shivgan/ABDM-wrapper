@@ -19,6 +19,8 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnConfirmRes
 import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
+import com.nha.abdm.wrapper.hip.hrp.share.ProfileShareInterface;
+import com.nha.abdm.wrapper.hip.hrp.share.reponses.ProfileShare;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -42,6 +44,7 @@ public class GatewayCallbackController {
   @Autowired PatientService patientService;
   @Autowired ConsentService consentService;
   @Autowired LogsRepo logsRepo;
+  @Autowired ProfileShareInterface profileShareInterface;
 
   private static final String X_HIP_ID = "x-hip-id";
 
@@ -256,6 +259,18 @@ public class GatewayCallbackController {
       workflowManager.healthInformation(hipHealthInformationRequest);
     } else {
       log.debug("Invalid Data request response");
+      return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+    return new ResponseEntity<>(HttpStatus.ACCEPTED);
+  }
+
+  @PostMapping({"/v1.0/patients/profile/share"})
+  public ResponseEntity<GatewayCallbackResponse> profileShare(
+      @RequestBody ProfileShare profileShare) {
+    if (profileShare != null) {
+      profileShareInterface.shareProfile(profileShare);
+    } else {
+      log.debug("Invalid profile share request");
       return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
     return new ResponseEntity<>(HttpStatus.ACCEPTED);

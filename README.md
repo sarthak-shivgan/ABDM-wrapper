@@ -217,6 +217,61 @@ We need to first add patient's details into wrapper's database. There are differ
          }
      ]'
      ```
+### Profile Share
+Adding of a patient in a particular facility
+- When the user scans and shares their profile, the wrapper generates a token and sends to the facility for notifying about the patient
+  - So the facility have to implement
+  * `POST` Request `/v1/profile/share`
+  ```
+    {
+      "token":"Wrapper generated token number for the user"
+      "hipId":"the HIP's counter code not the hip id"
+      "requestId": "499a5a4a-7dda-4f20-9b67-e24589627061",
+      "timestamp": "1970-01-01T00:00:00.000Z",
+      "intent": {
+        "type": "string"
+      },
+      "location": {
+        "latitude": "string",
+        "longitude": "string"
+      },
+      "profile": {
+        "hipCode": "12345 (CounterId)",
+        "patient": {
+          "healthId": "<username>@<suffix>",
+          "healthIdNumber": "1111-1111-1111-11",
+          "name": "Jane Doe",
+          "gender": "M",
+          "address": {
+            "line": "2nd cross street",
+            "district": "Chennai",
+            "state": "TamilNadu",
+            "pincode": "600301"
+          },
+          "yearOfBirth": 2000,
+          "dayOfBirth": 0,
+          "monthOfBirth": 0,
+          "identifiers": [
+            {
+              "type": "MOBILE",
+              "value": "9800083232"
+            }
+          ]
+        }
+      }
+    }
+  }
+  ```
+  - And the facility should respond with SUCCESS or FAILURE as status.
+  * Response :
+  ```
+  {
+    "status":"SUCCESS or FAILURE",
+    "healthId":"Patients ABHA number which you get in the request call",
+    "tokenNumber":"token generated from warpper which you get from /v1/profile/share"
+  }
+  ```
+  
 
 ### Discovery and User Initiated Linking
 Follow the steps to link care contexts:
@@ -225,75 +280,121 @@ Follow the steps to link care contexts:
   - If it finds patient in its database then it will ask HIP for unlinked care contexts
   - It it does not find patient in the database, then it will ask HIP to search for patient using the same [logic](https://sandbox.abdm.gov.in/sandbox/v3/new-documentation?doc=DiscoveryAndlink) which is recommended by ABDM.
 
-- So, HIP needs to implement following apis and expose endpoints for wrapper:
-  - Please note that if HIP has added patients in the wrapper database with adequate details then this api will not be called. But at the same time
-    any request for non-existent patient can come to wrapper so in which case HIP will have to implement `/v1/patient-discover`: 
-    * `POST` Request:
-      ```
-      {
-        "requestId": "499a5a4a-7dda-4f20-9b67-e24589627061",
-        "timestamp": "2024-03-11T07:22:52.213Z",
-        "transactionId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-        "patient": {
-          "id": "<patient-id>@<consent-manager-id>",
-          "verifiedIdentifiers": [
-            {
-              "type": "MR",
-              "value": "+919800083232"
+    - So, HIP needs to implement following apis and expose endpoints for wrapper:
+      - Please note that if HIP has added patients in the wrapper database with adequate details then this api will not be called. But at the same time
+        any request for non-existent patient can come to wrapper so in which case HIP will have to implement `/v1/patient-discover`: 
+        * `POST` Request:
+          ```
+          {
+            "requestId": "499a5a4a-7dda-4f20-9b67-e24589627061",
+            "timestamp": "2024-03-11T07:22:52.213Z",
+            "transactionId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+            "patient": {
+              "id": "<patient-id>@<consent-manager-id>",
+              "verifiedIdentifiers": [
+                {
+                  "type": "MR",
+                  "value": "+919800083232"
+                }
+              ],
+              "unverifiedIdentifiers": [
+                {
+                  "type": "MR",
+                  "value": "+919800083232"
+                }
+              ],
+              "name": "chandler bing",
+              "gender": "M",
+              "yearOfBirth": 2000
             }
-          ],
-          "unverifiedIdentifiers": [
+          }
+          ```
+        * Response:
+          ```
+          {
+            "abhaAddress": <>,
+            "name": <>,
+            "gender": <>,
+            "dateOfBirth": <>,
+            "patientReference": <>,
+            "patientDisplay": <>,
+            "patientMobile": <>,
+            "careContexts": [{
+              "referenceNumber": <>,
+              "display": <>
+            }],
+          }
+          ```
+      - Now, in the scenario where wrapper has found patient in its database, it will ask HIP for care contexts. HIP shall
+        send all the care contexts for this patient and wrapper will filter out the care contexts which are unlinked and
+        send them to gateway as response to discover request. So, HIP should implement `/v1/patients-care-contexts`
+        * `GET` Request: `/v1/patients-care-contexts/<patientId>`
+        * Response:
+          ```
+          {
+            "abhaAddress": <>,
+            "patientRefernce": <>,
+            "patientDisplay": <>,
+            "careContexts": [{
+              "referenceNumber": <>,
+              "display": <>
+            }],
+          }
+          ```
+      - On PHR App
+        * Login into the PHR app using the details which are stored in DB which is your ABHA Address.
+        * Search the HIP in PHR app : `Linked Facility` > Click on `(+)` -> Search for the facility (name of the registered facility)
+        * Select the facility from searched results and then hit `Fetch Records`.
+        * The wrapper responses with a set of careContexts to the PHR
+        * Select few / all careContexts and click `Link Records`
+          - When the discovery is done and patient wants to link the careContexts, the wrapper will make a request to the facility requesting to send the otp to the patient
+            So, HIP should implement `/v1/request/otp`
+            * `POST` Request `/v1/request/otp`
+            * Request:
+            ```
             {
-              "type": "MR",
-              "value": "+919800083232"
+                "abhaAddress":"someone@sbx"
+                "patientReference":"patient id at the facility"
             }
-          ],
-          "name": "chandler bing",
-          "gender": "M",
-          "yearOfBirth": 2000
-        }
-      }
-      ```
-    * Response:
-      ```
-      {
-        "abhaAddress": <>,
-        "name": <>,
-        "gender": <>,
-        "dateOfBirth": <>,
-        "patientReference": <>,
-        "patientDisplay": <>,
-        "patientMobile": <>,
-        "careContexts": [{
-          "referenceNumber": <>,
-          "display": <>
-        }],
-      }
-      ```
-  - Now, in the scenario where wrapper has found patient in its database, it will ask HIP for care contexts. HIP shall
-    send all the care contexts for this patient and wrapper will filter out the care contexts which are unlinked and
-    send them to gateway as response to discover request. So, HIP should implement `/v1/patients-care-contexts`
-    * `GET` Request: `/v1/patients-care-contexts/<patientId>`
-    * Response:
-      ```
-      {
-        "abhaAddress": <>,
-        "patientRefernce": <>,
-        "patientDisplay": <>,
-        "careContexts": [{
-          "referenceNumber": <>,
-          "display": <>
-        }],
-      }
-      ```
-- On PHR App
-   * Login into the PHR app using the details which are stored in DB which is your ABHA Address. 
-   * Search the HIP in PHR app : `Linked Facility` > Click on `(+)` -> Search for the facility (name of the registered facility)
-   * Select the facility from searched results and then hit `Fetch Records`. 
-   * The wrapper responses with a set of careContexts to the PHR 
-   * Select few / all careContexts and click `Link Records`
-   * For OTP if the facility sends OTP enter it, else enter a dummy otp ie: "**123456**"
-   * After confirmation, a message will be displayed  saying **"Successfully Linked"**.
+            ```
+            * Response:
+            ```
+            {
+                "requestId":"",
+                "status":"SUCCESS or FAILURE"
+                "error":{
+                    "code":"1000",
+                    "message":"If the status if failed or occured any error"
+                }
+                "linkRefNumber":"Unique id for the otp request"
+            }
+            ```
+          - When the patient enters the otp, the wrapper makes a request to the facility to verify the otp, using the linkRefNumber and token.
+          * `POST` Request `/v1/verify/otp`
+          * Request:
+          ```
+          {
+            "loginHint":"Discovery OTP request"
+            "requestId":""
+            "authCode":"The OTP"
+            "linkRefNumber":"The same unique id while making a request for OTP"
+          }
+          ```
+          - When the otp gets validated the facility should respond back with
+          * Response:
+          ```
+          {
+                "requestId":"",
+                "status":"SUCCESS or FAILURE"
+                "error":{
+                    "code":"1000",
+                    "message":"If the status if failed or occured any error"
+                }
+                "linkRefNumber":"Unique id for the otp request"
+            }
+          ```
+
+      * After confirmation, a message will be displayed  saying **"Successfully Linked"**.
 
 ### HIP Initiated Linking
 Follow the steps to link care contexts. The linking can be achieved by two modes:

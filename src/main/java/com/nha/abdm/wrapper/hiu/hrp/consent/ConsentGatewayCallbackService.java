@@ -56,18 +56,18 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
     if (Objects.nonNull(onInitRequest)
         && Objects.nonNull(onInitRequest.getResp())
         && Objects.nonNull(onInitRequest.getConsentRequest())) {
-      requestLogService.updateConsentResponse(
-          onInitRequest.getResp().getRequestId(),
-          FieldIdentifiers.CONSENT_ON_INIT_RESPONSE,
-          RequestStatus.CONSENT_ON_INIT_RESPONSE_RECEIVED,
-          onInitRequest.getConsentRequest().getId());
       // This mapping needs to be persisted in database because when gateway issues hiu notify call,
       // it passes
       // consent request id and then there is no way to track original request other that looping
       // through all the requests
       // and checking their responses for consentRequestId.
       consentRequestService.saveConsentRequest(
-          onInitRequest.getConsentRequest().getId(), onInitRequest.getResp().getRequestId());
+              onInitRequest.getConsentRequest().getId(), onInitRequest.getResp().getRequestId());
+      requestLogService.updateConsentResponse(
+          onInitRequest.getResp().getRequestId(),
+          FieldIdentifiers.CONSENT_ON_INIT_RESPONSE,
+          RequestStatus.CONSENT_ON_INIT_RESPONSE_RECEIVED,
+          onInitRequest.getConsentRequest().getId());
     } else if (Objects.nonNull(onInitRequest)
         && Objects.nonNull(onInitRequest.getResp())
         && Objects.nonNull(onInitRequest.getError())) {
@@ -110,7 +110,7 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
 
   @Override
   public HttpStatus hiuNotify(NotifyHIURequest notifyHIURequest) throws IllegalDataStateException {
-    if (Objects.nonNull(notifyHIURequest) && Objects.nonNull(notifyHIURequest.getNotification())) {
+    if (Objects.nonNull(notifyHIURequest) && Objects.nonNull(notifyHIURequest.getNotification()) &&  Objects.isNull(notifyHIURequest.getError())) {
       // Get corresponding gateway request for the given consent request id.
       if (!notifyHIURequest.getNotification().getStatus().equals("GRANTED")) {
         List<ConsentArtefact> consentArtefacts =
@@ -168,6 +168,17 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
               .build();
       hiuConsentInterface.hiuOnNotify(onNotifyRequest);
     } else {
+      if(notifyHIURequest.getError()!=null){
+        String gatewayRequestId =
+                consentRequestService.getGatewayRequestId(
+                        notifyHIURequest.getNotification().getConsentRequestId());
+        requestLogService.updateError(
+                gatewayRequestId,
+                RequestStatus.CONSENT_NOTIFY_ERROR.getValue(),
+                RequestStatus.CONSENT_NOTIFY_ERROR);
+        log.error("HIU Notify : "+notifyHIURequest.getError().toString());
+        return HttpStatus.OK;
+      }
       // There is no way to track the gateway request id since gateway sent empty request. So we
       // will not be
       // able to update the error status in database.

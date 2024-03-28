@@ -22,6 +22,8 @@ import com.nha.abdm.wrapper.hip.hrp.link.hipInitiated.responses.LinkOnInitRespon
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.LinkInterface;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.ConfirmResponse;
 import com.nha.abdm.wrapper.hip.hrp.link.userInitiated.responses.InitResponse;
+import com.nha.abdm.wrapper.hip.hrp.share.ProfileShareInterface;
+import com.nha.abdm.wrapper.hip.hrp.share.reponses.ProfileShare;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -45,6 +47,7 @@ public class WorkflowManager {
   @Autowired ConsentInterface consentInterface;
   @Autowired HealthInformationInterface healthInformationInterface;
   @Autowired RequestLogService requestLogService;
+  @Autowired ProfileShareInterface profileShareInterface;
 
   /**
    * userInitiated linking
@@ -191,5 +194,10 @@ public class WorkflowManager {
           InvalidKeyException {
     log.debug(hipHealthInformationRequest.toString());
     healthInformationInterface.healthInformation(hipHealthInformationRequest);
+  }
+
+  public void profileShare(ProfileShare profileShare) {
+    log.debug(profileShare.toString());
+    profileShareInterface.shareProfile(profileShare);
   }
 }

@@ -131,7 +131,7 @@ public class DiscoveryService implements DiscoveryInterface {
           if (Objects.isNull(responseEntity)
               || responseEntity.getStatusCode().equals(HttpStatus.NOT_FOUND)) {
             ErrorResponse errorResponse = new ErrorResponse();
-            errorResponse.setCode("1000");
+            errorResponse.setCode(1000);
             errorResponse.setMessage("Patient details could not be found in the system.");
             onDiscoverNoPatientRequest(discoverRequest, errorResponse);
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -209,12 +209,12 @@ public class DiscoveryService implements DiscoveryInterface {
     HIPPatient hipPatient = hipClient.getPatientCareContexts(careContextRequest);
     if (Objects.isNull(hipPatient)) {
       ErrorResponse errorResponse = new ErrorResponse();
-      errorResponse.setCode("1000");
+      errorResponse.setCode(1000);
       errorResponse.setMessage("HIP -> Patient not found in HIP");
       onDiscoverNoPatientRequest(discoverRequest, errorResponse);
     } else if (CollectionUtils.isEmpty(hipPatient.getCareContexts())) {
       ErrorResponse errorResponse = new ErrorResponse();
-      errorResponse.setCode("1000");
+      errorResponse.setCode(1000);
       errorResponse.setMessage("HIP -> Care Contexts not found for patient: " + abhaAddress);
       onDiscoverNoPatientRequest(discoverRequest, errorResponse);
     } else {

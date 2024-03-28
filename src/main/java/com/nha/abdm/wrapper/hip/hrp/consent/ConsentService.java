@@ -65,10 +65,7 @@ public class ConsentService implements ConsentInterface {
 
       RespRequest responseRequestId =
           RespRequest.builder().requestId(hipNotifyRequest.getRequestId()).build();
-
-      if (patientService.isCareContextPresent(
-          hipNotification.getConsentDetail().getCareContexts())) {
-        Consent consent =
+      Consent consent =
             Consent.builder()
                 .status(hipNotification.getStatus())
                 .consentDetail(hipNotification.getConsentDetail())
@@ -97,21 +94,6 @@ public class ConsentService implements ConsentInterface {
                 .acknowledgement(dataAcknowledgement)
                 .resp(responseRequestId)
                 .build();
-      } else {
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setMessage(
-            "care contexts provided : do not match with the care contexts present in hip wrapper database for the given patient");
-        errorResponse.setCode(GatewayConstants.ERROR_CODE);
-        log.error(
-            "care contexts provided : do not match with the care contexts present in hip wrapper database for the given patient");
-        hipOnNotifyRequest =
-            HIPOnNotifyRequest.builder()
-                .requestId(UUID.randomUUID().toString())
-                .timestamp(Utils.getCurrentTimeStamp())
-                .error(errorResponse)
-                .resp(responseRequestId)
-                .build();
-      }
       try {
         log.info(hipOnNotifyRequest.toString());
         ResponseEntity<GenericResponse> response =

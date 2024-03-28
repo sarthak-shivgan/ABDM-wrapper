@@ -1,5 +1,4 @@
-/* (C) 2024 */
-package com.nha.abdm.wrapper.common.responses;
+package com.nha.abdm.wrapper.common.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErrorResponse {
-  public int code;
-  public String message;
+public class RequestOtp {
+    private String abhaAddress;
+    private String patientReference;
 }
