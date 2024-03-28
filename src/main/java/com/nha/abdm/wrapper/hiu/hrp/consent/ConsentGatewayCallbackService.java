@@ -56,18 +56,18 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
     if (Objects.nonNull(onInitRequest)
         && Objects.nonNull(onInitRequest.getResp())
         && Objects.nonNull(onInitRequest.getConsentRequest())) {
-      requestLogService.updateConsentResponse(
-          onInitRequest.getResp().getRequestId(),
-          FieldIdentifiers.CONSENT_ON_INIT_RESPONSE,
-          RequestStatus.CONSENT_ON_INIT_RESPONSE_RECEIVED,
-          onInitRequest.getConsentRequest().getId());
       // This mapping needs to be persisted in database because when gateway issues hiu notify call,
       // it passes
       // consent request id and then there is no way to track original request other that looping
       // through all the requests
       // and checking their responses for consentRequestId.
       consentRequestService.saveConsentRequest(
-          onInitRequest.getConsentRequest().getId(), onInitRequest.getResp().getRequestId());
+              onInitRequest.getConsentRequest().getId(), onInitRequest.getResp().getRequestId());
+      requestLogService.updateConsentResponse(
+          onInitRequest.getResp().getRequestId(),
+          FieldIdentifiers.CONSENT_ON_INIT_RESPONSE,
+          RequestStatus.CONSENT_ON_INIT_RESPONSE_RECEIVED,
+          onInitRequest.getConsentRequest().getId());
     } else if (Objects.nonNull(onInitRequest)
         && Objects.nonNull(onInitRequest.getResp())
         && Objects.nonNull(onInitRequest.getError())) {
