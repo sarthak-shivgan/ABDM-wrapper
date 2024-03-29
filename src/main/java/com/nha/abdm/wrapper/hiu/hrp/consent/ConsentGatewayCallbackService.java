@@ -62,7 +62,7 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
       // through all the requests
       // and checking their responses for consentRequestId.
       consentRequestService.saveConsentRequest(
-              onInitRequest.getConsentRequest().getId(), onInitRequest.getResp().getRequestId());
+          onInitRequest.getConsentRequest().getId(), onInitRequest.getResp().getRequestId());
       requestLogService.updateConsentResponse(
           onInitRequest.getResp().getRequestId(),
           FieldIdentifiers.CONSENT_ON_INIT_RESPONSE,
@@ -110,7 +110,9 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
 
   @Override
   public HttpStatus hiuNotify(NotifyHIURequest notifyHIURequest) throws IllegalDataStateException {
-    if (Objects.nonNull(notifyHIURequest) && Objects.nonNull(notifyHIURequest.getNotification()) &&  Objects.isNull(notifyHIURequest.getError())) {
+    if (Objects.nonNull(notifyHIURequest)
+        && Objects.nonNull(notifyHIURequest.getNotification())
+        && Objects.isNull(notifyHIURequest.getError())) {
       // Get corresponding gateway request for the given consent request id.
       if (!notifyHIURequest.getNotification().getStatus().equals("GRANTED")) {
         List<ConsentArtefact> consentArtefacts =
@@ -168,15 +170,15 @@ public class ConsentGatewayCallbackService implements ConsentGatewayCallbackInte
               .build();
       hiuConsentInterface.hiuOnNotify(onNotifyRequest);
     } else {
-      if(notifyHIURequest.getError()!=null){
+      if (notifyHIURequest.getError() != null) {
         String gatewayRequestId =
-                consentRequestService.getGatewayRequestId(
-                        notifyHIURequest.getNotification().getConsentRequestId());
+            consentRequestService.getGatewayRequestId(
+                notifyHIURequest.getNotification().getConsentRequestId());
         requestLogService.updateError(
-                gatewayRequestId,
-                RequestStatus.CONSENT_NOTIFY_ERROR.getValue(),
-                RequestStatus.CONSENT_NOTIFY_ERROR);
-        log.error("HIU Notify : "+notifyHIURequest.getError().toString());
+            gatewayRequestId,
+            RequestStatus.CONSENT_NOTIFY_ERROR.getValue(),
+            RequestStatus.CONSENT_NOTIFY_ERROR);
+        log.error("HIU Notify : " + notifyHIURequest.getError().toString());
         return HttpStatus.OK;
       }
       // There is no way to track the gateway request id since gateway sent empty request. So we

@@ -1,8 +1,6 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip;
 
-import com.nha.abdm.wrapper.common.models.VerifyOTP;
-import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.common.responses.RequestStatusResponse;
 import com.nha.abdm.wrapper.common.responses.ResponseOtp;
 import com.nha.abdm.wrapper.hip.hrp.dataTransfer.requests.HealthInformationBundleRequest;
@@ -110,23 +108,24 @@ public class HIPClient {
         .toEntity(ProfileAcknowledgement.class)
         .block();
   }
+
   public <T> ResponseEntity<ResponseOtp> fetchResponseFromHIPForOtp(String uri, T request) {
     return webClient
-            .post()
-            .uri(uri)
-            .body(BodyInserters.fromValue(request))
-            .retrieve()
-            .toEntity(ResponseOtp.class)
-            .block();
-  }
-  public <T> ResponseEntity<RequestStatusResponse> fetchResponseFromHIP(String uri, T request) {
-    return webClient
-            .post()
-            .uri(uri)
-            .body(BodyInserters.fromValue(request))
-            .retrieve()
-            .toEntity(RequestStatusResponse.class)
-            .block();
+        .post()
+        .uri(uri)
+        .body(BodyInserters.fromValue(request))
+        .retrieve()
+        .toEntity(ResponseOtp.class)
+        .block();
   }
 
+  public <T> ResponseEntity<RequestStatusResponse> fetchResponseFromHIP(String uri, T request) {
+    return webClient
+        .post()
+        .uri(uri)
+        .body(BodyInserters.fromValue(request))
+        .retrieve()
+        .toEntity(RequestStatusResponse.class)
+        .block();
+  }
 }

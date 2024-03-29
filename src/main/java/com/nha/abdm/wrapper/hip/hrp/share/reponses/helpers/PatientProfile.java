@@ -1,16 +1,16 @@
 /* (C) 2024 */
-package com.nha.abdm.wrapper.common.requests;
+package com.nha.abdm.wrapper.hip.hrp.share.reponses.helpers;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequestOtp {
-  private String abhaAddress;
-  private String patientReference;
+@Data
+@Builder
+public class PatientProfile {
+  private String hipCode;
+  private PatientDetails patient;
 }

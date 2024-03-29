@@ -4,8 +4,10 @@ package com.nha.abdm.wrapper.hiu.hrp.consent;
 import com.nha.abdm.wrapper.common.RequestManager;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
+import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.FacadeResponse;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
+import com.nha.abdm.wrapper.common.responses.NestedErrorResponse;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.LogsRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.repositories.PatientRepo;
 import com.nha.abdm.wrapper.hip.hrp.database.mongo.services.RequestLogService;
@@ -26,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.Exceptions;
 
 @Service
@@ -85,6 +88,17 @@ public class HIUConsentService implements HIUConsentInterface {
           .clientRequestId(initConsentRequest.getRequestId())
           .httpStatusCode(response.getStatusCode())
           .build();
+      //Catching BadRequest response from post request
+    } catch (WebClientResponseException.BadRequest ex) {
+      ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+      log.error("HTTP error {}: {}", ex.getStatusCode(), error);
+      requestLogService.saveRequest(
+          initConsentRequest.getRequestId(), RequestStatus.CONSENT_INIT_ERROR, error.toString());
+      return FacadeResponse.builder()
+          .clientRequestId(initConsentRequest.getRequestId())
+          .error(error)
+          .httpStatusCode(HttpStatus.BAD_REQUEST)
+          .build();
     } catch (Exception ex) {
       String error =
           "Exception while initiating consent request: "
@@ -122,7 +136,6 @@ public class HIUConsentService implements HIUConsentInterface {
         return consentOnNotifyResponse(requestLog);
       }
 
-
       // Check whether we have got consent response as part of 'consent on-status'.
       if (Objects.nonNull(requestLog.getResponseDetails())
           && Objects.nonNull(
@@ -145,7 +158,17 @@ public class HIUConsentService implements HIUConsentInterface {
           .status(requestLog.getStatus())
           .httpStatusCode(HttpStatus.OK)
           .build();
-    } catch (Exception ex) {
+    //Catching BadRequest response from post request
+  } catch (WebClientResponseException.BadRequest ex) {
+    ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+    log.error("HTTP error {}: {}", ex.getStatusCode(), error);
+      requestLogService.updateError(
+              requestLog.getGatewayRequestId(), error.getMessage(), RequestStatus.CONSENT_STATUS_ERROR);
+      return ConsentStatusResponse.builder()
+              .error(error.getMessage())
+              .httpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
+              .build();
+  }  catch (Exception ex) {
       String error =
           "Exception while fetching consent status: "
               + ex.getMessage()
@@ -177,7 +200,11 @@ public class HIUConsentService implements HIUConsentInterface {
                 : "Error from gateway while getting consent status: " + onNotifyRequest.toString();
         log.error(error);
       }
-    } catch (Exception ex) {
+    //Catching BadRequest response from post request
+  } catch (WebClientResponseException.BadRequest ex) {
+    ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+    log.error("HTTP error on-notify {}: {}", ex.getStatusCode(), error);
+  }  catch (Exception ex) {
       String error =
           "Exception while executing on notify: "
               + ex.getMessage()
@@ -209,7 +236,17 @@ public class HIUConsentService implements HIUConsentInterface {
             .httpStatusCode(response.getStatusCode())
             .build();
       }
-    } catch (Exception ex) {
+    //Catching BadRequest response from post request
+  } catch (WebClientResponseException.BadRequest ex) {
+    ErrorResponse error = ex.getResponseBodyAs(NestedErrorResponse.class).getError();
+    log.error("HTTP error {}: {}", ex.getStatusCode(), error);
+      requestLogService.updateStatus(
+              requestLog.getGatewayRequestId(), RequestStatus.CONSENT_FETCH_ERROR);
+      return ConsentResponse.builder()
+              .error(error.getMessage())
+              .httpStatusCode(HttpStatus.INTERNAL_SERVER_ERROR)
+              .build();
+  }  catch (Exception ex) {
       String error =
           "Exception while fetching consent: "
               + ex.getMessage()
@@ -229,12 +266,12 @@ public class HIUConsentService implements HIUConsentInterface {
     Notification notification =
         (Notification)
             requestLog.getResponseDetails().get(FieldIdentifiers.CONSENT_ON_NOTIFY_RESPONSE);
-    if(requestLog.getError()!=null){
+    if (requestLog.getError() != null) {
       return ConsentStatusResponse.builder()
-              .status(requestLog.getStatus())
-              .error(requestLog.getError())
-              .httpStatusCode(HttpStatus.OK)
-              .build();
+          .status(requestLog.getStatus())
+          .error(requestLog.getError())
+          .httpStatusCode(HttpStatus.OK)
+          .build();
     }
     return ConsentStatusResponse.builder()
         .status(requestLog.getStatus())
@@ -273,12 +310,12 @@ public class HIUConsentService implements HIUConsentInterface {
     if (response.getStatusCode().is2xxSuccessful()) {
       requestLogService.updateStatus(
           requestLog.getGatewayRequestId(), RequestStatus.CONSENT_STATUS_ACCEPTED);
-      if(requestLog.getError()!=null){
+      if (requestLog.getError() != null) {
         return ConsentStatusResponse.builder()
-                .status(RequestStatus.CONSENT_STATUS_ACCEPTED)
-                .error(requestLog.getError())
-                .httpStatusCode(HttpStatus.OK)
-                .build();
+            .status(RequestStatus.CONSENT_STATUS_ACCEPTED)
+            .error(requestLog.getError())
+            .httpStatusCode(HttpStatus.OK)
+            .build();
       }
       return ConsentStatusResponse.builder()
           .status(RequestStatus.CONSENT_STATUS_ACCEPTED)

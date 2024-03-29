@@ -1,13 +1,11 @@
 /* (C) 2024 */
 package com.nha.abdm.wrapper.hip.hrp.consent;
 
-import com.nha.abdm.wrapper.common.GatewayConstants;
 import com.nha.abdm.wrapper.common.RequestManager;
 import com.nha.abdm.wrapper.common.Utils;
 import com.nha.abdm.wrapper.common.exceptions.IllegalDataStateException;
 import com.nha.abdm.wrapper.common.models.Consent;
 import com.nha.abdm.wrapper.common.models.RespRequest;
-import com.nha.abdm.wrapper.common.responses.ErrorResponse;
 import com.nha.abdm.wrapper.common.responses.GenericResponse;
 import com.nha.abdm.wrapper.hip.HIPClient;
 import com.nha.abdm.wrapper.hip.hrp.consent.requests.HIPNotification;
@@ -66,34 +64,34 @@ public class ConsentService implements ConsentInterface {
       RespRequest responseRequestId =
           RespRequest.builder().requestId(hipNotifyRequest.getRequestId()).build();
       Consent consent =
-            Consent.builder()
-                .status(hipNotification.getStatus())
-                .consentDetail(hipNotification.getConsentDetail())
-                .signature(hipNotification.getSignature())
-                .build();
+          Consent.builder()
+              .status(hipNotification.getStatus())
+              .consentDetail(hipNotification.getConsentDetail())
+              .signature(hipNotification.getSignature())
+              .build();
 
-        patientService.addConsent(hipNotification.getConsentDetail().getPatient().getId(), consent);
-        consentCareContextsService.saveConsentContextsMapping(
-            hipNotification.getConsentDetail().getConsentId(),
-            consent.getConsentDetail().getCareContexts());
-        // Save the consent patient mapping because on health information request gateway doesn't
-        // provide the patient abhaAddress
-        consentPatientService.saveConsentPatientMapping(
-            consent.getConsentDetail().getConsentId(),
-            hipNotification.getConsentDetail().getPatient().getId(),
-            "HIP");
-        ConsentAcknowledgement dataAcknowledgement =
-            ConsentAcknowledgement.builder()
-                .status("OK")
-                .consentId(hipNotifyRequest.getNotification().getConsentId())
-                .build();
-        hipOnNotifyRequest =
-            HIPOnNotifyRequest.builder()
-                .requestId(UUID.randomUUID().toString())
-                .timestamp(Utils.getCurrentTimeStamp())
-                .acknowledgement(dataAcknowledgement)
-                .resp(responseRequestId)
-                .build();
+      patientService.addConsent(hipNotification.getConsentDetail().getPatient().getId(), consent);
+      consentCareContextsService.saveConsentContextsMapping(
+          hipNotification.getConsentDetail().getConsentId(),
+          consent.getConsentDetail().getCareContexts());
+      // Save the consent patient mapping because on health information request gateway doesn't
+      // provide the patient abhaAddress
+      consentPatientService.saveConsentPatientMapping(
+          consent.getConsentDetail().getConsentId(),
+          hipNotification.getConsentDetail().getPatient().getId(),
+          "HIP");
+      ConsentAcknowledgement dataAcknowledgement =
+          ConsentAcknowledgement.builder()
+              .status("OK")
+              .consentId(hipNotifyRequest.getNotification().getConsentId())
+              .build();
+      hipOnNotifyRequest =
+          HIPOnNotifyRequest.builder()
+              .requestId(UUID.randomUUID().toString())
+              .timestamp(Utils.getCurrentTimeStamp())
+              .acknowledgement(dataAcknowledgement)
+              .resp(responseRequestId)
+              .build();
       try {
         log.info(hipOnNotifyRequest.toString());
         ResponseEntity<GenericResponse> response =

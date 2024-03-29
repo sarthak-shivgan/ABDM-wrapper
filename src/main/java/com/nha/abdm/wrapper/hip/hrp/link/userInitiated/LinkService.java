@@ -45,15 +45,17 @@ public class LinkService implements LinkInterface {
 
   @Value("${onConfirmLinkPath}")
   public String onConfirmLinkPath;
+
   @Value("${requestOtp}")
   public String requestOtp;
+
   @Value("${verifyOtpPath}")
   public String verifyOtpPath;
 
   @Autowired
   public LinkService(RequestManager requestManager, HIPClient hipClient) {
     this.requestManager = requestManager;
-      this.hipClient = hipClient;
+    this.hipClient = hipClient;
   }
 
   private static final Logger log = LogManager.getLogger(LinkService.class);
@@ -100,27 +102,34 @@ public class LinkService implements LinkInterface {
     log.info("onInit body : " + onInitRequest.toString());
     try {
       log.info("Sending otp request to HIP");
-      RequestOtp requestOtp = RequestOtp.builder().abhaAddress(initResponse.getPatient().getId()).patientReference(initResponse.getPatient().getReferenceNumber()).build();
-      ResponseEntity<ResponseOtp> hipResponse=hipClient.fetchResponseFromHIPForOtp(this.requestOtp, requestOtp);
+      RequestOtp requestOtp =
+          RequestOtp.builder()
+              .abhaAddress(initResponse.getPatient().getId())
+              .patientReference(initResponse.getPatient().getReferenceNumber())
+              .build();
+      ResponseEntity<ResponseOtp> hipResponse =
+          hipClient.fetchResponseFromHIPForOtp(this.requestOtp, requestOtp);
       log.info(this.requestOtp + " : requestOtp: " + hipResponse.getStatusCode());
 
-      if(Objects.requireNonNull(hipResponse.getBody()).getError()==null){
+      if (Objects.requireNonNull(hipResponse.getBody()).getError() == null) {
         onInitRequest.getLink().setReferenceNumber(hipResponse.getBody().getLinkRefNumber());
         ResponseEntity<GenericResponse> responseEntity =
-                requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
+            requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
         log.info(onInitLinkPath + " : onInitCall: " + responseEntity.getStatusCode());
 
-      }else{
-        onInitRequest.setError(ErrorResponse.builder().code(1000).message("Unable to send OTP").build());
+      } else {
+        onInitRequest.setError(
+            ErrorResponse.builder().code(1000).message("Unable to send OTP").build());
         ResponseEntity<GenericResponse> responseEntity =
-                requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
+            requestManager.fetchResponseFromGateway(onInitLinkPath, onInitRequest);
         log.info(onInitLinkPath + " : onInitCall: " + responseEntity.getStatusCode());
       }
     } catch (Exception e) {
       log.info(onInitLinkPath + " : OnInitCall -> Error : " + Arrays.toString(e.getStackTrace()));
     }
     try {
-      requestLogService.setLinkResponse(initResponse, requestId, onInitRequest.getLink().getReferenceNumber());
+      requestLogService.setLinkResponse(
+          initResponse, requestId, onInitRequest.getLink().getReferenceNumber());
     } catch (Exception e) {
       log.info("onInitCall -> Error: unable to set content : " + Exceptions.unwrap(e));
     }
@@ -158,53 +167,52 @@ public class LinkService implements LinkInterface {
     List<CareContext> careContexts = requestLogService.getSelectedCareContexts(linkRefNumber);
 
     OnConfirmPatient onConfirmPatient = null;
-    ResponseEntity<RequestStatusResponse> hipResponse=null;
+    ResponseEntity<RequestStatusResponse> hipResponse = null;
     try {
 
       log.info("Requesting HIP for verify otp in discovery");
-      VerifyOTP verifyOTP=VerifyOTP.builder().authCode(confirmResponse.getConfirmation().getToken())
+      VerifyOTP verifyOTP =
+          VerifyOTP.builder()
+              .authCode(confirmResponse.getConfirmation().getToken())
               .loginHint("Discovery OTP request")
-              .linkRefNumber(confirmResponse.getConfirmation().getLinkRefNumber()).build();
+              .linkRefNumber(confirmResponse.getConfirmation().getLinkRefNumber())
+              .build();
 
-      hipResponse=hipClient.fetchResponseFromHIP(verifyOtpPath,verifyOTP );
+      hipResponse = hipClient.fetchResponseFromHIP(verifyOtpPath, verifyOTP);
       log.info(verifyOtpPath + " : verifyOtp: " + hipResponse.getStatusCode());
     } catch (Exception e) {
       log.error(verifyOtpPath + " : verifyOtp -> Error :" + Exceptions.unwrap(e));
-
     }
-    OnConfirmRequest onConfirmRequest=null;
+    OnConfirmRequest onConfirmRequest = null;
     String tokenNumber = confirmResponse.getConfirmation().getToken();
-    RequestStatusResponse requestStatusResponse=Objects.requireNonNull(hipResponse.getBody());
-      if (requestStatusResponse.getError()==null) {
+    RequestStatusResponse requestStatusResponse = Objects.requireNonNull(hipResponse.getBody());
+    if (requestStatusResponse.getError() == null) {
       onConfirmPatient =
           OnConfirmPatient.builder()
               .referenceNumber(patientReference)
               .display(display)
               .careContexts(careContexts)
               .build();
-        onConfirmRequest =
-                OnConfirmRequest.builder()
-                        .requestId(UUID.randomUUID().toString())
-                        .timestamp(Utils.getCurrentTimeStamp())
-                        .patient(onConfirmPatient)
-                        .resp(RespRequest.builder().requestId(confirmResponse.getRequestId()).build())
-                        .build();
-        log.info("onConfirm : " + onConfirmRequest.toString());
-    }else{
-        onConfirmPatient =
-                OnConfirmPatient.builder()
-                        .referenceNumber(patientReference)
-                        .display(display)
-                        .build();
-        onConfirmRequest =
-                OnConfirmRequest.builder()
-                        .requestId(UUID.randomUUID().toString())
-                        .timestamp(Utils.getCurrentTimeStamp())
-                        .patient(onConfirmPatient)
-                        .error(ErrorResponse.builder().code(1000).message("Incorrect Otp").build())
-                        .resp(RespRequest.builder().requestId(confirmResponse.getRequestId()).build())
-                        .build();
-      }
+      onConfirmRequest =
+          OnConfirmRequest.builder()
+              .requestId(UUID.randomUUID().toString())
+              .timestamp(Utils.getCurrentTimeStamp())
+              .patient(onConfirmPatient)
+              .resp(RespRequest.builder().requestId(confirmResponse.getRequestId()).build())
+              .build();
+      log.info("onConfirm : " + onConfirmRequest.toString());
+    } else {
+      onConfirmPatient =
+          OnConfirmPatient.builder().referenceNumber(patientReference).display(display).build();
+      onConfirmRequest =
+          OnConfirmRequest.builder()
+              .requestId(UUID.randomUUID().toString())
+              .timestamp(Utils.getCurrentTimeStamp())
+              .patient(onConfirmPatient)
+              .error(ErrorResponse.builder().code(1000).message("Incorrect Otp").build())
+              .resp(RespRequest.builder().requestId(confirmResponse.getRequestId()).build())
+              .build();
+    }
     try {
       ResponseEntity responseEntity =
           requestManager.fetchResponseFromGateway(onConfirmLinkPath, onConfirmRequest);
