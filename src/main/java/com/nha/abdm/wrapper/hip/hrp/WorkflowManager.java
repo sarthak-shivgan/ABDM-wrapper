@@ -198,6 +198,6 @@ public class WorkflowManager {
 
   public void profileShare(ProfileShare profileShare) {
     log.debug(profileShare.toString());
-    profileShareInterface.shareProfile(profileShare);
+    profileShareInterface.shareProfile(profileShare, null);
   }
 }
